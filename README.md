@@ -23,7 +23,7 @@ Potential applications:
 
     Disaster response
     COVID-19 Shutdowns
-    Circumvention of censorship and surveillance
+    Community Networks
     Portable Homelab
     Remote schools and community centers
 
