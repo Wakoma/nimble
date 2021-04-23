@@ -8,6 +8,8 @@ https://wakoma.co/nimble/
 
 ![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-36%20(Large).jpg)
 
+![alt text](https://raw.githubusercontent.com/Wakoma/nimble/master/Photos/nimblemeshbig.png)
+
 Build your own wireless mesh network, and bring it anywhere.
  
 Anyone connected to the nimble can video and voice chat, stream videos, share files, build and run eLearning courses and website, create collaborative spreadsheets and documents, read e-books, play games, and so much more…completely offline.
