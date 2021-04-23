@@ -3,7 +3,6 @@ An open source, rapidly deployable, wireless mesh network.
 
 https://wakoma.co/nimble/
 
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-36 (Large).jpg)
 
 Build your own wireless mesh network, and bring it anywhere.
  
@@ -14,14 +13,5 @@ If a single internet connection is available, it can be plugged into the nimble 
 Anyone in the world can build their own Nimble with locally sourced hardware and 3D-printed components.
 
 For more details reach out to info@wakoma.co
-
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-2 (Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-10 (Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-13 (Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-16 (Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-20 (Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-38 (Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-8 (Large).jpg)
-
 
 
