@@ -1,8 +1,12 @@
 # nimble
 An open source, rapidly deployable, wireless mesh network. 
 
+This is a new 2021 model (model-m) of the nimble, with new shelves and hardware.
+
 https://wakoma.co/nimble/
 
+
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-36%20(Large).jpg)
 
 Build your own wireless mesh network, and bring it anywhere.
  
@@ -15,3 +19,12 @@ Anyone in the world can build their own Nimble with locally sourced hardware and
 For more details reach out to info@wakoma.co
 
 
+
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-2%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-8%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-10%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-13%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-15%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-16%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-20%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-38%20(Large).jpg)
