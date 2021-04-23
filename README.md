@@ -1,5 +1,5 @@
 # nimble
-An open source, rapidly deployable, wireless mesh network. 
+An open source, rapidly deployable, wireless mesh network.
 
 This is a new 2021 model (model-m) of the nimble, with new shelves and hardware.
 
@@ -14,7 +14,8 @@ Anyone connected to the nimble can video and voice chat, stream videos, share fi
  
 If a single internet connection is available, it can be plugged into the nimble to provide free or paid internet access to anyone on the network. The offline services and content are always available to users, regardless of internet availability.
  
-Anyone in the world can build their own Nimble with locally sourced hardware and 3D-printed components.
+Anyone in the world can build their own nimble with locally sourced hardware and 3D-printed components.
+
 
 For more details reach out to info@wakoma.co
 
