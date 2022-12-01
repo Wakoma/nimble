@@ -31,3 +31,10 @@ For more details reach out to info@wakoma.co
 ![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-16%20(Large).jpg)
 ![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-20%20(Large).jpg)
 ![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-38%20(Large).jpg)
+
+
+**License Note**
+
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+
+License File [CC-BY-SA 4.0](LICENSE.md)
