@@ -1,41 +1,33 @@
-# Nimble
-The Nimble.  An open source, rapidly deployable, wireless mesh network. 
+# nimble
+An open source, rapidly deployable, wireless mesh network.
+
+This is a new 2021 model (model-m) of the nimble, with new shelves and hardware.
 
 https://wakoma.co/nimble/
 
 
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-36%20(Large).jpg)
 
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/Nimble2-23.jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/nimble/master/Photos/nimblemeshbig.png)
 
-
-
-Wakoma works with our partners to build community-based wireless mesh networks that provide free or low-cost access to the internet and local offline content and services. Our aim is to make it easier for organizations to seed new networks in places where internet is unavailable, expensive, unreliable, or censored.
-
-The Nimble is a completely open source solution for starting a new network, or expanding an existing one. 
-
-Five people or five hundred, users can video and voice chat, text, share files, take courses, build and view websites, stream media, view global maps, create documents and spreadsheets, read e-books, play games, and much more, completely offline.
-
-If a single internet connection is available, it can be plugged into the Nimble to provide free or paid internet access to anyone on the network.  The offline services and content are always available, regardless of internet availability.
-
-Anyone can build their own Nimble with locally sourced hardware and 3D-printed components from local maker spaces and fab-labs.
-
-Potential applications:
-
-    Disaster response
-    COVID-19 Shutdowns
-    Community Networks
-    Portable Homelab
-    Remote schools and community centers
-
+Build your own wireless mesh network, and bring it anywhere.
  
-
-We are always looking for collaborators and partners, especially those working on bringing the next 3.6 billion online. Ping info@wakoma.co.
-
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/Nimble-18.jpg)
-
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/Nimble-16.jpg)
-
+Anyone connected to the nimble can video and voice chat, stream videos, share files, build and run eLearning courses and website, create collaborative spreadsheets and documents, read e-books, play games, and so much more…completely offline.
+ 
+If a single internet connection is available, it can be plugged into the nimble to provide free or paid internet access to anyone on the network. The offline services and content are always available to users, regardless of internet availability.
+ 
+Anyone in the world can build their own nimble with locally sourced hardware and 3D-printed components.
 
 
+For more details reach out to info@wakoma.co
 
 
+
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-2%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-8%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-10%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-13%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-15%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-16%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-20%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-38%20(Large).jpg)
