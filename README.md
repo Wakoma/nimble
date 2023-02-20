@@ -7,7 +7,8 @@ https://wakoma.co/nimble/
 
 # Upcoming Event!
 
-![OTFN Hackathon](https://raw.githubusercontent.com/Wakoma/nimble/master/assets/OTFN_Poster.jpeg)
+![OTFN Hackathon](https://raw.githubusercontent.com/Wakoma/nimble/master/assets/OTFN%Poster.jpeg)
+
 
 More information [here](https://otfn.org/hackathon/)
 
@@ -34,14 +35,3 @@ For more info have a look at wakoma.co/nimble, or reach out to info@wakoma.co.
 
 
 
-# Media
-
-
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-2%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-8%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-10%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-13%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-15%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-16%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-20%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-38%20(Large).jpg)
