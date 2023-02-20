@@ -27,11 +27,21 @@ If a single internet connection is available, it can be plugged into the nimble 
  
 Anyone in the world can build their own nimble with locally sourced hardware and 3D-printed components.
 
+# Important Links
+
+https://wakoma.co/nimble/
+
+https://www.printables.com/model/80708-wakoma-nimble-new-2021-model
+
+
 
 
 # Support
 
 For more info have a look at wakoma.co/nimble, or reach out to info@wakoma.co.
+
+
+
 
 
 
