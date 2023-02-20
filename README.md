@@ -1,14 +1,22 @@
 # nimble
-An open source, rapidly deployable, wireless mesh network.
 
-This is a new 2021 model (model-m) of the nimble, with new shelves and hardware.
+An open source, rapidly deployable, wireless mesh network.
 
 https://wakoma.co/nimble/
 
 
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-36%20(Large).jpg)
+# Upcoming Event!
 
-![alt text](https://raw.githubusercontent.com/Wakoma/nimble/master/Photos/nimblemeshbig.png)
+![OTFN Hackathon](https://raw.githubusercontent.com/Wakoma/nimble/master/assets/OTFN_Poster.jpeg)
+
+More information [here](https://otfn.org/hackathon/)
+
+
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-36%20(Large).jpg)
+![Mesh](https://raw.githubusercontent.com/Wakoma/nimble/master/assets/nimblemeshbig.png)
+
+
+# Project Info
 
 Build your own wireless mesh network, and bring it anywhere.
  
@@ -19,15 +27,21 @@ If a single internet connection is available, it can be plugged into the nimble 
 Anyone in the world can build their own nimble with locally sourced hardware and 3D-printed components.
 
 
-For more details reach out to info@wakoma.co
+
+# Support
+
+For more info have a look at wakoma.co/nimble, or reach out to info@wakoma.co.
 
 
 
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-2%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-8%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-10%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-13%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-15%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-16%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-20%20(Large).jpg)
-![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/Photos/nimblemodelm-38%20(Large).jpg)
+# Media
+
+
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-2%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-8%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-10%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-13%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-15%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-16%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-20%20(Large).jpg)
+![alt text](https://raw.githubusercontent.com/Wakoma/Nimble/master/assets/nimblemodelm-38%20(Large).jpg)
