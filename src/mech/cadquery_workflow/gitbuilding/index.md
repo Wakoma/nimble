@@ -2,6 +2,8 @@
 
 The Nimble rack is built from 3d printed parts. There are some standard components, as well as custom trays for all the networking devices that you are using.
 
+This is a [list of needed parts]{BOM}
+
 As a first step you need to 3d print the needed parts
 
 [.](3dprintingparts.md){step}
