@@ -1,16 +1,16 @@
-@title{Nimble Assembly Test}
-@subtitle{Step by step instructions}
+@title{Title}
+@subtitle{Subtitle}
 
-@image{titlepage}
+@image{}
 
 @authorblock["Assembly Manual by"]{
-@author{Andreas}
-@author{Ruslan}
-@author{Jeremy}
+  @author{Firstname Lastname}
+  @author{Firstname Lastname}
 }
 
 @authorblock["Machine Hardware by"]{
-@author{Wakoma}}
+  @author{Firstname Lastname}
+}
 
 @license{
   @text{This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
@@ -20,15 +20,13 @@ To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/
   @image{cc}
 }
 
-@; @howto{
-@;   @include{
-@;     howto.scrbl
-@;   }
-@; }
-
 
 @steps{
   @include{
     step1.scrbl
+    step2.scrbl
+    step3.scrbl
+    step4.scrbl
+    step5.scrbl
   }
 }
