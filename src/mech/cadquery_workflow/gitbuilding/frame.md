@@ -7,7 +7,7 @@
 
 ## Start with the base plate {pagestep}
 
-* Start with the [3d printed base plate](3DPParts.yaml#baseplate) ([preview](models/baseplate.stl){previewpage})
+* Start with the [3d printed base plate](3DPParts.yaml#baseplate){Qty: 1} ([preview](models/baseplate.stl){previewpage})
 
 ## Add beams {pagestep}
 
@@ -16,6 +16,6 @@
 
 ## Add top plate {pagestep}
 
-* Add [3d printed top plate](3DPParts.yaml#topplate) ([preview](models/topplate.stl){previewpage})
+* Add [3d printed top plate](3DPParts.yaml#topplate){Qty: 1} ([preview](models/topplate.stl){previewpage})
 * Use [M5x8 screws]{Qty: 4} and screw it on the beams
 

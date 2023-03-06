@@ -4,6 +4,7 @@ import os
 # generate all models and update documentation
 
 import models.nimble_beam
+import models.nimble_end_plate
 
 # parameters
 
@@ -12,6 +13,7 @@ outputdir_step = "./src/mech/step/"
 outputdir_gitbuilding = "./src/mech/cadquery_workflow/gitbuilding/"
 
 beam_length = 294
+single_width = 155
 
 # set up build env
 
@@ -28,20 +30,24 @@ except:
 # create the models
 
 beam = models.nimble_beam.create(beam_length=beam_length)
+plate = models.nimble_end_plate.create(width=single_width, height=single_width)
+
 
 # export 
 
 partList = []
 
 def exportPart(part, name, long_name):    
-  cq.exporters.export(beam, outputdir_stl + name + ".stl")
-  cq.exporters.export(beam, outputdir_step + name + ".step")
+  stl_file = outputdir_stl + name + ".stl"
+  step_file = outputdir_step + name + ".step"
+  cq.exporters.export(part, stl_file)
+  cq.exporters.export(part, step_file)
   partList.append((name, long_name))
 
 
 exportPart(beam, "beam", "3D printed beam")
-exportPart(beam, "baseplate", "3D printed base plate")
-exportPart(beam, "topplate", "3D printed top plate")
+exportPart(plate, "baseplate", "3D printed base plate")
+exportPart(plate, "topplate", "3D printed top plate")
 
 # write gitbuilding files
 
