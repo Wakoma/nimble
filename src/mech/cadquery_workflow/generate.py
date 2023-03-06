@@ -4,13 +4,16 @@ import os
 # generate all models and update documentation
 
 import models.nimble_beam
+import models.nimble_end_plate
 
 # parameters
 
 outputdir_stl = "./src/mech/cadquery_workflow/gitbuilding/models/"
 outputdir_step = "./src/mech/step/"
+outputdir_gitbuilding = "./src/mech/cadquery_workflow/gitbuilding/"
 
 beam_length = 294
+single_width = 155
 
 # set up build env
 
@@ -27,12 +30,45 @@ except:
 # create the models
 
 beam = models.nimble_beam.create(beam_length=beam_length)
+plate = models.nimble_end_plate.create(width=single_width, height=single_width)
+
 
 # export 
-cq.exporters.export(beam, outputdir_stl + "beam.stl")
-cq.exporters.export(beam, outputdir_step + "beam.step")
+
+partList = []
+
+def exportPart(part, name, long_name):    
+  stl_file = outputdir_stl + name + ".stl"
+  step_file = outputdir_step + name + ".step"
+  cq.exporters.export(part, stl_file)
+  cq.exporters.export(part, step_file)
+  partList.append((name, long_name))
 
 
+exportPart(beam, "beam", "3D printed beam")
+exportPart(plate, "baseplate", "3D printed base plate")
+exportPart(plate, "topplate", "3D printed top plate")
+
+# write gitbuilding files
+
+with open(outputdir_gitbuilding+'3dprintingparts.md', 'w') as f:
+    f.write("# 3D print all the needed files\n\n")
+    for (part,long_name) in partList:
+      f.write("* %s.stl ([preview](models/%s.stl){previewpage}, [download](models/%s.stl))\n" % (part, part, part))
+
+
+with open(outputdir_gitbuilding+'3DPParts.yaml', 'w') as f:
+    for (part,long_name) in partList:
+      f.write("%s:\n" % (part))
+      f.write("    Name: %s\n" % (long_name))
+      f.write("    Specs:\n")
+      f.write("        Filename: %s.stl\n" % (part))
+      #f.write("        Filename: %s.stl ([download](models/%s.stl))\n" % (part, part))
+      f.write("        Manufacturing: 3D Printing\n")
+      f.write("        Material: PLA or PETG\n")
+      #f.write("        Preview: [preview](models/beam.stl){previewpage}\n")
+
+#for debugging
 #show_object(beam)
 
 

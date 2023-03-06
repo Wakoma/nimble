@@ -1,11 +1,7 @@
 import cadquery as cq
 
-single_width = 155
 
-width = single_width
-height = single_width
-
-def make_end_plate(width, height):
+def create(width, height):
     # Make the main body
     end = cq.Workplane().rect(width, height).extrude(3)
     
@@ -19,6 +15,3 @@ def make_end_plate(width, height):
 
     return end
 
-end_plate = make_end_plate(width, height)
-
-show_object(end_plate)

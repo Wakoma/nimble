@@ -1,9 +1,6 @@
 
 M4x10PanSteel:
     Name: M4x10 Pan Head Steel
-    Description: >
-        This is lots of text
-        about some screws?
     Specs:
         Head: Pan
         Length: 10 mm
@@ -16,3 +13,12 @@ M4x10PanSteel:
         McMasterCarr:
             PartNo: 90116A207
             Link: https://www.mcmaster.com/90116A207
+
+M5x8_DIN7991:
+    Name: M5x8 DIN 7991 Counter Sunk Screw
+    Specs:
+        Head: Counter Sunk / Flat Head
+        Size: M5
+        Length: 8 mm
+        Pitch: Standard / 0.8
+        Material: Stainless Steel
