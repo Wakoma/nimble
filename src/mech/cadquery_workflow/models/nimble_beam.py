@@ -1,12 +1,11 @@
 import cadquery as cq
 
 # Parameters
-beam_length = 294  # mm
 hole_spacing = 14  # mm
 long_axis_hole_dia = 4.6  # mm
 mounting_holes_dia = 3.6  # mm
     
-def create():
+def create(beam_length):
     # Create the outside profile
     beam = cq.Workplane().rect(20, 20).extrude(beam_length)
     
