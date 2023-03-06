@@ -5,6 +5,7 @@ single_width = 155
 width = single_width
 height = single_width
 
+
 def make_end_plate(width, height):
     # Make the main body
     end = cq.Workplane().rect(width, height).extrude(3)
@@ -12,13 +13,12 @@ def make_end_plate(width, height):
     # Add the corner mounting holes
     end = end.faces("<Z").workplane().pushPoints([(width / 2.0 - 10, height / 2.0 - 10), (-width / 2.0 + 10, -height / 2.0 + 10), (width / 2.0 - 10, -height / 2.0 + 10), (-width / 2.0 + 10, height / 2.0 - 10)]).cskHole(4.7, 10.0, 60)
 
-    end = end.faces("<Z").workplane(invert=True).text("W", 144, 3, cut=True)
-
-    end.faces(">Z").edges("%CIRCLE").edges(">Y and >X").tag("hole1")
-    # rv.faces(">Z").edges("%CIRCLE").edges("<Z").tag("hole2")
-
+    end = end.faces("<Z").workplane(invert=True).text("W", 48, 3, cut=True)
     return end
 
-end_plate = make_end_plate(width, height)
+top = make_end_plate(width, height)
 
-show_object(end_plate)
+assy = cq.Assembly()
+assy.add(top)
+
+show_object(assy)
