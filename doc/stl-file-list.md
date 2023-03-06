@@ -24,7 +24,7 @@ where `<1-10>` is the priority
 - \[10\] omni_20_top.stl
 - patch_panel_2_units.stl
 - power_cage.stl
-- rack_leg_21_units.stl
+- \[10\] rack_leg_21_units.stl
 - \[10\] rpi_4b_shelf.stl
 - scarlett_solo.stl
 - sg-1100_shelf.stl
