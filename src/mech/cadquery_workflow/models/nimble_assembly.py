@@ -1,5 +1,5 @@
 import cadquery as cq
-from nimble_end_plate import make_end_plate
+from nimble_end_plate import create as create_end
 from nimble_beam import make_beam
 
 single_width = 155
@@ -19,7 +19,7 @@ height = single_width
 #     return end
 
 # Create parts
-bottom = make_end_plate(width, height)
+bottom = create_end(width, height)
 bottom = bottom.rotateAboutCenter((1, 0, 0), 0)
 beam = make_beam()
 
@@ -31,6 +31,7 @@ assy.add(make_beam(), name="leg1")
 
 assy.constrain("bottom_end@faces@>Z", "leg1@faces@<Z", "Axis")
 assy.constrain("bottom_end@faces@>Z", "leg1@faces@<Z", "Plane")
+assy.constrain("bottom_end?hole1", "leg1?hole1", "Point")
 #assy.constrain("bottom_end@faces@<X", "leg1?X", "Axis")
 assy.solve()
 
