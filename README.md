@@ -21,13 +21,13 @@ Anyone in the world can build their own nimble with locally sourced hardware and
 * Mastodon, Peertube, Pixelfed (coming soon)
 * [Zotero Library](https://www.zotero.org/groups/2403673/communitynetworks/library)
 
-![Nimble model m 36](./res/assets/media/img/nimblemodelm-36_Large.jpg)
+![Nimble model m 36](res/assets/media/img/Model_M/Large/36.jpg)
 
 # Upcoming Event!
 
 More event information [here](https://otfn.org/hackathon/)
 
-![Hackathon](./res/assets/media/img/OTFNhackathon.jpeg)
+![Hackathon](res/assets/media/img/OTFNhackathon.jpeg)
 
 # Important Links
 
@@ -39,4 +39,4 @@ https://www.printables.com/model/80708-wakoma-nimble-new-2021-model
 
 For more info have a look at http://wakoma.co/nimble, or reach out to info@wakoma.co.
 
-![Mesh](./res/assets/media/img/nimblemeshbig.png)
+![Mesh](gen/media/img/mesh_big.png)
