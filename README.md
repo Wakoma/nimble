@@ -6,6 +6,10 @@ SPDX-License-Identifier: CERN-OHL-S-2.0
 
 # nimble
 
+[![License: CERN-OHL-S-2.0](
+    https://img.shields.io/badge/License-CERN--OHL--S--2.0-blue.svg)](
+    https://spdx.org/licenses/CERN-OHL-S-2.0.html)
+
 An open source, rapidly deployable, wireless mesh network.
 
 Anyone connected to the nimble can video and voice chat,
