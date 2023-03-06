@@ -1,33 +1,34 @@
 # Files to dimension
+- [<1-10>] <filename>, where <1-10> is the priority
 
-wakoma_nimble_3.5_hdd_shelf.stl
-wakoma_nimble_ap_mount_for_1430_bottom.stl
-wakoma_nimble_ap_mount_for_1430.stl
-wakoma_nimble_ap_mount_for_1430_top.stl
-wakoma_nimble_bottom_3mm.stl
-wakoma_nimble_dual_ssd_shelf.stl
-wakoma_nimble_flex_mini_shelf.stl
-wakoma_nimble_generic_shelf.stl
-wakoma_nimble_keystone_patch_panel_2_units_short.stl
-wakoma_nimble_keystone_patch_panel_2_units.stl
-wakoma_nimble_ltap_mini_shallow.stl
-wakoma_nimble_mikrotik_shelf.stl
-wakoma_nimble_nuc_shelf.stl
-wakoma_nimble_nuc_shelf_tall.stl
-wakoma_nimble_omni_20.stl
-wakoma_nimble_omni_20_top.stl
-wakoma_nimble_patch_panel_2_units.stl
-wakoma_nimble_power_cage.stl
-wakoma_nimble_rack_leg_21_units.stl
-wakoma_nimble_rpi_4b_shelf.stl
-wakoma_nimble_scarlett_solo.stl
-wakoma_nimble_sg-1100_shelf.stl
-wakoma_nimble_stuff_shelf_thin.stl
-wakoma_nimble_tall_nuc_shelf.stl
-wakoma_nimble_top.stl
-wakoma_nimble_usb_hub_shelf.stl
-wakoma_nimble_usg.stl
-wakoma_nimble_usg_top.stl
-wakoma_nimble_usw-flex_shelf.stl
-wakoma_nuc_shelf.stl
-wakoma_power_box.stl
+- 3.5_hdd_shelf.stl
+- ap_mount_for_1430_bottom.stl
+- ap_mount_for_1430.stl
+- ap_mount_for_1430_top.stl
+- bottom_3mm.stl
+- dual_ssd_shelf.stl
+- flex_mini_shelf.stl
+- [1] generic_shelf.stl
+- [10] keystone_patch_panel_2_units_short.stl
+- keystone_patch_panel_2_units.stl
+- ltap_mini_shallow.stl
+- mikrotik_shelf.stl
+- nuc_shelf.stl
+- nuc_shelf_tall.stl
+- omni_20.stl
+- [10] omni_20_top.stl
+- patch_panel_2_units.stl
+- power_cage.stl
+- rack_leg_21_units.stl
+- [10] rpi_4b_shelf.stl
+- scarlett_solo.stl
+- sg-1100_shelf.stl
+- stuff_shelf_thin.stl
+- [10] tall_nuc_shelf.stl
+- top.stl
+- usb_hub_shelf.stl
+- usg.stl
+- usg_top.stl
+- usw-flex_shelf.stl
+- nuc_shelf.stl
+- power_box.stl
