@@ -20,11 +20,11 @@ To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/
   @image{cc}
 }
 
-@howto{
-  @include{
-    howto.scrbl
-  }
-}
+@; @howto{
+@;   @include{
+@;     howto.scrbl
+@;   }
+@; }
 
 
 @steps{

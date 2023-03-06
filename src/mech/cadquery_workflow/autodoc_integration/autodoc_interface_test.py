@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 Jeremy Wright <wrightjmf@gmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 import cadquery as cq
 
 box = cq.Workplane().rect(1, 5).extrude(5).faces("<X").workplane(invert=False).center(0, 2).circle(1.0).cutThruAll()

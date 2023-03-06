@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# SPDX-FileCopyrightText: 2022 J.C. Mariscal-Melgar <jc@hsu-hh.de>
+# SPDX-FileCopyrightText: 2022 Pieter Hijma <pieter@hiww.de>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+if [ $# = 1 ]
+then
+    filename=$1
+    filename_output="${filename:0:-4}.pdf"
+    inkscape -o $filename_output \
+	     --export-pdf-version "1.4" \
+	     $filename 
+else
+    echo "USAGE: $(basename $0) <file.svg>"
+fi
