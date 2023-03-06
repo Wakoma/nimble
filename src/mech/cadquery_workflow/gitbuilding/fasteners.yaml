@@ -1,0 +1,18 @@
+
+M4x10PanSteel:
+    Name: M4x10 Pan Head Steel
+    Description: >
+        This is lots of text
+        about some screws?
+    Specs:
+        Head: Pan
+        Length: 10 mm
+        Material: Stainless Steel
+        Pitch: 0.7
+    Suppliers:
+        RS:
+            PartNo: 528-817
+            Link: https://uk.rs-online.com/web/p/machine-screws/0528817/
+        McMasterCarr:
+            PartNo: 90116A207
+            Link: https://www.mcmaster.com/90116A207
