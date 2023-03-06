@@ -1,5 +1,6 @@
 import cadquery as cq
 import os
+from exportsvg import export_svg 
 
 # generate all models and update documentation
 
@@ -10,6 +11,7 @@ import models.nimble_end_plate
 
 outputdir_stl = "./src/mech/cadquery_workflow/gitbuilding/models/"
 outputdir_step = "./src/mech/step/"
+outputdir_svg = "./src/mech/cadquery_workflow/gitbuilding/svg/"
 outputdir_gitbuilding = "./src/mech/cadquery_workflow/gitbuilding/"
 
 beam_length = 294
@@ -27,13 +29,18 @@ try:
 except:
   pass # ignore if already existing
 
+try:
+  os.mkdir(outputdir_svg)
+except:
+  pass # ignore if already existing
+
 # create the models
 
 beam = models.nimble_beam.create(beam_length=beam_length)
 plate = models.nimble_end_plate.create(width=single_width, height=single_width)
 
 
-# export 
+# export STLs and STEPs
 
 partList = []
 
@@ -41,13 +48,19 @@ def exportPart(part, name, long_name):
   stl_file = outputdir_stl + name + ".stl"
   step_file = outputdir_step + name + ".step"
   cq.exporters.export(part, stl_file)
-  cq.exporters.export(part, step_file)
+  #cq.exporters.export(part, step_file) #not neded right now
   partList.append((name, long_name))
-
 
 exportPart(beam, "beam", "3D printed beam")
 exportPart(plate, "baseplate", "3D printed base plate")
 exportPart(plate, "topplate", "3D printed top plate")
+
+# export SVGs
+
+export_svg(plate, outputdir_svg+"baseplate.svg") # just a test for now
+export_svg(plate, outputdir_svg+"baseplate_beams.svg") # just a test for now
+export_svg(plate, outputdir_svg+"baseplate_beams_topplate.svg") # just a test for now
+
 
 # write gitbuilding files
 
