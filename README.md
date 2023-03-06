@@ -9,6 +9,9 @@ SPDX-License-Identifier: CERN-OHL-S-2.0
 [![License: CERN-OHL-S-2.0](
     https://img.shields.io/badge/License-CERN--OHL--S--2.0-blue.svg)](
     https://spdx.org/licenses/CERN-OHL-S-2.0.html)
+[![REUSE status](
+    https://api.reuse.software/badge/github.com/Wakoma/nimble)](
+    https://api.reuse.software/info/github.com/Wakoma/nimble)
 
 An open source, rapidly deployable, wireless mesh network.
 
