@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2020-2023 Eric Nitschke <eric@wakoma.co>
+
+SPDX-License-Identifier: CERN-OHL-S-2.0
+-->
+
 # nimble
 
 An open source, rapidly deployable, wireless mesh network.
