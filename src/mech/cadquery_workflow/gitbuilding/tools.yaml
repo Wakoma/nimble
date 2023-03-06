@@ -7,3 +7,10 @@ Screwdriver_Philips_No2:
         form an M4 pan head screw
     Specs:
         Drive Size: No. 2
+
+Allen_3mm:
+    Name: Allen Key 3mm
+    Description: >
+        Allen Key 3mm
+    Specs:
+        Drive Size: 3mm
