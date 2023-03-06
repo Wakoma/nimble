@@ -58,8 +58,8 @@ exportPart(plate, "topplate", "3D printed top plate")
 # export SVGs
 
 export_svg(plate, outputdir_svg+"baseplate.svg") # just a test for now
-export_svg(plate, outputdir_svg+"baseplate+beams.svg") # just a test for now
-export_svg(plate, outputdir_svg+"baseplate+beams+topplate.svg") # just a test for now
+export_svg(plate, outputdir_svg+"baseplate_beams.svg") # just a test for now
+export_svg(plate, outputdir_svg+"baseplate_beams_topplate.svg") # just a test for now
 
 
 # write gitbuilding files
