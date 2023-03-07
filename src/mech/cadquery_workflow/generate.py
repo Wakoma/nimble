@@ -1,5 +1,6 @@
 import cadquery as cq
 import os
+import json
 from exportsvg import export_svg 
 
 # generate all models and update documentation
@@ -9,6 +10,9 @@ import models.nimble_end_plate
 
 # parameters
 
+selected_devices_ids = ['NetgateSG1100', 'UniFiUSWFlex', 'NUC10i5FNH', 'RPi4']
+
+json_filename = "./src/mech/cadquery_workflow/devices.json"
 outputdir_stl = "./src/mech/cadquery_workflow/gitbuilding/models/"
 outputdir_step = "./src/mech/step/"
 outputdir_svg = "./src/mech/cadquery_workflow/gitbuilding/svg/"
@@ -34,6 +38,14 @@ try:
 except:
   pass # ignore if already existing
 
+# read json, select entries
+
+selected_devices = []
+with open(json_filename) as json_file:
+    data = json.load(json_file)
+    selected_devices = [x for x in data if x['ID'] in selected_devices_ids]
+print([x['ID'] for x in selected_devices])
+
 # create the models
 
 beam = models.nimble_beam.create(beam_length=beam_length)
@@ -48,7 +60,7 @@ def exportPart(part, name, long_name):
   stl_file = outputdir_stl + name + ".stl"
   step_file = outputdir_step + name + ".step"
   cq.exporters.export(part, stl_file)
-  #cq.exporters.export(part, step_file) #not neded right now
+  #cq.exporters.export(part, step_file) #not needed right now
   partList.append((name, long_name))
 
 exportPart(beam, "beam", "3D printed beam")
@@ -80,6 +92,12 @@ with open(outputdir_gitbuilding+'3DPParts.yaml', 'w') as f:
       f.write("        Manufacturing: 3D Printing\n")
       f.write("        Material: PLA or PETG\n")
       #f.write("        Preview: [preview](models/beam.stl){previewpage}\n")
+
+with open(outputdir_gitbuilding+'DeviceParts.yaml', 'w') as f:
+    for device in selected_devices:
+      f.write("%s:\n" % (device['ID']))
+      for k in device.keys():
+        f.write("    %s: %s\n" % (k, device[k]))
 
 #for debugging
 #show_object(beam)
