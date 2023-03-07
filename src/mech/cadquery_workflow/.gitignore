@@ -1,5 +1,8 @@
 
+__pycache__/
 */__pycache__/
 gitbuilding/models/
+gitbuilding/svg/
 gitbuilding/3dprintingparts.md
 gitbuilding/3DPParts.yaml
+gitbuilding/DeviceParts.yaml
