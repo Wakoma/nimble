@@ -32,13 +32,13 @@ jobs:
         with:
           submodules: true
 
-      # - name: Fix checkout ownership
-      #   run: |
-      #     # HACK Workaround for bug:
-      #     # https://github.com/actions/runner/issues/2033
-      #     mkdir -p /home/runner/work/_temp/_github_home
-      #     printf "[safe]\n\tdirectory = /github/workspace" \
-      #       > /home/runner/work/_temp/_github_home/.gitconfig
+      - name: Fix checkout ownership
+        run: |
+          # HACK Workaround for bug:
+          # https://github.com/actions/runner/issues/2033
+          mkdir -p /home/runner/work/_temp/_github_home
+          printf "[safe]\n\tdirectory = /github/workspace" \
+            > /home/runner/work/_temp/_github_home/.gitconfig
 
       - name: OSH-Tool Check/Linting
         id: osh-check
