@@ -3,3 +3,5 @@
 # SPDX-License-Identifier: Unlicense
 
 /src/mech/cadquery_workflow/autodoc_integration/**.pdf
+
+_site/

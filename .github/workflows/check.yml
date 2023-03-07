@@ -40,14 +40,34 @@ jobs:
           printf "[safe]\n\tdirectory = /github/workspace" \
             > /home/runner/work/_temp/_github_home/.gitconfig
 
-      - name: OSH-Tool Check/Linting
-        id: osh-check
-        uses: hoijui/osh-tool@master
+      # Temporarily disable to test the Gitbuilding stuff
+      # - name: OSH-Tool Check/Linting
+      #   id: osh-check
+      #   uses: hoijui/osh-tool@master
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install requitements
+        run: |
+          pip install -r requirements.txt
+
+      - name: Generate STL
+        run: |
+          python src/mech/cadquery_workflow/generate.py
+
+      - name: Run Gitbuilding
+        working-directory: src/mech/cadquery_workflow/gitbuilding
+        run: |
+          gitbuilding generate-html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: "public/"
+          # path: "public/"
+          path: "src/mech/cadquery_workflow/gitbuilding/_site/"
+
 
   # Deployment job
   deploy:
