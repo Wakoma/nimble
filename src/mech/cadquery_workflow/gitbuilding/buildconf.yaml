@@ -24,8 +24,7 @@ Email: info@wakoma.co
 
 
 #Uncomment below to set a custom Website root for static HTML builds
-#WebsiteRoot: webroot'
+# WebsiteRoot: index.html
 
 #Uncomment below to disable fussy warnings
 #Fussy: False
-
