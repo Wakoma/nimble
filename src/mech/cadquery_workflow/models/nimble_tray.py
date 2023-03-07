@@ -5,8 +5,8 @@ import math
 class Params:
     def __init__(self):
         # Default length unit is mm.
-        self.tray_width = 155
-        self.tray_depth = 155
+        self.tray_width = 115
+        self.tray_depth = 115
         self.leg_width = 20
         self.height_in_hole_unites = 2
         self.wall_thickness = 4

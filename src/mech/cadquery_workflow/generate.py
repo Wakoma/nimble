@@ -84,8 +84,10 @@ def createAssembly(step):
     topplate = topplate.rotateAboutCenter((0, 0, 1), 180)
     assembly.add(topplate, name="topplate", loc=cq.Location((0, 0, beam_height + 3)))
   if step >= 4:
-    for tray in listOfTrays:
-        assembly.add(tray, loc=cq.Location((10, 0, tray[1]['HeightInUnits'] * 12.5)))
+    index = 0
+    for (tray, trayInfo) in listOfTrays:
+        assembly.add(tray, loc=cq.Location((-115/2, -155/2-4, index*trayInfo['HeightInUnits'] * 12.5)))
+        index = index+1
   return (
     assembly.toCompound() 
     .rotate((0,0,0), (1,0,0), -90) # z should be up
@@ -151,6 +153,7 @@ with open(outputdir_gitbuilding+'DeviceParts.yaml', 'w') as f:
 with open(outputdir_gitbuilding+'components.md', 'w') as f:
     f.write("# Installing the components in trays\n\n")
     f.write("{{BOM}}\n")
+    f.write("![](svg/baseplate_beams_topplate.svg)")
     f.write("For all of your components:\n\n")
     f.write("* find the corresponding 3d printed tray\n")
     f.write("* install the tray on the rack\n")

@@ -1,7 +1,7 @@
 # Installing the components in trays
 
 {{BOM}}
-For all of your components:
+![](svg/baseplate_beams_topplate.svg)For all of your components:
 
 * find the corresponding 3d printed tray
 * install the tray on the rack
