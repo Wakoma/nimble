@@ -85,8 +85,11 @@ def createAssembly(step):
     assembly.add(topplate, name="topplate", loc=cq.Location((0, 0, beam_height + 3)))
   #if step >= 4:
   #todo trays
-  assembly = assembly.toCompound().rotate((0,0,0), (1,0,0), -90)
-  return assembly
+  return (
+    assembly.toCompound() 
+    .rotate((0,0,0), (1,0,0), -90) # z should be up
+    .rotate((0,0,0), (0,1,0), 10) # rotate a bit around up axis for better view
+  )
 
 
 # export SVGs
@@ -94,6 +97,7 @@ def createAssembly(step):
 export_svg(createAssembly(1), outputdir_svg+"baseplate.svg") 
 export_svg(createAssembly(2), outputdir_svg+"baseplate_beams.svg") 
 export_svg(createAssembly(3), outputdir_svg+"baseplate_beams_topplate.svg") 
+export_svg(createAssembly(4), outputdir_svg+"trays.svg") 
 
 # export STLs and STEPs
 
@@ -110,6 +114,8 @@ exportPart(beam, "beam", "3D printed beam")
 exportPart(plate, "baseplate", "3D printed base plate")
 exportPart(plate, "topplate", "3D printed top plate")
 
+for (part, device) in listOfTrays:
+  exportPart(part, "tray_"+device['ID'], f"tray for {device['Name']}")
 
 
 # write gitbuilding files
@@ -121,21 +127,35 @@ with open(outputdir_gitbuilding+'3dprintingparts.md', 'w') as f:
 
 
 with open(outputdir_gitbuilding+'3DPParts.yaml', 'w') as f:
-    for (part,long_name) in partList:
-      f.write("%s:\n" % (part))
-      f.write("    Name: %s\n" % (long_name))
-      f.write("    Specs:\n")
-      f.write("        Filename: %s.stl\n" % (part))
-      #f.write("        Filename: %s.stl ([download](models/%s.stl))\n" % (part, part))
-      f.write("        Manufacturing: 3D Printing\n")
-      f.write("        Material: PLA or PETG\n")
-      #f.write("        Preview: [preview](models/beam.stl){previewpage}\n")
+  for (part,long_name) in partList:
+    f.write("%s:\n" % (part))
+    f.write("    Name: %s\n" % (long_name))
+    f.write("    Specs:\n")
+    f.write("        Filename: %s.stl\n" % (part))
+    #f.write("        Filename: %s.stl ([download](models/%s.stl))\n" % (part, part))
+    f.write("        Manufacturing: 3D Printing\n")
+    f.write("        Material: PLA or PETG\n")
+    #f.write("        Preview: [preview](models/beam.stl){previewpage}\n")
 
 with open(outputdir_gitbuilding+'DeviceParts.yaml', 'w') as f:
-    for device in selected_devices:
-      f.write("%s:\n" % (device['ID']))
-      for k in device.keys():
-        f.write("    %s: %s\n" % (k, device[k]))
+  for (part, device) in listOfTrays:
+    f.write("%s:\n" % (device['ID']))
+    for k in device.keys():
+      f.write("    %s: %s\n" % (k, device[k]))
+
+with open(outputdir_gitbuilding+'components.md', 'w') as f:
+    f.write("# Installing the components in trays\n\n")
+    f.write("{{BOM}}\n")
+    f.write("For all of your components:\n\n")
+    f.write("* find the corresponding 3d printed tray\n")
+    f.write("* install the tray on the rack\n")
+    f.write("* mount the device on the tray\n\n")
+    f.write("Here are the devices and the trays\n\n")
+    for (part, device) in listOfTrays:
+      f.write("* [%s](DeviceParts.yaml#%s){Qty: 1}\n" % (device['Name'], device['ID']))
+      stlfile = F"tray_{device['ID']}.stl"
+      f.write("* %s ([preview](models/%s){previewpage}, [download](models/%s))\n" % (stlfile, stlfile, stlfile))
+    f.write("![](svg/trays.svg)")
 
 #for debugging
 #show_object(beam)
