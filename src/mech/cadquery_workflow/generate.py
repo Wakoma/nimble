@@ -2,11 +2,13 @@ import cadquery as cq
 import os
 import json
 from exportsvg import export_svg 
+import models.nimble_beam
+import models.nimble_end_plate
+import models.nimble_tray
 
 # generate all models and update documentation
 
-import models.nimble_beam
-import models.nimble_end_plate
+
 
 # parameters
 
@@ -46,11 +48,39 @@ with open(json_filename) as json_file:
     selected_devices = [x for x in data if x['ID'] in selected_devices_ids]
 print([x['ID'] for x in selected_devices])
 
-# create the models
+# create the models and assembly
 
 beam = models.nimble_beam.create(beam_length=beam_length)
 plate = models.nimble_end_plate.create(width=single_width, height=single_width)
 
+listOfTrays = []
+for device in selected_devices:
+    tray = models.nimble_tray.create(1)
+    listOfTrays.append(tray)
+
+
+def createAssembly(step):
+  assembly = cq.Assembly()
+  if step >= 1:
+      assembly.add(plate, name="baseplate", loc=cq.Location((0,0,)))
+  if step >= 2:
+      assembly.add(beam, name="beam1", loc=cq.Location((-80,-80,0)))
+      assembly.add(beam, name="beam2", loc=cq.Location((+80,-80,0)))
+      assembly.add(beam, name="beam3", loc=cq.Location((-80,+80,0)))
+      assembly.add(beam, name="beam4", loc=cq.Location((+80,+80,0)))
+  if step >= 3:
+      assembly.add(plate, name="topplate", loc=cq.Location((0,0,300)))
+  #if step >= 4:
+  #todo trays
+  assembly = assembly.toCompound()
+  return assembly
+
+
+# export SVGs
+
+export_svg(createAssembly(1), outputdir_svg+"baseplate.svg") 
+export_svg(createAssembly(2), outputdir_svg+"baseplate_beams.svg") 
+export_svg(createAssembly(3), outputdir_svg+"baseplate_beams_topplate.svg") 
 
 # export STLs and STEPs
 
@@ -67,11 +97,6 @@ exportPart(beam, "beam", "3D printed beam")
 exportPart(plate, "baseplate", "3D printed base plate")
 exportPart(plate, "topplate", "3D printed top plate")
 
-# export SVGs
-
-export_svg(plate, outputdir_svg+"baseplate.svg") # just a test for now
-export_svg(plate, outputdir_svg+"baseplate_beams.svg") # just a test for now
-export_svg(plate, outputdir_svg+"baseplate_beams_topplate.svg") # just a test for now
 
 
 # write gitbuilding files
