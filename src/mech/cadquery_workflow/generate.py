@@ -60,20 +60,29 @@ for device in selected_devices:
 
 
 def createAssembly(step):
-  total_height = 0
-  for device in selected_devices:
-    print(device['HeightInUnits'])
   assembly = cq.Assembly()
   if step >= 1:
     plate.rotateAboutCenter((1, 0, 0), 0)
     assembly.add(plate, name="baseplate", loc=cq.Location((0, 0, 0)))
   if step >= 2:
-      assembly.add(beam, name="beam1", loc=cq.Location((-80,-80,0)))
-      assembly.add(beam, name="beam2", loc=cq.Location((+80,-80,0)))
-      assembly.add(beam, name="beam3", loc=cq.Location((-80,+80,0)))
-      assembly.add(beam, name="beam4", loc=cq.Location((+80,+80,0)))
+    #25, 42, 55
+    beam_height = 0
+    for tray in listOfTrays:
+      if tray[1]['HeightInUnits'] == 2:
+        beam_height += 25
+      elif  tray[1]['HeightInUnits'] == 3:
+        beam_height += 42
+      elif  tray[1]['HeightInUnits'] == 4:
+        beam_height += 55
+      assembly.add(models.nimble_beam.create(beam_length=beam_length), name="beam1", loc=cq.Location((-single_width / 2.0 + 10, -single_width / 2.0 + 10, 3)))
+      assembly.add(models.nimble_beam.create(beam_length=beam_length), name="beam2", loc=cq.Location((single_width / 2.0 - 10, -single_width / 2.0 + 10, 3)))
+      assembly.add(models.nimble_beam.create(beam_length=beam_length), name="beam3", loc=cq.Location((single_width / 2.0 - 10, single_width / 2.0 - 10, 3)))
+      assembly.add(models.nimble_beam.create(beam_length=beam_length), name="beam4", loc=cq.Location((-single_width / 2.0 + 10, single_width / 2.0 - 10, 3)))
   if step >= 3:
-      assembly.add(plate, name="topplate", loc=cq.Location((0,0,300)))
+    topplate = models.nimble_end_plate.create(width=single_width, height=single_width)
+    topplate = topplate.rotateAboutCenter((1, 0, 0), 180)
+    topplate = topplate.rotateAboutCenter((0, 0, 1), 180)
+    assembly.add(topplate, name="topplate", loc=cq.Location((0, 0, beam_height + 3)))
   #if step >= 4:
   #todo trays
   assembly = assembly.toCompound().rotate((0,0,0), (1,0,0), -90)
