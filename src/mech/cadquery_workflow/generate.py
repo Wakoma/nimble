@@ -67,10 +67,10 @@ def createAssembly(step):
     assembly.add(plate, name="baseplate", loc=cq.Location((0, 0, 0)))
   if step >= 2:
     #25, 42, 55
-    beam_height = 0
+    beam_height = 4
     for tray in listOfTrays:
       if tray[1]['HeightInUnits'] == 2:
-        beam_height += 25
+        beam_height += 27
       elif  tray[1]['HeightInUnits'] == 3:
         beam_height += 42
       elif  tray[1]['HeightInUnits'] == 4:
@@ -87,7 +87,7 @@ def createAssembly(step):
   if step >= 4:
     index = 0
     for (tray, trayInfo) in listOfTrays:
-        assembly.add(tray, loc=cq.Location((-115/2, -155/2-4, index*trayInfo['HeightInUnits'] * 12.5)))
+        assembly.add(tray, loc=cq.Location((-115/2, -155/2-4, 4+index*trayInfo['HeightInUnits'] * 27/2)))
         index = index+1
   return (
     assembly.toCompound() 
@@ -154,7 +154,7 @@ with open(outputdir_gitbuilding+'DeviceParts.yaml', 'w') as f:
 with open(outputdir_gitbuilding+'components.md', 'w') as f:
     f.write("# Installing the components in trays\n\n")
     f.write("{{BOM}}\n")
-    f.write("![](svg/baseplate_beams_topplate.svg)")
+    f.write("![](svg/baseplate_beams_topplate.svg)\n\n")
     f.write("For all of your components:\n\n")
     f.write("* find the corresponding 3d printed tray\n")
     f.write("* install the tray on the rack\n")
