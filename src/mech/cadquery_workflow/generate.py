@@ -125,6 +125,8 @@ with open(outputdir_gitbuilding+'3dprintingparts.md', 'w') as f:
     f.write("# 3D print all the needed files\n\n")
     for (part,long_name) in partList:
       f.write("* %s.stl ([preview](models/%s.stl){previewpage}, [download](models/%s.stl))\n" % (part, part, part))
+    f.write('\n\nYou can [download all of the STLs as a single zipfile](stlfiles.zip){zip, pattern:"*.stl"}')
+
 
 
 with open(outputdir_gitbuilding+'3DPParts.yaml', 'w') as f:
@@ -141,8 +143,10 @@ with open(outputdir_gitbuilding+'3DPParts.yaml', 'w') as f:
 with open(outputdir_gitbuilding+'DeviceParts.yaml', 'w') as f:
   for (part, device) in listOfTrays:
     f.write("%s:\n" % (device['ID']))
+    f.write("    Name: %s\n" % (device['Name']))
+    f.write("    Specs:\n")
     for k in device.keys():
-      f.write("    %s: %s\n" % (k, device[k]))
+      f.write("        %s: %s\n" % (k, device[k]))
 
 with open(outputdir_gitbuilding+'components.md', 'w') as f:
     f.write("# Installing the components in trays\n\n")
