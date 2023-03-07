@@ -1,38 +1,30 @@
 import cadquery as cq
 from nimble_end_plate import create as create_end
-from nimble_beam import make_beam
+from nimble_beam import create as create_beam
 
 single_width = 155
 
 width = single_width
-height = single_width
+depth = single_width
+stack_height = "2x3x4"
+total_height = 0
 
-
-# def make_end_plate(width, height):
-#     # Make the main body
-#     end = cq.Workplane().rect(width, height).extrude(3)
-    
-#     # Add the corner mounting holes
-#     end = end.faces("<Z").workplane().pushPoints([(width / 2.0 - 10, height / 2.0 - 10), (-width / 2.0 + 10, -height / 2.0 + 10), (width / 2.0 - 10, -height / 2.0 + 10), (-width / 2.0 + 10, height / 2.0 - 10)]).cskHole(4.7, 10.0, 60)
-
-#     end = end.faces("<Z").workplane(invert=True).text("W", 72, 3, cut=True)
-#     return end
+for holes in stack_height.split("x"):
+    total_height += int(holes) * 25
 
 # Create parts
-bottom = create_end(width, height)
+bottom = create_end(width, depth)
 bottom = bottom.rotateAboutCenter((1, 0, 0), 0)
-beam = make_beam()
+top = create_end(width, depth)
+top = bottom.rotateAboutCenter((1, 0, 0), 0)
 
 # Build the assembly
 assy = cq.Assembly()
 assy.add(bottom, name="bottom_end")
-assy.add(make_beam(), name="leg1")
-#assy.add(make_beam(), name="leg2")
-
-assy.constrain("bottom_end@faces@>Z", "leg1@faces@<Z", "Axis")
-assy.constrain("bottom_end@faces@>Z", "leg1@faces@<Z", "Plane")
-assy.constrain("bottom_end?hole1", "leg1?hole1", "Point")
-#assy.constrain("bottom_end@faces@<X", "leg1?X", "Axis")
-assy.solve()
+assy.add(create_beam(total_height), name="leg1", loc=cq.Location((-width / 2.0 + 10, -depth / 2.0 + 10, 3)))
+assy.add(create_beam(total_height), name="leg2", loc=cq.Location((width / 2.0 - 10, -depth / 2.0 + 10, 3)))
+assy.add(create_beam(total_height), name="leg3", loc=cq.Location((width / 2.0 - 10, depth / 2.0 - 10, 3)))
+assy.add(create_beam(total_height), name="leg4", loc=cq.Location((-width / 2.0 + 10, depth / 2.0 - 10, 3)))
+assy.add(top, name="top_end", loc=cq.Location((0, 0, total_height + 3)))
 
 show_object(assy)
