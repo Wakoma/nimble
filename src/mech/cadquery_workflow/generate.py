@@ -72,8 +72,11 @@ def createAssembly(step):
       assembly.add(plate, name="topplate", loc=cq.Location((0,0,300)))
   #if step >= 4:
   #todo trays
-  assembly = assembly.toCompound().rotate((0,0,0), (1,0,0), -90)
-  return assembly
+  return (
+    assembly.toCompound() 
+    .rotate((0,0,0), (1,0,0), -90) # z should be up
+    .rotate((0,0,0), (0,1,0), 10) # rotate a bit around up axis for better view
+  )
 
 
 # export SVGs
