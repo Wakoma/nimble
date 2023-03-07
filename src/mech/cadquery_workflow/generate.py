@@ -5,6 +5,7 @@ from exportsvg import export_svg
 import models.nimble_beam
 import models.nimble_end_plate
 import models.nimble_tray
+import config
 
 # generate all models and update documentation
 
@@ -12,7 +13,7 @@ import models.nimble_tray
 
 # parameters
 
-selected_devices_ids = ['NetgateSG1100', 'UniFiUSWFlex', 'NUC10i5FNH', 'RPi4']
+selected_devices_ids = config.devices
 
 json_filename = "./src/mech/cadquery_workflow/devices.json"
 outputdir_stl = "./src/mech/cadquery_workflow/gitbuilding/models/"
