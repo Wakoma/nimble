@@ -5,6 +5,8 @@ Source: https://gitlab.com/Wakoma/nimble
 
 Files:
     gen/mech/*.stl
+    gen/mech/**.obj
+    gen/mech/**.mtl
     src/elec/*.drawio
 Copyright: Eric Nitschke <eric@wakoma.co>
 License: CERN-OHL-S-2.0
