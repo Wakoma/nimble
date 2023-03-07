@@ -51,7 +51,7 @@ jobs:
 
       - name: Install requitements
         run: |
-          pip install -r requirements.txt
+          pip install -r src/mech/cadquery_workflow/requirements.txt
 
       - name: Generate STL
         run: |
