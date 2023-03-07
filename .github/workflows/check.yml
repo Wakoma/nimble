@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  push_to_registry:
+  build:
     name: Compile
     runs-on: ubuntu-latest
     steps:
