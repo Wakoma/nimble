@@ -55,8 +55,8 @@ plate = models.nimble_end_plate.create(width=single_width, height=single_width)
 
 listOfTrays = []
 for device in selected_devices:
-    tray = models.nimble_tray.create(1)
-    listOfTrays.append(tray)
+    tray = models.nimble_tray.create(device['HeightInUnits'])
+    listOfTrays.append((tray, device))
 
 
 def createAssembly(step):
@@ -72,7 +72,7 @@ def createAssembly(step):
       assembly.add(plate, name="topplate", loc=cq.Location((0,0,300)))
   #if step >= 4:
   #todo trays
-  assembly = assembly.toCompound()
+  assembly = assembly.toCompound().rotate((0,0,0), (1,0,0), -90)
   return assembly
 
 
