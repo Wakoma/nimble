@@ -74,10 +74,10 @@ def createAssembly(step):
         beam_height += 42
       elif  tray[1]['HeightInUnits'] == 4:
         beam_height += 55
-      assembly.add(models.nimble_beam.create(beam_length=beam_length), name="beam1", loc=cq.Location((-single_width / 2.0 + 10, -single_width / 2.0 + 10, 3)))
-      assembly.add(models.nimble_beam.create(beam_length=beam_length), name="beam2", loc=cq.Location((single_width / 2.0 - 10, -single_width / 2.0 + 10, 3)))
-      assembly.add(models.nimble_beam.create(beam_length=beam_length), name="beam3", loc=cq.Location((single_width / 2.0 - 10, single_width / 2.0 - 10, 3)))
-      assembly.add(models.nimble_beam.create(beam_length=beam_length), name="beam4", loc=cq.Location((-single_width / 2.0 + 10, single_width / 2.0 - 10, 3)))
+    assembly.add(models.nimble_beam.create(beam_length=beam_height), name="beam1", loc=cq.Location((-single_width / 2.0 + 10, -single_width / 2.0 + 10, 3)))
+    assembly.add(models.nimble_beam.create(beam_length=beam_height), name="beam2", loc=cq.Location((single_width / 2.0 - 10, -single_width / 2.0 + 10, 3)))
+    assembly.add(models.nimble_beam.create(beam_length=beam_height), name="beam3", loc=cq.Location((single_width / 2.0 - 10, single_width / 2.0 - 10, 3)))
+    assembly.add(models.nimble_beam.create(beam_length=beam_height), name="beam4", loc=cq.Location((-single_width / 2.0 + 10, single_width / 2.0 - 10, 3)))
   if step >= 3:
     topplate = models.nimble_end_plate.create(width=single_width, height=single_width)
     topplate = topplate.rotateAboutCenter((1, 0, 0), 180)
