@@ -83,8 +83,9 @@ def createAssembly(step):
     topplate = topplate.rotateAboutCenter((1, 0, 0), 180)
     topplate = topplate.rotateAboutCenter((0, 0, 1), 180)
     assembly.add(topplate, name="topplate", loc=cq.Location((0, 0, beam_height + 3)))
-  #if step >= 4:
-  #todo trays
+  if step >= 4:
+    for tray in listOfTrays:
+        assembly.add(tray, loc=cq.Location((10, 0, tray[1]['HeightInUnits'] * 12.5)))
   return (
     assembly.toCompound() 
     .rotate((0,0,0), (1,0,0), -90) # z should be up
