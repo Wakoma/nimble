@@ -60,9 +60,13 @@ for device in selected_devices:
 
 
 def createAssembly(step):
+  total_height = 0
+  for device in selected_devices:
+    print(device['HeightInUnits'])
   assembly = cq.Assembly()
   if step >= 1:
-      assembly.add(plate, name="baseplate", loc=cq.Location((0,0,)))
+    plate.rotateAboutCenter((1, 0, 0), 0)
+    assembly.add(plate, name="baseplate", loc=cq.Location((0, 0, 0)))
   if step >= 2:
       assembly.add(beam, name="beam1", loc=cq.Location((-80,-80,0)))
       assembly.add(beam, name="beam2", loc=cq.Location((+80,-80,0)))

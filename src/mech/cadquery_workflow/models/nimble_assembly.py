@@ -1,6 +1,7 @@
 import cadquery as cq
 from nimble_end_plate import create as create_end
 from nimble_beam import create as create_beam
+import json
 
 single_width = 155
 
@@ -16,7 +17,8 @@ for holes in stack_height.split("x"):
 bottom = create_end(width, depth)
 bottom = bottom.rotateAboutCenter((1, 0, 0), 0)
 top = create_end(width, depth)
-top = bottom.rotateAboutCenter((1, 0, 0), 0)
+top = top.rotateAboutCenter((1, 0, 0), 180)
+top = top.rotateAboutCenter((0, 0, 1), 180)
 
 # Build the assembly
 assy = cq.Assembly()
@@ -26,5 +28,7 @@ assy.add(create_beam(total_height), name="leg2", loc=cq.Location((width / 2.0 - 
 assy.add(create_beam(total_height), name="leg3", loc=cq.Location((width / 2.0 - 10, depth / 2.0 - 10, 3)))
 assy.add(create_beam(total_height), name="leg4", loc=cq.Location((-width / 2.0 + 10, depth / 2.0 - 10, 3)))
 assy.add(top, name="top_end", loc=cq.Location((0, 0, total_height + 3)))
+
+assy = assy.toCompound()
 
 show_object(assy)
