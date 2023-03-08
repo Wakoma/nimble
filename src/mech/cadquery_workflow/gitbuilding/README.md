@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 Andreas Kahler <mail@andreaskahler.com>
+
+SPDX-License-Identifier: CERN-OHL-S-2.0
+-->
+
 # This project is documented with GitBuilding
 
 ## What is GitBuilding

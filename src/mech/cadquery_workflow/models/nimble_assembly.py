@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 Jeremy Wright <wrightjmf@gmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 import cadquery as cq
 from nimble_end_plate import create as create_end
 from nimble_beam import create as create_beam

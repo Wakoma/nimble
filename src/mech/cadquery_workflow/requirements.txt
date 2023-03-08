@@ -1,2 +1,6 @@
+# SPDX-FileCopyrightText: 2023 Daniel Mohns <daniel.mohns@posteo.de>
+#
+# SPDX-License-Identifier: Unlicense
+
 cadquery>=2
 gitbuilding

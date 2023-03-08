@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 Andreas Kahler <mail@andreaskahler.com>
+
+SPDX-License-Identifier: CERN-OHL-S-2.0
+-->
+
 [M5x8 screws]:fasteners.yaml#M5x8_DIN7991
 [Allen Key 3mm]:tools.yaml#Allen_3mm
 

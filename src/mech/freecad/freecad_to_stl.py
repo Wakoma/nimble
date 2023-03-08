@@ -1,4 +1,9 @@
 #!/usr/sbin/env python
+
+# SPDX-FileCopyrightText: 2023 Morgan R. Allen <morganrallen@gmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 import sys
 import FreeCAD
 from FreeCAD import Mesh

@@ -20,7 +20,16 @@ License: CC-BY-SA-4.0
 
 Files:
     src/mech/cadquery_workflow/autodoc_integration/img/**.svg
+    src/mech/cadquery_workflow/autodoc_integration/img/**.pdf
 Copyright:
     J.C. Mariscal-Melgar <jc@hsu-hh.de>
     Pieter Hijma <pieter@hiww.de>
 License: CC-BY-4.0
+
+Files:
+    src/mech/freecad/*.FCStd
+Copyright:
+    Morgan R. Allen <morganrallen@gmail.com>
+    J.C. Mariscal-Melgar <jc@hsu-hh.de>
+    Johannes Hoelzel <johanneshoelzel@gmx.de>
+License: CERN-OHL-S-2.0

@@ -1,5 +1,6 @@
 <!--
 SPDX-FileCopyrightText: 2020-2023 Eric Nitschke <eric@wakoma.co>
+SPDX-FileCopyrightText: 2023 Robin Vobruba <hoijui.quaero@gmail.com>
 
 SPDX-License-Identifier: CERN-OHL-S-2.0
 -->
