@@ -9,7 +9,6 @@ If a single internet connection is available, it can be plugged into the nimble 
 Anyone in the world can build their own nimble with locally sourced hardware and 3D-printed components.
 
 * [nimble Website](https://wakoma.co/nimble/)
-* [Discussion Forums](https://forums.wakoma.co/)
 * [Matrix Space](https://matrix.to/#/!JWutrWVlqsuiauWbPf:wakoma.net?via=wakoma.net)
 * [Twitter](https://twitter.com/WakomaInc)
 * Mastodon, Peertube, Pixelfed (coming soon)
