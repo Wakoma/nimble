@@ -39,10 +39,9 @@ jobs:
           printf "[safe]\n\tdirectory = /github/workspace" \
             > /home/runner/work/_temp/_github_home/.gitconfig
 
-      # Temporarily disable to test the Gitbuilding stuff
-      # - name: OSH-Tool Check/Linting
-      #   id: osh-check
-      #   uses: hoijui/osh-tool@master
+      - name: OSH-Tool Check/Linting
+        id: osh-check
+        uses: hoijui/osh-tool@master
 
       - uses: actions/setup-python@v4
         with:
@@ -61,12 +60,28 @@ jobs:
         run: |
           gitbuilding build-html
 
+      - name: Moves output around and generates index.html
+        run: |
+          mv public osh-tool
+          mkdir public
+          mv osh-tool public/
+          mv src/mech/cadquery_workflow/gitbuilding/_site public/git-building
+          {
+            echo "<html>"
+            echo "<body>"
+            echo "Generated output:"
+            echo "<ul>"
+            echo "<li><a href=\"git-building/index.html\">Git-Building</a></li>"
+            echo "<li><a href=\"osh-tool/index.html\">OSH-Tool</a></li>"
+            echo "</ul>"
+            echo "</body>"
+            echo "</html>"
+          } > public/index.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          # path: "public/"
-          path: "src/mech/cadquery_workflow/gitbuilding/_site/"
-
+          path: "public/"
 
   # Deployment job
   deploy:
