@@ -48,7 +48,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install requitements
+      - name: Install requirements
         run: |
           pip install -r src/mech/cadquery_workflow/requirements.txt
 
