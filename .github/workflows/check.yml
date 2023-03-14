@@ -65,7 +65,13 @@ jobs:
           mv public osh-tool
           mkdir public
           sudo chmod -R 755 public
+          echo x1
+          ls -al
+          echo x2
+          ls -al ..
+          echo x3
           mv osh-tool public/
+          echo x4
           mv src/mech/cadquery_workflow/gitbuilding/_site public/git-building
           {
             echo "<html>"
