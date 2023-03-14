@@ -62,6 +62,7 @@ jobs:
 
       - name: Moves output around and generates index.html
         run: |
+          sudo chown --recursive runner:docker public
           mv public osh-tool
           mkdir public
           mv osh-tool public/
