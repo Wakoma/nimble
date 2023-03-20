@@ -1,0 +1,35 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: nimble
+Upstream-Contact: Eric Nitschke <eric@wakoma.co>
+Source: https://gitlab.com/Wakoma/nimble
+
+Files:
+    gen/mech/*.stl
+    gen/mech/**.obj
+    gen/mech/**.mtl
+    src/elec/*.drawio
+Copyright: Eric Nitschke <eric@wakoma.co>
+License: CERN-OHL-S-2.0
+
+Files:
+    res/**
+    doc/**
+    gen/media/**
+Copyright: Eric Nitschke <eric@wakoma.co>
+License: CC-BY-SA-4.0
+
+Files:
+    src/mech/cadquery_workflow/autodoc_integration/img/**.svg
+    src/mech/cadquery_workflow/autodoc_integration/img/**.pdf
+Copyright:
+    J.C. Mariscal-Melgar <jc@hsu-hh.de>
+    Pieter Hijma <pieter@hiww.de>
+License: CC-BY-4.0
+
+Files:
+    src/mech/freecad/*.FCStd
+Copyright:
+    Morgan R. Allen <morganrallen@gmail.com>
+    J.C. Mariscal-Melgar <jc@hsu-hh.de>
+    Johannes Hoelzel <johanneshoelzel@gmx.de>
+License: CERN-OHL-S-2.0

@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2023 Robin Vobruba <hoijui.quaero@gmail.com>
+#
+# SPDX-License-Identifier: Unlicense
+
+/src/mech/cadquery_workflow/autodoc_integration/**.pdf
+
+_site/
