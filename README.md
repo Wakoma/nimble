@@ -39,7 +39,7 @@ with locally sourced hardware and 3D-printed components.
 
 ![Nimble model m 36](res/assets/media/img/Model_M/Large/36.jpg)
 
-# Upcoming Event
+# Recent Event
 
 More event information [here](https://otfn.org/hackathon/)
 
