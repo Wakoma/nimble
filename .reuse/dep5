@@ -8,6 +8,8 @@ Files:
     gen/mech/**.obj
     gen/mech/**.mtl
     src/elec/*.drawio
+    3D Designs/*.stl
+    3D Designs/FreeCAD/*.FCStd
 Copyright: Eric Nitschke <eric@wakoma.co>
 License: CERN-OHL-S-2.0
 
