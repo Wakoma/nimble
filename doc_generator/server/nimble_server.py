@@ -46,7 +46,7 @@ async def get_body(request: Request):
 
     # TODO: Andreas to fix this
     # Trigger the orchestration script
-    generate_docs(config_hash)
+    generate_docs(config, config_hash)
 
     # Make sure that there is a valid config before passing it on to the orchestration script
     if config is not None and "config" in config.keys() and "server_1" in config["config"].keys():
