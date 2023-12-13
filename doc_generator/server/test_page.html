@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="icon" type="image/png" href="/static/images/favicon.png">
+
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="three-quarters column" style="margin-top: 5%">
+                <!--Header for the user-->
+                <h2>Wakoma Nimble</h2>
+                <h3>Select Components for Your Rack Below</h3>
+
+                <!--Server selection-->
+                <label for="server_1">Server</label>
+                <select name="server_1" id="server_1">
+                    <option value="none">None</option>
+                    <option value="Hardware_1">Lenovo ThinkCenter M700</option>
+                    <option value="Hardware_8">NUC10i5FNH</option>
+                    <option value="Hardware_17">NUC10i5FNH-B</option>
+                    <option value="Hardware_5">Raspberry Pi 4 Model B</option>
+                </select>
+
+                <!--Router selection-->
+                <label for="router_1">Router</label>
+                <select name="router_1" id="router_1">
+                    <option value="none">None</option>
+                    <option value="Hardware_2">LibreRouter v.1 India version</option>
+                    <option value="Hardware_18">UniFi AC Mesh</option>
+                </select>
+
+                <!--Switch selection-->
+                <label for="switch_1">Switch</label>
+                <select name="switch_1" id="switch_1">
+                    <option value="none">None</option>
+                    <option value="Hardware_9">Unifi Switch Flex | USW-Flex</option>
+                </select>
+
+                <!--Charge controller selection-->
+                <label for="charge_controller_1">Charge Controller</label>
+                <select name="charge_controller_1" id="charge_controller_1">
+                    <option value="none">None</option>
+                    <option value="Hardware_4">OpenMPPT-HP 400W</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <button id="generate" name="generate" class="button-primary" onclick="trigger_orchestration();">GENERATE</button>
+        </div>
+    </div>
+    <script src="/static/js/index.js"></script>
+</body>
+</html>
