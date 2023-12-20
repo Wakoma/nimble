@@ -3,3 +3,4 @@ uvicorn[standard]>=0.23.2,<0.24.0
 gunicorn
 cadquery
 orjson
+git+https://github.com/jmwright/cq-annotate.git
