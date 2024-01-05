@@ -1,4 +1,5 @@
 import os, sys
+import re
 import json
 import hashlib
 import tempfile
@@ -37,13 +38,20 @@ async def get_body(request: Request):
     """
 
     # TODO: Need to define at least a temporary data structure for this based on what the orchestration script needs to see
-    config = await request.json()
+    req = await request.json()
+    config = req['config']
+
+    print("Starting build for config:")
+    print(config)
 
     # Generate a hash of the configuration here to identify it
-    m = hashlib.sha256()
-    m.update(json.dumps(config, sort_keys=True).encode('utf-8'))
-    config_hash = "hash_" + str(m.digest()).replace("\\", "_").replace("b'", "").replace("'", "")
+    # sort config by key, get "key=value" strings, concatenate
+    config_hash = "+".join([f"{key}={config[key]}" for key in sorted(config.keys())])
+    # delete all non-alphanumeric characters (other than _+=)
+    config_hash = re.sub(r'[^a-zA-Z0-9_+=]', '', config_hash)
     
+    print("config_hash is: " + config_hash)
+
     # Trigger the orchestration script
     generate_docs(config, config_hash)
 

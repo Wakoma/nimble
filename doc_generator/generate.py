@@ -195,6 +195,8 @@ def generate_docs(config, config_hash, force_rebuild=True):
             f.write("* %s ([preview](models/%s){previewpage}, [download](models/%s))\n" % (stlfile, stlfile, stlfile))
             f.write("![](svg/trays.svg)")
 
+    print("Finished build for config_hash: " + config_hash)
+
 
 # if main script, run generate_docs with test config
 if __name__ == "__main__":
