@@ -80,3 +80,9 @@ def create(number_of_units):
     params = Params()
     params.height_in_hole_unites = number_of_units
     return _create_part(params)
+
+
+if "show_object" in globals() or __name__ == "__cqgi__":
+    # CQGI should execute this whenever called
+    obj = create(2)
+    show_object(obj)

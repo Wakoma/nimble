@@ -39,5 +39,5 @@ def make_rack_leg(length=294, hole_spacing=14, long_axis_hole_dia=4.6, mounting_
 # Handle different execution environments, including ExSource-Tools
 if "show_object" in globals() or __name__ == "__cqgi__":
     # CQGI should execute this whenever called
-    beam = make_beam(length, hole_spacing, long_axis_hole_dia, mounting_holes_dia)
+    beam = make_rack_leg(length, hole_spacing, long_axis_hole_dia, mounting_holes_dia)
     show_object(beam.cq())
