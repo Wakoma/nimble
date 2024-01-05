@@ -10,8 +10,7 @@ from fastapi.staticfiles import StaticFiles
 # Allow imports from the parent directory (potential security issue)
 sys.path.append(os.path.dirname(__file__) + "/..")
 
-# TODO: Andreas to fix this
-from generate_dummy import generate_docs
+from generate import generate_docs
 
 app = FastAPI()
 
@@ -44,8 +43,7 @@ async def get_body(request: Request):
     m = hashlib.sha256()
     m.update(json.dumps(config, sort_keys=True).encode('utf-8'))
     config_hash = "hash_" + str(m.digest()).replace("\\", "_").replace("b'", "").replace("'", "")
-
-    # TODO: Andreas to fix this
+    
     # Trigger the orchestration script
     generate_docs(config, config_hash)
 
@@ -54,6 +52,7 @@ async def get_body(request: Request):
         return ORJSONResponse([{"redirect": "/wakoma/nimble/auto-doc/" + config_hash, "description": "Poll this URL until your documentation package is ready."}])
     else:
         return ORJSONResponse([{"error": "Configuration must be a valid JSON object."}])
+
 
 
 def check_model_format(model_format):
@@ -93,7 +92,7 @@ def read_item(length: float = 294.0, hole_spacing: float = 14.0, long_axis_hole_
         return HTMLResponse('ERROR: Invalid mounting_holes_dia parameter. <a href="https://7bindustries.com/hardware/rack_leg_download.html">Try Again</a>')
 
     import cadquery as cq
-    from models.cadquery.rack_leg import make_rack_leg
+    from mechanical.components.cadquery.rack_leg import make_rack_leg
 
     # Generate the rack leg
     leg = make_rack_leg(length, hole_spacing, long_axis_hole_dia, mounting_holes_dia).cq()
