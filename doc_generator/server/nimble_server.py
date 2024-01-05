@@ -56,7 +56,7 @@ async def get_body(request: Request):
     generate_docs(config, config_hash)
 
     # Make sure that there is a valid config before passing it on to the orchestration script
-    if config is not None and "config" in config.keys() and "server_1" in config["config"].keys():
+    if config is not None and "server_1" in config.keys():
         return ORJSONResponse([{"redirect": "/wakoma/nimble/auto-doc/" + config_hash, "description": "Poll this URL until your documentation package is ready."}])
     else:
         return ORJSONResponse([{"error": "Configuration must be a valid JSON object."}])
