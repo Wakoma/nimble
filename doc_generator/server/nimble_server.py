@@ -1,6 +1,7 @@
 import os, sys
 import json
 import hashlib
+import tempfile
 
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, HTMLResponse, ORJSONResponse
@@ -99,7 +100,7 @@ def read_item(length: float = 294.0, hole_spacing: float = 14.0, long_axis_hole_
 
     # Figure out what the file name and temporary path should be
     export_file_name = "leg_length-" + str(length) + "_hole_spacing-" + str(hole_spacing) + "_long_axis_hole_dia-" + str(long_axis_hole_dia) + "_mounting_holes_dia-" + str(mounting_holes_dia) + "." + model_format
-    export_path = os.path.join("/tmp", export_file_name)
+    export_path = os.path.join(tempfile.gettempdir(), export_file_name)
 
     # If the leg does not already exist, export it to a temporary file
     if not os.path.exists(export_path):
