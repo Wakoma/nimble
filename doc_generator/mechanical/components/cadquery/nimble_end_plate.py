@@ -17,3 +17,10 @@ def create(width, height):
     end.faces(">Z").edges("%CIRCLE").edges(">Y").tag("hole1")
 
     return end
+
+
+
+if "show_object" in globals() or __name__ == "__cqgi__":
+    # CQGI should execute this whenever called
+    obj = create(100,100)
+    show_object(obj)
