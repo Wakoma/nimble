@@ -47,7 +47,7 @@ def generate_docs(config, config_hash, force_rebuild=True):
             return
         
     json_filename = module_path / "devices.json"
-    outputdir_gitbuilding = build_dir / "gitbuilding/"
+    outputdir_gitbuilding = build_dir / "gitbuilding"
     outputdir_stl = outputdir_gitbuilding / "models"
     outputdir_svg = outputdir_gitbuilding / "svg"
     outputdir_step = build_dir / "step"
