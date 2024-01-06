@@ -7,5 +7,6 @@
     |   |   |---components   cadquery scripts, freecad/openscad files
     |   |   \---drawings     dxf, svg etc
     |   +---electrical       circuit drawings
-    |   +---python           helper scripts etc
+    |   +---utility          helper scripts etc
+    |   +---server           backend http server implemented in python
     |   \---resources        things to be copied over to build directory
