@@ -39,5 +39,10 @@ def make_rack_leg(length=294, hole_spacing=14, long_axis_hole_dia=4.6, mounting_
 # Handle different execution environments, including ExSource-Tools
 if "show_object" in globals() or __name__ == "__cqgi__":
     # CQGI should execute this whenever called
+<<<<<<< HEAD:doc_generator/models/cadquery/rack_leg.py
     leg = make_rack_leg(length, hole_spacing, long_axis_hole_dia, mounting_holes_dia)
     show_object(leg.cq())
+=======
+    beam = make_rack_leg(length, hole_spacing, long_axis_hole_dia, mounting_holes_dia)
+    show_object(beam.cq())
+>>>>>>> ab9a68713520521b0a69cb91fc6dc9d330a4ed55:doc_generator/mechanical/components/cadquery/rack_leg.py

@@ -10,7 +10,7 @@ width = single_width
 height = single_width
 
 
-def make_end_plate(width, height):
+def create(width, height):
     # Make the main body
     end = cq.Workplane().rect(width, height).extrude(3)
     
@@ -20,9 +20,11 @@ def make_end_plate(width, height):
     end = end.faces("<Z").workplane(invert=True).text("W", 48, 3, cut=True)
     return end
 
-top = make_end_plate(width, height)
 
-assy = cq.Assembly()
-assy.add(top)
 
-show_object(assy)
+
+if "show_object" in globals() or __name__ == "__cqgi__":
+    # CQGI should execute this whenever called
+    obj = create(100,100)
+    show_object(obj)
+
