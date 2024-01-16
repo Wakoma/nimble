@@ -195,6 +195,9 @@ def generate_docs(config, config_hash, force_rebuild=True):
             f.write("* %s ([preview](models/%s){previewpage}, [download](models/%s))\n" % (stlfile, stlfile, stlfile))
             f.write("![](svg/trays.svg)")
 
+    # Create an archive of the generated docs so that it can be downloaded
+    shutil.make_archive(build_dir, 'zip', build_dir)
+
     print("Finished build for config_hash: " + config_hash)
 
 
