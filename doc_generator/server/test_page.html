@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title></title>
+  <title>Nimble Configuration App</title>
   <meta name="description" content="">
   <meta name="author" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="/static/css/normalize.css">
   <link rel="stylesheet" href="/static/css/skeleton.css">
+  <link rel="stylesheet" href="/static/css/custom.css">
   <link rel="icon" type="image/png" href="/static/images/favicon.png">
 
 </head>
@@ -55,6 +56,9 @@
         </div>
         <div class="row">
             <button id="generate" name="generate" class="button-primary" onclick="trigger_orchestration();">GENERATE</button>
+        </div>
+        <div class="row">
+            <div id="spinner"></div>
         </div>
     </div>
     <script src="/static/js/index.js"></script>
