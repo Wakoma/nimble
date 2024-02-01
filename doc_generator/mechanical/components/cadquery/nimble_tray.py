@@ -6,6 +6,9 @@
 import cadquery as cq
 import math
 
+height_in_hole_unites = 2
+
+
 class Params:
     def __init__(self):
         # Default length unit is mm.
@@ -84,5 +87,5 @@ def create(number_of_units):
 
 if "show_object" in globals() or __name__ == "__cqgi__":
     # CQGI should execute this whenever called
-    obj = create(2)
+    obj = create(height_in_hole_unites)
     show_object(obj)

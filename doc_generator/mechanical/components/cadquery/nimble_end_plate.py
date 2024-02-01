@@ -5,12 +5,21 @@
 
 import cadquery as cq
 
+width = 100
+height = 100
+
+
 def create(width, height):
     # Make the main body
     end = cq.Workplane().rect(width, height).extrude(3)
-    
+
     # Add the corner mounting holes
-    end = end.faces("<Z").workplane().pushPoints([(width / 2.0 - 10, height / 2.0 - 10), (-width / 2.0 + 10, -height / 2.0 + 10), (width / 2.0 - 10, -height / 2.0 + 10), (-width / 2.0 + 10, height / 2.0 - 10)]).cskHole(4.7, 10.0, 60)
+    end = end.faces("<Z").workplane().pushPoints(
+        [(width / 2.0 - 10, height / 2.0 - 10),
+         (-width / 2.0 + 10, -height / 2.0 + 10),
+         (width / 2.0 - 10, -height / 2.0 + 10),
+         (-width / 2.0 + 10, height / 2.0 - 10)
+         ]).cskHole(4.7, 10.0, 60)
 
     end = end.faces("<Z").workplane(invert=True).text("W", 144, 3, cut=True)
 
@@ -22,5 +31,5 @@ def create(width, height):
 
 if "show_object" in globals() or __name__ == "__cqgi__":
     # CQGI should execute this whenever called
-    obj = create(100,100)
+    obj = create(width, height)
     show_object(obj)
