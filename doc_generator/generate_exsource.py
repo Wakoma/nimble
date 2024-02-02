@@ -254,10 +254,14 @@ class OrchestrationRunner:
         exsource.add_part(
             name="assembly",
             description="assembly",
-            output_files=["./step/assembly.step"],
-            source_files=["assembly_renderer.py"],
+            output_files=[
+                "./step/assembly.stl",
+                "./step/assembly.step",
+                "./step/assembly.gltf",
+            ],
+            source_files=["./mechanical/assembly_renderer.py"],
             parameters={
-                "assembly": "assembly-def.yaml",
+                "assembly_definition_file": "assembly-def.yaml",
             },
             application="cadquery",
             dependencies=assembly.get_step_files()
