@@ -3,33 +3,28 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-import cadquery as cq
+import cadscript as cad
 
 width = 100
-height = 100
+depth = 100
+height = 3
+beam_width = 20
+countersink_from_top = 1
 
 
-def create(width, height):
+def create(width, depth, height, countersink_from_top):
     # Make the main body
-    end = cq.Workplane().rect(width, height).extrude(3)
+    plate = cad.make_box(width, depth, height, center="XY")
 
-    # Add the corner mounting holes
-    end = end.faces("<Z").workplane().pushPoints(
-        [(width / 2.0 - 10, height / 2.0 - 10),
-         (-width / 2.0 + 10, -height / 2.0 + 10),
-         (width / 2.0 - 10, -height / 2.0 + 10),
-         (-width / 2.0 + 10, height / 2.0 - 10)
-         ]).cskHole(4.7, 10.0, 60)
+    # Add the corner mounting holes with countersinks
+    hole_positions = cad.pattern_rect(width - beam_width, depth - beam_width)
+    face = ">Z" if countersink_from_top else "<Z"
+    plate.cut_hole(face, d=4.7, d2=10, countersink_angle=90, pos=hole_positions)
 
-    end = end.faces("<Z").workplane(invert=True).text("W", 144, 3, cut=True)
-
-    end.faces(">Z").edges("%CIRCLE").edges(">Y").tag("hole1")
-
-    return end
+    return plate
 
 
 
-if "show_object" in globals() or __name__ == "__cqgi__":
-    # CQGI should execute this whenever called
-    obj = create(width, height)
-    show_object(obj)
+result = create(width, depth, height, countersink_from_top)
+cad.show(result)
+

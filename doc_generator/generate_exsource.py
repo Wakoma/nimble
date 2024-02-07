@@ -102,7 +102,7 @@ class OrchestrationRunner:
 
         # TODO: get from input
         # selected_devices_ids = config.devices
-        selected_devices_ids = ['NUC10i5FNH', 'RPi4']
+        selected_devices_ids = ['NUC10i5FNH', 'RPi4', 'RPi4']
         json_filename = self._module_path / "devices.json"
 
         # read json, select entries
@@ -110,22 +110,28 @@ class OrchestrationRunner:
         selected_devices = []
         with open(json_filename) as json_file:
             data = json.load(json_file)
-            selected_devices = [Device(x)
-                                for x in data if x['ID'] in selected_devices_ids]
+            find_device = lambda id: next((x for x in data if x['ID'] == id), None)
+            selected_devices = [Device(find_device(x)) for x in selected_devices_ids]
 
         print([x.id for x in selected_devices])
 
         # calculate assembly dimensions
 
+        beam_width = 20
         single_width = 155
-        beam_height = 4
+        tray_width = single_width - 2 * beam_width
+        tray_depth = 115
+        mounting_hole_spacing = 14
+        base_plate_thickness = 3
+        top_plate_thickness = 3
+        base_clearance = 4
+
+
+        beam_height = base_clearance
+        hole_count = 0
         for device in selected_devices:
-            if device.height_in_units == 2:
-                beam_height += 27
-            elif device.height_in_units == 3:
-                beam_height += 42
-            elif device.height_in_units == 4:
-                beam_height += 55
+            beam_height += device.height_in_units * mounting_hole_spacing
+            hole_count += device.height_in_units
 
         # collect all needed parts and their parameters
 
@@ -139,6 +145,7 @@ class OrchestrationRunner:
             source_files=["./mechanical/components/cadquery/rack_leg.py"],
             parameters={
                 "length": beam_height,
+                "hole_spacing": mounting_hole_spacing,
             },
             application="cadquery"
         )
@@ -151,7 +158,8 @@ class OrchestrationRunner:
             source_files=["./mechanical/components/cadquery/nimble_end_plate.py"],
             parameters={
                 "width": single_width,
-                "height": single_width,
+                "depth": single_width,
+                "countersink_from_top": 0,
             },
             application="cadquery"
         )
@@ -164,7 +172,8 @@ class OrchestrationRunner:
             source_files=["./mechanical/components/cadquery/nimble_end_plate.py"],
             parameters={
                 "width": single_width,
-                "height": single_width,
+                "depth": single_width,
+                "countersink_from_top": 1,
             },
             application="cadquery"
         )
@@ -183,6 +192,8 @@ class OrchestrationRunner:
                 source_files=["mechanical/components/cadquery/nimble_tray.py"],
                 parameters={
                     "height_in_hole_unites": device.height_in_units,
+                    "tray_width": tray_width,
+                    "tray_depth": tray_depth,
                 },
                 application="cadquery"
             )
@@ -201,28 +212,29 @@ class OrchestrationRunner:
         )
 
         # 4 rack legs
+        hole_pos = (single_width - beam_width) / 2.0
         assembly.add_part(
             name="rack_leg1",
             part_name="rack_leg",
-            position=(-single_width / 2.0 + 10, -single_width / 2.0 + 10, 3),
+            position=(-hole_pos, -hole_pos, base_plate_thickness),
             assembly_step="2"
         )
         assembly.add_part(
             name="rack_leg2",
             part_name="rack_leg",
-            position=(single_width / 2.0 - 10, -single_width / 2.0 + 10, 3),
+            position=(+hole_pos, -hole_pos, base_plate_thickness),
             assembly_step="2"
         )
         assembly.add_part(
             name="rack_leg3",
             part_name="rack_leg",
-            position=(single_width / 2.0 - 10, single_width / 2.0 - 10, 3),
+            position=(+hole_pos, +hole_pos, base_plate_thickness),
             assembly_step="2"
         )
         assembly.add_part(
             name="rack_leg4",
             part_name="rack_leg",
-            position=(-single_width / 2.0 + 10, single_width / 2.0 - 10, 3),
+            position=(-hole_pos, +hole_pos, base_plate_thickness),
             assembly_step="2"
         )
 
@@ -230,7 +242,7 @@ class OrchestrationRunner:
         assembly.add_part(
             name="topplate",
             part_name="topplate",
-            position=(0, 0, beam_height + 3),
+            position=(0, 0, beam_height + base_plate_thickness),
             assembly_step="3"
         )
         # todo roatation
@@ -238,14 +250,15 @@ class OrchestrationRunner:
         #    topplate = topplate.rotateAboutCenter((0, 0, 1), 180)
 
         # all the trays
+        zpos = 5
         for (index, device) in enumerate(selected_devices):
             assembly.add_part(
                 name=f"tray_{index}",
                 part_name=device.get_tray_id(),
-                position=(-115 / 2, -155 / 2 - 4, 4 + index *
-                          device.height_in_units * 27 / 2),
+                position=(-tray_width / 2.0, -single_width / 2.0 - 4, zpos),
                 assembly_step="4"
             )
+            zpos += device.height_in_units * mounting_hole_spacing
 
         # save assembly definition
         assembly.save(self._build_dir / "assembly-def.yaml")
@@ -256,7 +269,7 @@ class OrchestrationRunner:
             description="assembly",
             output_files=[
                 "./step/assembly.stl",
-                "./step/assembly.step",
+                # "./step/assembly.step",
                 "./step/assembly.gltf",
             ],
             source_files=["./mechanical/assembly_renderer.py"],
