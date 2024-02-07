@@ -81,7 +81,7 @@ def generate_docs(config, config_hash, force_rebuild=True):
     # create the models and assembly
 
     beam = rack_leg.make_rack_leg(beam_length)
-    plate = nimble_end_plate.create(width=single_width, height=single_width)
+    plate = nimble_end_plate.create(width=single_width, depth=single_width)
 
     listOfTrays = []
     for device in selected_devices:
@@ -109,7 +109,7 @@ def generate_docs(config, config_hash, force_rebuild=True):
             assembly.add(rack_leg.make_rack_leg(length=beam_height), name="beam3", loc=cq.Location((single_width / 2.0 - 10, single_width / 2.0 - 10, 3)))
             assembly.add(rack_leg.make_rack_leg(length=beam_height), name="beam4", loc=cq.Location((-single_width / 2.0 + 10, single_width / 2.0 - 10, 3)))
         if step >= 3:
-            topplate = nimble_end_plate.create(width=single_width, height=single_width)
+            topplate = nimble_end_plate.create(width=single_width, depth=single_width)
             topplate = topplate.rotateAboutCenter((1, 0, 0), 180)
             topplate = topplate.rotateAboutCenter((0, 0, 1), 180)
             assembly.add(topplate, name="topplate", loc=cq.Location((0, 0, beam_height + 3)))
