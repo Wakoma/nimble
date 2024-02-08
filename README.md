@@ -16,17 +16,11 @@ SPDX-License-Identifier: CERN-OHL-S-2.0
 
 An open source, rapidly deployable, wireless mesh network.
 
-Anyone connected to the nimble can video and voice chat,
-stream videos, share files, build and run eLearning courses and website,
-create collaborative spreadsheets and documents, read e-books, play games,
-and so much more…
-completely offline.
+Anyone connected to the nimble can video and voice chat, stream videos, share files, build and run eLearning courses and website, create collaborative spreadsheets and documents, read e-books, play games, and so much more… completely offline.
 
 If a single internet connection is available,
-it can be plugged into the nimble to provide free or paid internet access
-to anyone on the network.
-The offline services and content are always available to users,
-regardless of internet availability.
+it can be plugged into the nimble to provide free or paid internet access to anyone on the network.
+The offline services and content are always available to users, regardless of internet availability.
 
 Anyone in the world can build their own nimble
 with locally sourced hardware and 3D-printed components.
@@ -39,11 +33,13 @@ with locally sourced hardware and 3D-printed components.
 
 ![Nimble model m 36](res/assets/media/img/Model_M/Large/36.jpg)
 
-# Recent Event
+# 2024 Update
+We are excited to announce that we have received a grant from NLnet Foundation! With this generous funding our team is working with several incredible partners from the open hardware community to develop a 'nimble builder', and tools to automatically generate user-friendly documentation.
 
-More event information [here](https://otfn.org/hackathon/)
+Please find more information on the project [here](https://nlnet.nl/project/HardwareManuals/).
 
-![Hackathon](res/assets/media/img/OTFNhackathon.jpeg)
+![nlnet](https://nlnet.nl/logo/banner.png)
+
 
 # Important Links
 
