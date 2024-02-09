@@ -93,7 +93,7 @@ class OrchestrationRunner:
 
 
 
-    def generate_docs(self):
+    def generate_exsource_files(self):
         """
         generate documentation for a specific configuration
         """
@@ -155,11 +155,10 @@ class OrchestrationRunner:
             name="baseplate",
             description="3D printed base plate",
             output_files=["./step/baseplate.step"],
-            source_files=["./mechanical/components/cadquery/nimble_end_plate.py"],
+            source_files=["./mechanical/components/cadquery/base_plate.py"],
             parameters={
                 "width": single_width,
                 "depth": single_width,
-                "countersink_from_top": 0,
             },
             application="cadquery"
         )
@@ -169,11 +168,10 @@ class OrchestrationRunner:
             name="topplate",
             description="3D printed top plate",
             output_files=["./step/topplate.step"],
-            source_files=["./mechanical/components/cadquery/nimble_end_plate.py"],
+            source_files=["./mechanical/components/cadquery/top_plate.py"],
             parameters={
                 "width": single_width,
                 "depth": single_width,
-                "countersink_from_top": 1,
             },
             application="cadquery"
         )
@@ -290,10 +288,8 @@ class OrchestrationRunner:
         # export_svg(createAssembly(3), self._outputdir_svg / "baseplate_beams_topplate.svg")
         # export_svg(createAssembly(4), self._outputdir_svg / "trays.svg")
 
-        # write gitbuilding files
-        # todo
 
-        print("Finished build for config_hash: " + self._config_hash)
+        print("Finished genrating exsource for config_hash: " + self._config_hash)
 
 
 # if main script, run generate_docs with test config
@@ -302,4 +298,4 @@ if __name__ == "__main__":
                          'switch_1': 'Hardware_9', 'charge_controller_1': 'Hardware_4'}}
     runner = OrchestrationRunner(config, "test_config_hash")
     runner.setup()
-    runner.generate_docs()
+    runner.generate_exsource_files()
