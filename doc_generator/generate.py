@@ -1,6 +1,5 @@
 
-
-from generate_exsource import OrchestrationRunner
+from orchestration import OrchestrationRunner
 
 
 def generate_docs(config, config_hash, force_rebuild=True):
@@ -8,9 +7,17 @@ def generate_docs(config, config_hash, force_rebuild=True):
     generate all models and update documentation
     """
 
-    runner = OrchestrationRunner(config, config_hash)
+    print("Starting build for config_hash: " + config_hash)
+    runner = OrchestrationRunner(config, config_hash, force_rebuild=force_rebuild)
+
+    print("Setting up build environment")
     runner.setup()
+
+    print("Running orchestration")
     runner.generate_exsource_files()
+
+    print("Running exsource make")
+    runner.run_exsource()
 
 
     # write gitbuilding files

@@ -6,6 +6,7 @@ import os
 import json
 from pathlib import Path
 import shutil
+import exsource_tools
 
 from utility.device import Device
 from utility.exsource_def_generator import ExsourceDefGenerator
@@ -290,6 +291,13 @@ class OrchestrationRunner:
 
 
         print("Finished genrating exsource for config_hash: " + self._config_hash)
+
+    def run_exsource(self):
+        # change into self._build_dir
+        os.chdir(self._build_dir)
+        
+        # run exsource-make
+        exsource_tools.make()
 
 
 # if main script, run generate_docs with test config
