@@ -3,10 +3,18 @@ import re
 import json
 import hashlib
 import tempfile
+import urllib.parse
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, HTMLResponse, ORJSONResponse
 from fastapi.staticfiles import StaticFiles
+
+# Change this to the base URL of the server that is serving this app
+server_base_url = "http://127.0.0.1:8000"
+
+# Used to keep track of the configurations that are being, or have been, generated
+generated_docs_urls = {}
 
 # Allow imports from the parent directory (potential security issue)
 sys.path.append(os.path.dirname(__file__) + "/..")
@@ -52,12 +60,19 @@ async def get_body(request: Request):
     
     print("config_hash is: " + config_hash)
 
-    # Trigger the orchestration script
-    generate_docs(config, config_hash)
+    # If the build has been performed before, send the cached file to speed the system up
+    module_path = Path(__file__).resolve().parent.parent
+    build_path = module_path  / "build" / config_hash
+    if not os.path.exists(str(build_path) + ".zip"):
+        # Trigger the orchestration script
+        generate_docs(config, config_hash)
 
     # Make sure that there is a valid config before passing it on to the orchestration script
     if config is not None and "server_1" in config.keys():
-        return ORJSONResponse([{"redirect": "/wakoma/nimble/auto-doc/" + config_hash, "description": "Poll this URL until your documentation package is ready."}])
+        # Save this generated config so that it can be polled
+        generated_docs_urls[config_hash] = server_base_url + "/wakoma/nimble/auto-doc?config_hash=" + urllib.parse.quote(config_hash)
+
+        return ORJSONResponse([{"redirect": generated_docs_urls[config_hash], "description": "Poll this URL until your documentation package is ready."}])
     else:
         return ORJSONResponse([{"error": "Configuration must be a valid JSON object."}])
 
@@ -114,3 +129,20 @@ def read_item(length: float = 294.0, hole_spacing: float = 14.0, long_axis_hole_
         cq.exporters.export(leg, export_path)
 
     return FileResponse(export_path, headers={'Content-Disposition': 'attachment; filename=' + export_file_name})
+
+
+@app.get("/wakoma/nimble/auto-doc")
+def get_files(config_hash):
+    """
+    Loads any auto-generated documentation files.
+    """
+
+    # Figure out what the build path is
+    module_path = Path(__file__).resolve().parent.parent
+    build_path = module_path  / "build" / config_hash
+
+    # Once the build exists we can send it to the user, but before that we give them a temporary redirect
+    if os.path.exists(str(build_path) + ".zip"):
+        return FileResponse(str(build_path) + ".zip", headers={'Content-Disposition': 'attachment; filename=' + config_hash + ".zip"})
+    else:
+        return HTMLResponse(content="<p>The File is Still Processing</p>", status_code=307)

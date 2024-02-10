@@ -19,53 +19,10 @@ def generate_docs(config, config_hash, force_rebuild=True):
     print("Running exsource make")
     runner.run_exsource()
 
+    # todo: write gitbuilding files
 
-    # write gitbuilding files
-
-    # todo
-    """
-    with open(outputdir_gitbuilding / '3dprintingparts.md', 'w') as f:
-        f.write("# 3D print all the needed files\n\n")
-        for (part,long_name) in partList:
-            f.write("* %s.stl ([preview](models/%s.stl){previewpage}, [download](models/%s.stl))\n" % (part, part, part))
-            f.write('\n\nYou can [download all of the STLs as a single zipfile](stlfiles.zip){zip, pattern:"*.stl"}')
-
-
-
-    with open(outputdir_gitbuilding / '3DPParts.yaml', 'w') as f:
-        for (part,long_name) in partList:
-            f.write("%s:\n" % (part))
-            f.write("    Name: %s\n" % (long_name))
-            f.write("    Specs:\n")
-            f.write("        Filename: %s.stl\n" % (part))
-            #f.write("        Filename: %s.stl ([download](models/%s.stl))\n" % (part, part))
-            f.write("        Manufacturing: 3D Printing\n")
-            f.write("        Material: PLA or PETG\n")
-            #f.write("        Preview: [preview](models/beam.stl){previewpage}\n")
-
-    with open(outputdir_gitbuilding / 'DeviceParts.yaml', 'w') as f:
-        for (part, device) in listOfTrays:
-            f.write("%s:\n" % (device['ID']))
-            f.write("    Name: %s\n" % (device['Name']))
-            f.write("    Specs:\n")
-            for k in device.keys():
-                f.write("        %s: %s\n" % (k, device[k]))
-
-    with open(outputdir_gitbuilding / 'components.md', 'w') as f:
-        f.write("# Installing the components in trays\n\n")
-        f.write("{{BOM}}\n")
-        f.write("![](svg/baseplate_beams_topplate.svg)\n\n")
-        f.write("For all of your components:\n\n")
-        f.write("* find the corresponding 3d printed tray\n")
-        f.write("* install the tray on the rack\n")
-        f.write("* mount the device on the tray\n\n")
-        f.write("Here are the devices and the trays\n\n")
-        for (part, device) in listOfTrays:
-            f.write("* [%s](DeviceParts.yaml#%s){Qty: 1}\n" % (device['Name'], device['ID']))
-            stlfile = F"tray_{device['ID']}.stl"
-            f.write("* %s ([preview](models/%s){previewpage}, [download](models/%s))\n" % (stlfile, stlfile, stlfile))
-            f.write("![](svg/trays.svg)")
-    """
+    print("Creating zip file")
+    runner.create_zip()
 
     print("Finished build for config_hash: " + config_hash)
 

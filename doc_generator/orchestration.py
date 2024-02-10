@@ -304,6 +304,12 @@ class OrchestrationRunner:
         processor = exsource_tools.tools.ExSourceProcessor(exsource_def, None, None)
         processor.make()
 
+    def create_zip(self):
+        # Create an archive of the generated docs so that it can be downloaded
+        dir = str(self._build_dir)
+        shutil.make_archive(dir, 'zip', dir)
+
+
 
 # for debugging
 if __name__ == "__main__":
