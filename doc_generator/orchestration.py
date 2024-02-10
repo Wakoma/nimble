@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 import shutil
 import exsource_tools
+import exsource_tools.cli
+import exsource_tools.tools
 
 from utility.device import Device
 from utility.exsource_def_generator import ExsourceDefGenerator
@@ -295,15 +297,19 @@ class OrchestrationRunner:
     def run_exsource(self):
         # change into self._build_dir
         os.chdir(self._build_dir)
-        
+
         # run exsource-make
-        exsource_tools.make()
+
+        exsource_def = exsource_tools.cli.load_exsource_file("exsource-def.yaml")
+        processor = exsource_tools.tools.ExSourceProcessor(exsource_def, None, None)
+        processor.make()
 
 
-# if main script, run generate_docs with test config
+# for debugging
 if __name__ == "__main__":
     config = {'config': {'server_1': 'Hardware_1', 'router_1': 'Hardware_2',
                          'switch_1': 'Hardware_9', 'charge_controller_1': 'Hardware_4'}}
     runner = OrchestrationRunner(config, "test_config_hash")
     runner.setup()
     runner.generate_exsource_files()
+    runner.run_exsource()
