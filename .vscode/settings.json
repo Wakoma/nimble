@@ -2,4 +2,5 @@
     "terminal.integrated.env.windows": {    
         "PATH": "${env:PATH};C:\\Users\\Andreas\\.conda\\envs\\cadquery\\;C:\\Users\\Andreas\\.conda\\envs\\cadquery\\Scripts\\"
       },
+      "debugpy.debugJustMyCode": false,
 }
