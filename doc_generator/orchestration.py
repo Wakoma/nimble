@@ -292,7 +292,7 @@ class OrchestrationRunner:
         # export_svg(createAssembly(4), self._outputdir_svg / "trays.svg")
 
 
-        print("Finished genrating exsource for config_hash: " + self._config_hash)
+        print("Finished generating exsource for config_hash: " + self._config_hash)
 
     def run_exsource(self):
         # change into self._build_dir
