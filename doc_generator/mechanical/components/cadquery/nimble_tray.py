@@ -6,6 +6,11 @@
 import cadquery as cq
 import math
 
+height_in_hole_unites = 2
+tray_width = 115
+tray_depth = 115
+
+
 class Params:
     def __init__(self):
         # Default length unit is mm.
@@ -76,13 +81,15 @@ def _create_part(params):
     return result
 
 
-def create(number_of_units):
+def create(number_of_units, tray_width, tray_depth):
     params = Params()
     params.height_in_hole_unites = number_of_units
+    params.tray_width = tray_width
+    params.tray_depth = tray_depth
     return _create_part(params)
 
 
 if "show_object" in globals() or __name__ == "__cqgi__":
     # CQGI should execute this whenever called
-    obj = create(2)
+    obj = create(height_in_hole_unites, tray_width, tray_depth)
     show_object(obj)

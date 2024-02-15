@@ -3,4 +3,7 @@
 # SPDX-License-Identifier: Unlicense
 
 cadquery>=2
+git+https://github.com/cadscriptHQ/cadscript.git@dev#egg=cadscript
+git+https://gitlab.com/gitbuilding/exsource-tools.git
+git+https://github.com/CadQuery/cq-cli.git
 gitbuilding
