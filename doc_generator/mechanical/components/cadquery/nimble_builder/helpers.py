@@ -60,6 +60,7 @@ def cut_w_pattern(body: cad.Body,
                   padding_x: float,
                   padding_y: float,
                   min_spacing: float = 0,
+                  cut_depth: float = 10,
                   ) -> 'cad.Body':
     """
     Cut a W-pattern into a plate
@@ -86,7 +87,7 @@ def cut_w_pattern(body: cad.Body,
     cut_sketch.cut_sketch(sketch_w)
 
     # do the cut
-    body.cut_extrude(face, cut_sketch, -10)
+    body.cut_extrude(face, cut_sketch, -cut_depth)
     return body
 
 
