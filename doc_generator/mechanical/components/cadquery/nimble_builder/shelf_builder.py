@@ -227,7 +227,7 @@ class ShelfBuilder:
 
         if sides == "ramp":
             ramp_width = self._height * 1.5
-            ramp_width = min(ramp_width, plate_depth)
+            ramp_width = min(ramp_width, plate_depth - self._front_depth)            
             ramp_sketch = cad.make_sketch()
             ramp_sketch.add_polygon([(self._front_depth, 0),
                                      (self._front_depth + ramp_width, 0),
@@ -253,7 +253,7 @@ class ShelfBuilder:
 
 # for development and debugging
 if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
-    b = ShelfBuilder(vertical_hole_count=2, width="6inch")
-    b.make_front(front_type="w-pattern", bottom_type="closed")
-    b.make_tray(width="standard", depth="standard", sides="ramp", back="open")
+    b = ShelfBuilder(vertical_hole_count=3, width="10inch")
+    b.make_front(front_type="slots", bottom_type="closed")
+    b.make_tray(width="standard", depth=80, sides="ramp", back="open")
     cad.show(b._shelf)
