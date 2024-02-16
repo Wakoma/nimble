@@ -1,10 +1,7 @@
 from math import e, floor
 import cadscript as cad
 
-if __name__ == "__cqgi__":
-    import nimble_builder
-else:
-    from . import nimble_builder
+from . import nimble_builder
 
 
 # parameters to be set in exsource-def.yaml file
