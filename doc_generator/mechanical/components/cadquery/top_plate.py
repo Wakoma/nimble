@@ -2,7 +2,9 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-from .nimble_builder.nimble_end_plate import create_end_plate
+import cadscript as cad
+
+from nimble_builder.nimble_end_plate import create_end_plate
 
 # parameters to be set in exsource-def.yaml file
 width = 100
@@ -15,6 +17,5 @@ def create(width, depth, height):
     return create_end_plate(width, depth, height)
 
 
-if __name__ == "__cqgi__":
-    result = create(width, depth, height)
-    cad.show(result)  # when run in cq-cli, will return result
+result = create(width, depth, height)
+cad.show(result)  # when run in cq-cli, will return result

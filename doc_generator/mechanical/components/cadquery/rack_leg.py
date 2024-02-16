@@ -1,7 +1,7 @@
 from math import e, floor
 import cadscript as cad
 
-from . import nimble_builder
+import nimble_builder
 
 
 # parameters to be set in exsource-def.yaml file
@@ -38,7 +38,6 @@ def make_rack_leg(length, hole_spacing, long_axis_hole_dia, mounting_holes_dia) 
     return beam
 
 
-if __name__ == "__cqgi__":
-    print(f"Creating rack leg with length: {length}, hole spacing: {hole_spacing}")
-    result = make_rack_leg(length, hole_spacing, long_axis_hole_dia, mounting_holes_dia)
-    cad.show(result)  # when run in cq-cli, will return result
+print(f"Creating rack leg with length: {length}, hole spacing: {hole_spacing}")
+result = make_rack_leg(length, hole_spacing, long_axis_hole_dia, mounting_holes_dia)
+cad.show(result)  # when run in cq-cli, will return result
