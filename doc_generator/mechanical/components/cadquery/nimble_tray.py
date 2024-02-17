@@ -89,7 +89,6 @@ def create(number_of_units, tray_width, tray_depth):
     return _create_part(params)
 
 
-if "show_object" in globals() or __name__ == "__cqgi__":
-    # CQGI should execute this whenever called
-    obj = create(height_in_hole_unites, tray_width, tray_depth)
-    show_object(obj)
+# CQGI should execute this whenever called
+obj = create(height_in_hole_unites, tray_width, tray_depth)
+show_object(obj)
