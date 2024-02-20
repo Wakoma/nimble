@@ -4,3 +4,5 @@ gunicorn
 git+https://github.com/cadscriptHQ/cadscript.git@dev
 orjson
 git+https://github.com/jmwright/cq-annotate.git
+git+https://gitlab.com/jmwright/exsource-tools.git
+git+https://github.com/CadQuery/cq-cli.git
