@@ -70,6 +70,11 @@ def cut_w_pattern(body: cad.Body,
 
     dim = cad.helpers.get_dimensions_2d([size_x, size_y], True)
     dim.shrink_x(padding_x).shrink_y(padding_y)
+    if dim.size_x < w_width and dim.size_x > 50:
+        # smaller than usual W, scale it down
+        new_width = dim.size_x
+        w_thickness = w_thickness * (new_width / w_width)
+        w_width = new_width
 
     # distribute Ws in x direction
     pos_list = cad.pattern_distribute(dim.tuple_x, dim.tuple_y,
