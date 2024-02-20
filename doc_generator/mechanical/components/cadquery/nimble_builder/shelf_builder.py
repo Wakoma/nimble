@@ -6,14 +6,14 @@ from typing import Literal, Optional, Union
 import cadscript as cad
 from cadscript.interval import Interval2D
 
-from helpers import cut_slots, cut_w_pattern
+from .helpers import cut_slots, cut_w_pattern
 
 
 hole_diameter = 3.8         # diameter of the holes in the front panels for rack mounting
 panel_thickness = 4         # thickness of the front panels
 bottom_thickness = 2        # thickness of the lower plate of the shelf
 beam_width = 20             # width and depth of the beams that the front panels are attached to
-side_wall_thickness = 3.5   # thickness of the side walls of the shelf
+side_wall_thickness = 2.5   # thickness of the side walls of the shelf
 side_wall_offset = 16       # distance between side walls to the bouding box of the rack
 
 # standard sizes for the shelf
@@ -78,7 +78,7 @@ class ShelfBuilder:
         # front panel
         sketch.add_rect(self._width, (-panel_thickness, 0), center="X")
         # wall next to the beam
-        sketch.add_rect((self._inner_width / 2, self._width / 2 - beam_width - 0.5),
+        sketch.add_rect((self._inner_width / 2, self._width / 2 - beam_width),
                         self._front_depth, center=False)
         sketch.mirror("X")
 
@@ -96,7 +96,7 @@ class ShelfBuilder:
 
         if front_type == "w-pattern":
             padding_x = 0
-            padding_y = 4
+            padding_y = 6
             cut_w_pattern(self._shelf, "<Y", self._inner_width, (0, self._height), padding_x, padding_y)
 
         if front_type == "slots":
@@ -248,6 +248,12 @@ class ShelfBuilder:
         sketch = cad.make_sketch()
         sketch.add_rect(size_x, (offset_y, 999), center="X")
         self._shelf.cut_extrude(face, sketch, -999)
+
+    def get_body(self) -> cad.Body:
+        """
+        Return the shelf body
+        """
+        return self._shelf
 
 
 
