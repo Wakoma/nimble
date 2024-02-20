@@ -68,7 +68,8 @@ class ShelfBuilder:
 
     def make_front(self,
                    front_type: Literal["full", "open", "w-pattern", "slots"],
-                   bottom_type: Literal["none", "front-open", "closed"]) -> None:
+                   bottom_type: Literal["none", "front-open", "closed"]
+                   ) -> None:
         """
         Make the front panel of the shelf
         """
@@ -212,14 +213,15 @@ class ShelfBuilder:
 
         padding_side = 8
         padding_top = 5
+        padding_top_w = 6
         if have_walls:
             walls = cad.make_extrude("XY", wall_sketch, wall_height)
             if sides == "w-pattern":
-                cut_w_pattern(walls, ">X", dim_sides.tuple_y, (0, wall_height), padding_side, padding_top, cut_depth=self._width + 1)
+                cut_w_pattern(walls, ">X", dim_sides.tuple_y, (0, wall_height), padding_side, padding_top_w, cut_depth=self._width + 1)
             if sides == "slots" and not no_slots:
                 cut_slots(walls, ">X", dim_sides.tuple_y, (0, wall_height), padding_side, padding_top)
             if back == "w-pattern":
-                cut_w_pattern(walls, ">Y", dim_back.tuple_x, (0, wall_height), padding_side, padding_top)
+                cut_w_pattern(walls, ">Y", dim_back.tuple_x, (0, wall_height), padding_side, padding_top_w)
             if back == "slots" and not no_slots:
                 cut_slots(walls, ">Y", dim_back.tuple_x, (0, wall_height), padding_side, padding_top)
 
@@ -227,7 +229,7 @@ class ShelfBuilder:
 
         if sides == "ramp":
             ramp_width = self._height * 1.5
-            ramp_width = min(ramp_width, plate_depth - self._front_depth)            
+            ramp_width = min(ramp_width, plate_depth - self._front_depth)
             ramp_sketch = cad.make_sketch()
             ramp_sketch.add_polygon([(self._front_depth, 0),
                                      (self._front_depth + ramp_width, 0),
@@ -249,12 +251,30 @@ class ShelfBuilder:
         sketch.add_rect(size_x, (offset_y, 999), center="X")
         self._shelf.cut_extrude(face, sketch, -999)
 
+    def add_mounting_hole_to_bottom(self,
+                                    x_pos: float,
+                                    y_pos: float,
+                                    base_thickness: float,
+                                    hole_type: Literal["M3cs"]
+                                    ) -> None:
+        """
+        Add a mounting hole to the shelf
+        """
+        base_diameter = 15
+        base = cad.make_cylinder(d=base_diameter, h=base_thickness, center="base")
+        base.move((x_pos, y_pos, 0.0))
+        self._shelf.add(base)
+        if hole_type == "M3cs":
+            self._shelf.cut_hole("<Z", d=3.2, countersink_angle=90, d2=6, pos=(x_pos, -y_pos))
+        else:
+            raise ValueError(f"Unknown hole type: {hole_type}")
+
+
     def get_body(self) -> cad.Body:
         """
         Return the shelf body
         """
         return self._shelf
-
 
 
 # for development and debugging
