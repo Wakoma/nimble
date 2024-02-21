@@ -8,12 +8,13 @@ from nimble_builder import shelf_builder
 # parameters to be set in exsource-def.yaml file
 
 # shelf types
-# "stuff"       - for general stuff
-# "stuff-thin"  - for general stuff, thin version
-# "nuc"         - for Intel NUC
-# "usw-flex"    - for Ubiquiti USW-Flex
-# "flex-mini"   - for Ubiquiti Flex Mini
-shelf_type = "flex-mini"
+# "stuff"                   - for general stuff
+# "stuff-thin"              - for general stuff, thin version
+# "nuc"                     - for Intel NUC
+# "usw-flex"                - for Ubiquiti USW-Flex
+# "flex-mini"               - for Ubiquiti Flex Mini
+# "anker-powerport5"        - for Anker PowerPort 5
+shelf_type = "anker-powerport5"
 hole_count = 2
 
 
@@ -64,6 +65,13 @@ def create_6in_shelf(shelf_type, hole_count) -> cad.Body:
         b.add_mounting_hole_to_side(y_pos=59, z_pos=b._height / 2, hole_type="M3-tightfit", side="both")
         b.add_mounting_hole_to_back(x_pos=-75 / 2, z_pos=b._height / 2, hole_type="M3-tightfit")
         b.add_mounting_hole_to_back(x_pos=+75 / 2, z_pos=b._height / 2, hole_type="M3-tightfit")
+        return b.get_body()
+    if shelf_type == "anker-powerport5":
+        b = get_builder(hole_count)
+        b.make_front(front_type="full", bottom_type="closed")
+        b.cut_opening("<Y", 53, offset_y=b.bottom_thickness)
+        b.make_tray(width="standard", depth=95, sides="ramp", back="open")
+        b.add_cage(60.6, 90.8, height=25, back_cutout_width=40)
         return b.get_body()
 
     raise ValueError(f"Unknown shelf type: {shelf_type}")
