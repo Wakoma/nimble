@@ -70,10 +70,12 @@ class ShelfBuilder:
         self._hole_offset_y = hole_dist_y / 2
         self._inner_width = self._width - 2 * beam_width - 2 * self.side_wall_thickness
         self._front_depth = beam_width + 2.75  # the size of the front panel part in y direction
+        self._padding_front = self._front_depth  # the space between the front panel and where slots etc can start at the try bottom
 
     def make_front(self,
                    front_type: Literal["full", "open", "w-pattern", "slots"],
-                   bottom_type: Literal["none", "front-open", "closed"]
+                   bottom_type: Literal["none", "front-open", "closed"],
+                   beam_wall_type: Literal["none", "standard", "ramp"] = "standard"
                    ) -> None:
         """
         Make the front panel of the shelf
@@ -84,14 +86,18 @@ class ShelfBuilder:
         # front panel
         sketch.add_rect(self._width, (-self.panel_thickness, 0), center="X")
         # wall next to the beam
-        sketch.add_rect((self._inner_width / 2, self._width / 2 - beam_width),
-                        self._front_depth, center=False)
+        if beam_wall_type != "none":
+            sketch.add_rect((self._inner_width / 2, self._width / 2 - beam_width),
+                            self._front_depth, center=False)
         sketch.mirror("X")
 
         # front panel with holes
         front = cad.make_extrude("XY", sketch, self._height)
         pattern_holes = cad.pattern_rect(self._hole_dist_x, (self._hole_offset_y, self._height - self._hole_offset_y), center="X")
         front.cut_hole("<Y", d=self.hole_diameter, pos=pattern_holes)
+
+        if beam_wall_type == "ramp":
+            front.chamfer(">Y and >Z and |X", min(self._height, beam_width))
 
         self._shelf = front
 
@@ -122,6 +128,7 @@ class ShelfBuilder:
             bottom_sketch.add_rect(self._inner_width, (-0.1, self._front_depth), center="X")
             bottom = cad.make_extrude("XY", bottom_sketch, self.bottom_thickness)
             self._shelf.add(bottom)
+            self._padding_front *= 0.25  # can be smaller in this case
 
         if bottom_type == "front-open":
             # a base with a cutout on the front side for e.g. cable handling
@@ -140,7 +147,9 @@ class ShelfBuilder:
                   depth: Union[Literal["standard"], float],
                   sides: Literal["full", "open", "w-pattern", "slots", "ramp"],
                   back: Literal["full", "open", "w-pattern", "slots"],
+                  bottom_type: Literal["full", "slots", "slots-large"] = "slots-large",
                   wall_height: Optional[float] = None,
+                  padding_front: Optional[float] = None,
                   ) -> None:
         """
         Make the tray of the shelf
@@ -170,37 +179,45 @@ class ShelfBuilder:
         plate_sketch = cad.make_sketch()
         plate_sketch.add_rect(plate_width, (self._front_depth, plate_depth), center="X")
         plate = cad.make_extrude("XY", plate_sketch, self.bottom_thickness)
+
+        if sides == "open" and back == "open":
+            plate.fillet(">Y and |Z", 3)
+
         self._shelf.add(plate)
 
         # for broad trays, add walls behind beams
         # for thin trays connect the walls
 
-        if plate_width > self._width - 2 * beam_width:
-            # broad tray
-            left = self._inner_width / 2
-            right = plate_width / 2
-        else:
-            # thin tray
-            left = plate_width / 2 - self.side_wall_thickness
-            right = self._inner_width / 2
+        if sides != "open":
+            if plate_width > self._width - 2 * beam_width:
+                # broad tray
+                left = self._inner_width / 2
+                right = plate_width / 2
+            else:
+                # thin tray
+                left = plate_width / 2 - self.side_wall_thickness
+                right = self._inner_width / 2
 
-        if abs(left - right) > 0.5:
-            extra_sketch = cad.make_sketch()
-            extra_sketch.add_rect((left, right),
-                                  (beam_width + 0.25, self._front_depth))
-            extra_sketch.mirror("X")
-            extra_walls = cad.make_extrude("XY", extra_sketch, self._height)
-            self._shelf.add(extra_walls)
-
+            if abs(left - right) > 0.5:
+                extra_sketch = cad.make_sketch()
+                extra_sketch.add_rect((left, right),
+                                      (beam_width + 0.25, self._front_depth))
+                extra_sketch.mirror("X")
+                extra_walls = cad.make_extrude("XY", extra_sketch, self._height)
+                self._shelf.add(extra_walls)
 
         # add slots to base plate
         padding_x = 8
-        padding_y = 5
+        padding_y = 8
+        space_at_front = self._padding_front if padding_front is None else padding_front
 
         if not no_slots:
-            cut_slots(self._shelf, ">Z",
-                      plate_width, (self._front_depth, plate_depth),
-                      padding_x, padding_y)
+            if bottom_type in ["slots", "slots-large"]:
+                cut_slots(self._shelf, ">Z",
+                          plate_width, (space_at_front, plate_depth),
+                          padding_x, padding_y,
+                          slot_type="large" if bottom_type == "slots-large" else "standard"
+                          )
 
         # add side walls and back wall
 
@@ -341,6 +358,7 @@ class ShelfBuilder:
         holder_thickness = 3
         if height == 0:
             height = self._height - holder_thickness
+        cage_height = height - offset_z
 
         # basic cage
         sketch = cad.make_sketch()
@@ -348,7 +366,14 @@ class ShelfBuilder:
         sketch.cut_rect(inner_width, inner_depth, center="X")
         if back_cutout_width > 0:
             sketch.cut_rect(back_cutout_width, inner_depth + wall_thickness + 1, center="X")
-        cage = cad.make_extrude("XY", sketch, height - offset_z)
+        cage = cad.make_extrude("XY", sketch, cage_height)
+
+        # add slots
+        padding_x = 4
+        padding_y = 4
+        cut_slots(cage, ">X", (0, inner_depth), (0, cage_height), padding_x, padding_y)
+        if back_cutout_width == 0:
+            cut_slots(cage, ">Y", inner_width, (0, cage_height), padding_x, padding_y)
 
         # cable tie holders
         sketch_holders = cad.make_sketch()

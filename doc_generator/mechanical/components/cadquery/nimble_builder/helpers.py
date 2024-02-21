@@ -1,4 +1,5 @@
 
+from typing import Literal
 import cadscript as cad
 
 
@@ -8,6 +9,7 @@ def cut_slots(body: cad.Body,
               size_y: cad.DimensionDefinitionType,
               padding_x: float,
               padding_y: float,
+              slot_type: Literal["standard", "large"] = "standard",
               ) -> 'cad.Body':
     """
     Cut slots into a plate
@@ -17,6 +19,10 @@ def cut_slots(body: cad.Body,
     slot_spacing_y = 5
     max_slot_length = 30
     no_slots_limit = 20
+
+    if slot_type == "large":
+        slot_width = 5
+        max_slot_length = 40
 
     dim = cad.helpers.get_dimensions_2d([size_x, size_y], True)
 
