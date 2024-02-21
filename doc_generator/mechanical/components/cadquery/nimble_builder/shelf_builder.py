@@ -287,17 +287,21 @@ class ShelfBuilder:
                                     x_pos: float,
                                     y_pos: float,
                                     base_thickness: float,
-                                    hole_type: Literal["M3cs"]
+                                    hole_type: Literal["M3cs", "M3-tightfit", "base-only"],
+                                    base_diameter: float = 15
                                     ) -> None:
         """
         Add a mounting hole to the shelf
-        """
-        base_diameter = 15
+        """        
         base = cad.make_cylinder(d=base_diameter, h=base_thickness, center="base")
         base.move((x_pos, y_pos, 0.0))
         self._shelf.add(base)
         if hole_type == "M3cs":
             self._shelf.cut_hole("<Z", d=3.2, countersink_angle=90, d2=6, pos=(x_pos, -y_pos))
+        elif hole_type == "M3-tightfit":
+            self._shelf.cut_hole("<Z", d=2.9, pos=(x_pos, -y_pos))
+        elif hole_type == "base-only":
+            pass
         else:
             raise ValueError(f"Unknown hole type: {hole_type}")
 
