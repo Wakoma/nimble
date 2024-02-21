@@ -12,10 +12,11 @@ from nimble_builder import shelf_builder
 # "stuff-thin"              - for general stuff, thin version
 # "nuc"                     - for Intel NUC
 # "usw-flex"                - for Ubiquiti USW-Flex
-# "flex-mini"               - for Ubiquiti Flex Mini
+# "usw-flex-mini"           - for Ubiquiti Flex Mini
 # "anker-powerport5"        - for Anker PowerPort 5
 # "anker-A2123"             - for Anker 360 Charger 60W
 # "hdd35"                   - for 3.5" HDD
+# "dual-ssd"                - for 2x 2.5" SSD
 shelf_type = "stuff"
 hole_count = 2
 
@@ -57,13 +58,14 @@ def create_6in_shelf(shelf_type, hole_count) -> cad.Body:
         base2 = cad.make_extrude("XY", sketch, 5)
         b.get_body().add(base).add(base2)
         return b.get_body()
-    if shelf_type == "flex-mini":
+    if shelf_type == "usw-flex-mini":
         b = get_builder(hole_count)
         b.side_wall_thickness = 3.8  # extra thick to have thinner tray
         b.init_values()  # re-init to apply the new thickness
         b.make_front(front_type="full", bottom_type="closed")
         b.cut_opening("<Y", 85, offset_y=5, size_y=19)
-        b.make_tray(width="standard", depth=73.4, sides="slots", back="w-pattern")
+        b.make_tray(width="standard", depth=73.4, sides="slots", back="slots")
+        b.cut_opening(">Y", 30, offset_y=b.bottom_thickness, depth=10)
         b.add_mounting_hole_to_side(y_pos=59, z_pos=b._height / 2, hole_type="M3-tightfit", side="both")
         b.add_mounting_hole_to_back(x_pos=-75 / 2, z_pos=b._height / 2, hole_type="M3-tightfit")
         b.add_mounting_hole_to_back(x_pos=+75 / 2, z_pos=b._height / 2, hole_type="M3-tightfit")
@@ -106,14 +108,30 @@ def create_6in_shelf(shelf_type, hole_count) -> cad.Body:
         b.add_mounting_hole_to_side(y_pos=screw_pos1, z_pos=screw_y + b.bottom_thickness, hole_type="HDD", side="both")
         b.add_mounting_hole_to_side(y_pos=screw_pos2, z_pos=screw_y + b.bottom_thickness, hole_type="HDD", side="both")
         return b.get_body()
+    if shelf_type == "dual-ssd":
+        width = 70
+        screw_pos1 = 12.5  # distance from front
+        screw_pos2 = screw_pos1 + 76
+        screw_y1 = 6.6  # distance from bottom plane
+        screw_y2 = screw_y1 + 11.1
+        b = get_builder(hole_count)
+        b.make_front(front_type="w-pattern", bottom_type="none", beam_wall_type="none")
+        b.make_tray(width=width + 2 * b.side_wall_thickness, depth=111, sides="slots", back="open")
+        for (x, y) in [(screw_pos1, screw_y2),
+                       (screw_pos2, screw_y2),
+                       (screw_pos1, screw_y1),
+                       (screw_pos2, screw_y1)]:
+            b.add_mounting_hole_to_side(y_pos=x, z_pos=y + b.bottom_thickness,
+                                        hole_type="M3-tightfit", side="both", base_diameter=11)
+        return b.get_body()
 
     raise ValueError(f"Unknown shelf type: {shelf_type}")
 
 
 if __name__ == "__main__":
     # debugging/testing
-    # for t in ["stuff", "stuff-thin", "nuc", "usw-flex", "flex-mini", "anker-powerport5", "anker-A2123"]:
-    for t in ["hdd35"]:
+    #for t in ["stuff", "stuff-thin", "nuc", "usw-flex", "usw-flex-mini", "anker-powerport5", "anker-A2123", "hdd35", "dual-ssd"]:
+    for t in ["usw-flex-mini"]:
         print(f"Creating {t} shelf")
         result = create_6in_shelf(t, hole_count)
         result.export_stl(f"shelf_6in_{t}.stl")
