@@ -119,8 +119,9 @@ class ShelfBuilder:
 
         # bottom types: how the lower, horizontal part of the front panel looks like
         if bottom_type == "none":
-            # nothing
-            pass
+            # do nothing
+            self._front_depth = 0
+            self._padding_front *= 0.25  # can be smaller in this case
 
         if bottom_type == "closed":
             # a full-material base between the 2 rack legs
@@ -188,7 +189,7 @@ class ShelfBuilder:
         # for broad trays, add walls behind beams
         # for thin trays connect the walls
 
-        if sides != "open":
+        if sides != "open" and self._front_depth > 0:
             if plate_width > self._width - 2 * beam_width:
                 # broad tray
                 left = self._inner_width / 2
@@ -267,7 +268,8 @@ class ShelfBuilder:
                     face: str,
                     size_x: cad.DimensionDefinitionType,
                     offset_y: float = 0,
-                    size_y: Optional[cad.DimensionDefinitionType] = None
+                    size_y: Optional[cad.DimensionDefinitionType] = None,
+                    depth: float = 999,
                     ) -> None:
         """
         Cut an opening into a plate
@@ -279,7 +281,7 @@ class ShelfBuilder:
         else:
             dim_y = Interval1D(offset_y, 999)
         sketch.add_rect(size_x, dim_y.tuple, center="X")
-        self._shelf.cut_extrude(face, sketch, -999)
+        self._shelf.cut_extrude(face, sketch, -depth)
 
     def add_mounting_hole_to_bottom(self,
                                     x_pos: float,
@@ -303,12 +305,12 @@ class ShelfBuilder:
                                   y_pos: float,
                                   z_pos: float,
                                   hole_type: Literal["M3-tightfit", "HDD"],
-                                  side: Literal["left", "right", "both"]
+                                  side: Literal["left", "right", "both"],
+                                  base_diameter: float = 8,
                                   ) -> None:
         """
         Add a mounting hole to the shelf
         """
-        base_diameter = 8
         base_sketch = cad.make_sketch()
         base_sketch.add_circle(diameter=base_diameter, pos=(y_pos, z_pos))
         base_sketch.add_rect(base_diameter, (0, z_pos), center="X", pos=(y_pos, 0))
@@ -320,7 +322,7 @@ class ShelfBuilder:
         self._shelf.add(base)
         if hole_type == "M3-tightfit":
             self._shelf.cut_hole(">X", d=2.9, pos=(y_pos, z_pos))
-        if hole_type == "HDD":
+        elif hole_type == "HDD":
             self._shelf.cut_hole(">X", d=2.72, pos=(y_pos, z_pos))
         else:
             raise ValueError(f"Unknown hole type: {hole_type}")
