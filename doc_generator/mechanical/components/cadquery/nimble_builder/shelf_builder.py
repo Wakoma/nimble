@@ -4,22 +4,18 @@
 
 from typing import Literal, Optional, Union
 import cadscript as cad
-from cadscript.interval import Interval2D
+from cadscript.interval import Interval2D, Interval1D
+
 
 from .helpers import cut_slots, cut_w_pattern
 
 
-hole_diameter = 3.8         # diameter of the holes in the front panels for rack mounting
-panel_thickness = 4         # thickness of the front panels
-bottom_thickness = 2        # thickness of the lower plate of the shelf
-beam_width = 20             # width and depth of the beams that the front panels are attached to
-side_wall_thickness = 2.5   # thickness of the side walls of the shelf
-side_wall_offset = 16       # distance between side walls to the bouding box of the rack
 
 # standard sizes for the shelf
-width_6in = 155
-width_10in = 254
-width_10in_reduced = 250
+beam_width = 20             # width and depth of the beams that the front panels are attached to
+width_6in = 155             # full width (front panel) of the 6 inch nimble rack
+width_10in = 254            # full width (front panel) of the 10 inch rack
+width_10in_reduced = 250    # front panel width for 10 inch rack, reduced to fit into a 250mm wide printer
 
 # standard distances between the holes in the front panels (6 inch nimble rack)
 hole_dist_y = 14
@@ -37,13 +33,19 @@ class ShelfBuilder:
         z: bottom of shelf
 
     """
+    hole_diameter = 3.8         # diameter of the holes in the front panels for rack mounting
+    panel_thickness = 4         # thickness of the front panels
+    bottom_thickness = 2        # thickness of the lower plate of the shelf
+    side_wall_thickness = 2.5   # thickness of the side walls of the shelf
+    back_wall_thickness = 2.5   # thickness of the back wall of the shelf
+    side_wall_offset = 16       # distance between side walls to the bouding box of the rack
 
     _shelf: cad.Body
     _vertical_hole_count: int
     _width_type: Literal["6inch", "10inch", "10inch_reduced"]
     _width: float
     _height: float
-    _inner_width: float
+    _inner_width: float  # inside walls between the beams
 
     _hole_dist_x: float
     _hole_offset_y: float
@@ -60,10 +62,13 @@ class ShelfBuilder:
         self._vertical_hole_count = vertical_hole_count
         self._width_type = width
         self._width = width_6in if width == "6inch" else width_10in if width == "10inch" else width_10in_reduced
+        self.init_values()
+        
+    def init_values(self):
         self._height = self._vertical_hole_count * hole_dist_y
         self._hole_dist_x = self._width - beam_width
         self._hole_offset_y = hole_dist_y / 2
-        self._inner_width = self._width - 2 * beam_width - 2 * side_wall_thickness
+        self._inner_width = self._width - 2 * beam_width - 2 * self.side_wall_thickness
         self._front_depth = beam_width + 2.75  # the size of the front panel part in y direction
 
     def make_front(self,
@@ -77,7 +82,7 @@ class ShelfBuilder:
 
         sketch = cad.make_sketch()
         # front panel
-        sketch.add_rect(self._width, (-panel_thickness, 0), center="X")
+        sketch.add_rect(self._width, (-self.panel_thickness, 0), center="X")
         # wall next to the beam
         sketch.add_rect((self._inner_width / 2, self._width / 2 - beam_width),
                         self._front_depth, center=False)
@@ -86,7 +91,7 @@ class ShelfBuilder:
         # front panel with holes
         front = cad.make_extrude("XY", sketch, self._height)
         pattern_holes = cad.pattern_rect(self._hole_dist_x, (self._hole_offset_y, self._height - self._hole_offset_y), center="X")
-        front.cut_hole("<Y", d=hole_diameter, pos=pattern_holes)
+        front.cut_hole("<Y", d=self.hole_diameter, pos=pattern_holes)
 
         self._shelf = front
 
@@ -115,7 +120,7 @@ class ShelfBuilder:
             # a full-material base between the 2 rack legs
             bottom_sketch = cad.make_sketch()
             bottom_sketch.add_rect(self._inner_width, (-0.1, self._front_depth), center="X")
-            bottom = cad.make_extrude("XY", bottom_sketch, bottom_thickness)
+            bottom = cad.make_extrude("XY", bottom_sketch, self.bottom_thickness)
             self._shelf.add(bottom)
 
         if bottom_type == "front-open":
@@ -127,7 +132,7 @@ class ShelfBuilder:
                                        (self._inner_width / 2 - 5, self._front_depth),
                                        ])
             bottom_sketch.mirror("X")
-            bottom = cad.make_extrude("XY", bottom_sketch, bottom_thickness)
+            bottom = cad.make_extrude("XY", bottom_sketch, self.bottom_thickness)
             self._shelf.add(bottom)
 
     def make_tray(self,
@@ -146,23 +151,25 @@ class ShelfBuilder:
             if self._width_type == "6inch":
                 plate_width = 115  # could be a bit larger, use this for backwards compatibility
             else:
-                plate_width = self._inner_width + 2 * side_wall_thickness
+                plate_width = self._inner_width + 2 * self.side_wall_thickness
         elif width == "broad":
-            plate_width = self._width - 2 * side_wall_offset
+            plate_width = self._width - 2 * self.side_wall_offset
         if not isinstance(plate_width, (float, int)) and plate_width <= 0:
             raise ValueError("Invalid width")
+        self.plate_width = plate_width
 
         plate_depth = 0 if not isinstance(depth, (float, int)) else depth
         if depth == "standard":
             plate_depth = 136
         if not isinstance(plate_depth, float) and plate_depth <= 0:
             raise ValueError("Invalid depth")
+        self.plate_depth = plate_depth
 
         # base plate
 
         plate_sketch = cad.make_sketch()
         plate_sketch.add_rect(plate_width, (self._front_depth, plate_depth), center="X")
-        plate = cad.make_extrude("XY", plate_sketch, bottom_thickness)
+        plate = cad.make_extrude("XY", plate_sketch, self.bottom_thickness)
         self._shelf.add(plate)
 
         # for broad trays, add walls behind beams
@@ -174,7 +181,7 @@ class ShelfBuilder:
             right = plate_width / 2
         else:
             # thin tray
-            left = plate_width / 2 - side_wall_thickness
+            left = plate_width / 2 - self.side_wall_thickness
             right = self._inner_width / 2
 
         if abs(left - right) > 0.5:
@@ -198,8 +205,8 @@ class ShelfBuilder:
         # add side walls and back wall
 
         wall_height = self._height if wall_height is None else wall_height
-        dim_sides = Interval2D(plate_width / 2 - side_wall_thickness, plate_width / 2, self._front_depth, plate_depth)
-        dim_back = cad.helpers.get_dimensions_2d([plate_width, (plate_depth - side_wall_thickness, plate_depth)], center="X")
+        dim_sides = Interval2D(plate_width / 2 - self.side_wall_thickness, plate_width / 2, self._front_depth, plate_depth)
+        dim_back = cad.helpers.get_dimensions_2d([plate_width, (plate_depth - self.back_wall_thickness, plate_depth)], center="X")
         have_walls = False
         wall_sketch = cad.make_sketch()
         if sides not in ["open", "ramp"]:
@@ -242,13 +249,19 @@ class ShelfBuilder:
     def cut_opening(self,
                     face: str,
                     size_x: cad.DimensionDefinitionType,
-                    offset_y: float = 0
+                    offset_y: float = 0,
+                    size_y: Optional[cad.DimensionDefinitionType] = None
                     ) -> None:
         """
         Cut an opening into a plate
         """
         sketch = cad.make_sketch()
-        sketch.add_rect(size_x, (offset_y, 999), center="X")
+        if size_y is not None:
+            dim_y = cad.helpers.get_dimension(size_y, center=False)
+            dim_y.move(offset_y)
+        else:
+            dim_y = Interval1D(offset_y, 999)
+        sketch.add_rect(size_x, dim_y.tuple, center="X")
         self._shelf.cut_extrude(face, sketch, -999)
 
     def add_mounting_hole_to_bottom(self,
@@ -266,6 +279,49 @@ class ShelfBuilder:
         self._shelf.add(base)
         if hole_type == "M3cs":
             self._shelf.cut_hole("<Z", d=3.2, countersink_angle=90, d2=6, pos=(x_pos, -y_pos))
+        else:
+            raise ValueError(f"Unknown hole type: {hole_type}")
+
+    def add_mounting_hole_to_side(self,
+                                  y_pos: float,
+                                  z_pos: float,
+                                  hole_type: Literal["M3-tightfit"],
+                                  side: Literal["left", "right", "both"]
+                                  ) -> None:
+        """
+        Add a mounting hole to the shelf
+        """
+        base_diameter = 8
+        base_sketch = cad.make_sketch()
+        base_sketch.add_circle(diameter=base_diameter, pos=(y_pos, z_pos))
+        base_sketch.add_rect(base_diameter, (0, z_pos), center="X", pos=(y_pos, 0))
+        base = cad.make_extrude("YZ", base_sketch, (self.plate_width / 2 - self.side_wall_thickness, self.plate_width / 2))
+        if side == "both":
+            base.mirror("X")
+        else:
+            raise ValueError(f"not yet implemented: {side}")
+        self._shelf.add(base)
+        if hole_type == "M3-tightfit":
+            self._shelf.cut_hole(">X", d=2.9, pos=(y_pos, z_pos))
+        else:
+            raise ValueError(f"Unknown hole type: {hole_type}")
+
+    def add_mounting_hole_to_back(self,
+                                  x_pos: float,
+                                  z_pos: float,
+                                  hole_type: Literal["M3-tightfit"],
+                                  ) -> None:
+        """
+        Add a mounting hole to the shelf
+        """
+        base_diameter = 8
+        base_sketch = cad.make_sketch()
+        base_sketch.add_circle(diameter=base_diameter, pos=(x_pos, z_pos))
+        base_sketch.add_rect(base_diameter, (0, z_pos), center="X", pos=(x_pos, 0))
+        base = cad.make_extrude("XZ", base_sketch, (-self.plate_depth, -(self.plate_depth - self.back_wall_thickness)))
+        self._shelf.add(base)
+        if hole_type == "M3-tightfit":
+            self._shelf.cut_hole(">Y", d=2.9, pos=(-x_pos, z_pos), depth=self.back_wall_thickness + 1)
         else:
             raise ValueError(f"Unknown hole type: {hole_type}")
 
