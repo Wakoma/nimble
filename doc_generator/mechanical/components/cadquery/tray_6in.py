@@ -57,12 +57,11 @@ def create_6in_shelf(shelf_type, hole_count) -> cad.Body:
     if shelf_type == "flex-mini":
         b = get_builder(hole_count)
         b.side_wall_thickness = 3.8  # extra thick to have thinner tray
-        b.init_values() # re-init to apply the new thickness
+        b.init_values()  # re-init to apply the new thickness
         b.make_front(front_type="full", bottom_type="closed")
         b.cut_opening("<Y", 85, offset_y=5, size_y=19)
         b.make_tray(width="standard", depth=73.4, sides="slots", back="w-pattern")
-        b.add_mounting_hole_to_side(y_pos=11.75, z_pos=b._height / 2, hole_type="M3-tightfit", side="both")
-        b.add_mounting_hole_to_side(y_pos=58.9, z_pos=b._height / 2, hole_type="M3-tightfit", side="both")
+        b.add_mounting_hole_to_side(y_pos=59, z_pos=b._height / 2, hole_type="M3-tightfit", side="both")
         b.add_mounting_hole_to_back(x_pos=-75 / 2, z_pos=b._height / 2, hole_type="M3-tightfit")
         b.add_mounting_hole_to_back(x_pos=+75 / 2, z_pos=b._height / 2, hole_type="M3-tightfit")
         return b.get_body()
