@@ -302,7 +302,7 @@ class ShelfBuilder:
     def add_mounting_hole_to_side(self,
                                   y_pos: float,
                                   z_pos: float,
-                                  hole_type: Literal["M3-tightfit"],
+                                  hole_type: Literal["M3-tightfit", "HDD"],
                                   side: Literal["left", "right", "both"]
                                   ) -> None:
         """
@@ -320,6 +320,8 @@ class ShelfBuilder:
         self._shelf.add(base)
         if hole_type == "M3-tightfit":
             self._shelf.cut_hole(">X", d=2.9, pos=(y_pos, z_pos))
+        if hole_type == "HDD":
+            self._shelf.cut_hole(">X", d=2.72, pos=(y_pos, z_pos))
         else:
             raise ValueError(f"Unknown hole type: {hole_type}")
 
