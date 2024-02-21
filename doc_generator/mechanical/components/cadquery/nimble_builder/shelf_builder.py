@@ -63,7 +63,7 @@ class ShelfBuilder:
         self._width_type = width
         self._width = width_6in if width == "6inch" else width_10in if width == "10inch" else width_10in_reduced
         self.init_values()
-        
+
     def init_values(self):
         self._height = self._vertical_hole_count * hole_dist_y
         self._hole_dist_x = self._width - beam_width
@@ -324,6 +324,52 @@ class ShelfBuilder:
             self._shelf.cut_hole(">Y", d=2.9, pos=(-x_pos, z_pos), depth=self.back_wall_thickness + 1)
         else:
             raise ValueError(f"Unknown hole type: {hole_type}")
+
+    def add_cage(self,
+                 inner_width: float,
+                 inner_depth: float,
+                 height: float = 0,
+                 back_cutout_width: float = 0,
+                 ):
+        wall_thickness = 2.5
+        offset_z = 4
+        holder_pos_y1 = inner_depth * 0.25
+        holder_pos_y2 = inner_depth * 0.75
+        holder_width = 8
+        holder_gap = 6
+        holder_gap_height = 8
+        holder_thickness = 3
+        if height == 0:
+            height = self._height - holder_thickness
+
+        # basic cage
+        sketch = cad.make_sketch()
+        sketch.add_rect(inner_width + wall_thickness * 2, inner_depth + wall_thickness, center="X")
+        sketch.cut_rect(inner_width, inner_depth, center="X")
+        if back_cutout_width > 0:
+            sketch.cut_rect(back_cutout_width, inner_depth + wall_thickness + 1, center="X")
+        cage = cad.make_extrude("XY", sketch, height - offset_z)
+
+        # cable tie holders
+        sketch_holders = cad.make_sketch()
+        sketch_holders.add_rect(inner_width + wall_thickness * 4 + holder_gap * 2, holder_width,
+                                pos=[(0, holder_pos_y1), (0, holder_pos_y2)])
+        sketch_holders.cut_rect(inner_width, inner_depth, center="X")
+        holders = cad.make_extrude("XY", sketch_holders, height + holder_thickness)
+        holders.chamfer(">Z and >X and |Y", holder_gap * 0.8)
+        holders.chamfer(">Z and <X and |Y", holder_gap * 0.8)
+        cage.add(holders)
+        # cut channels for the cable tie holders
+        sketch_holders_cut = cad.make_sketch()
+        sketch_holders_cut.add_rect(inner_width + wall_thickness * 2 + holder_gap * 2, inner_depth, center="X")
+        sketch_holders_cut.cut_rect(inner_width + wall_thickness * 2, inner_depth, center="X")
+        holders_cut = cad.make_extrude("XY", sketch_holders_cut, (height - holder_gap_height, height))
+        holders_cut.chamfer(">Z and >X and |Y", holder_gap * 0.6)
+        holders_cut.chamfer(">Z and <X and |Y", holder_gap * 0.6)
+        holders_cut.chamfer("<Z and |Y", holder_gap * 0.3)
+        cage.cut(holders_cut)
+
+        self._shelf.add(cage)
 
 
     def get_body(self) -> cad.Body:
