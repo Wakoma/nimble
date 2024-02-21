@@ -17,6 +17,7 @@ from nimble_builder import shelf_builder
 # "anker-A2123"             - for Anker 360 Charger 60W
 # "hdd35"                   - for 3.5" HDD
 # "dual-ssd"                - for 2x 2.5" SSD
+# "raspi"                   - for Raspberry Pi
 shelf_type = "stuff"
 hole_count = 2
 
@@ -124,14 +125,34 @@ def create_6in_shelf(shelf_type, hole_count) -> cad.Body:
             b.add_mounting_hole_to_side(y_pos=x, z_pos=y + b.bottom_thickness,
                                         hole_type="M3-tightfit", side="both", base_diameter=11)
         return b.get_body()
+    if shelf_type == "raspi":
+        screw_dist_x = 49
+        screw_dist_y = 58
+        dist_to_front = 23.5
+        offset_x = -13
+        b = get_builder(hole_count)
+        b.make_front(front_type="full", bottom_type="closed")
+        b.cut_opening("<Y", (-15, 39.5), size_y=(6, 25))
+        b.cut_opening("<Y", (-41.5, -25.5), size_y=(6, 22))
+        b.make_tray(width="standard", depth=111, sides="w-pattern", back="open")
+        for (x, y) in [(offset_x, dist_to_front),
+                       (offset_x + screw_dist_x, dist_to_front),
+                       (offset_x, dist_to_front + screw_dist_y),
+                       (offset_x + screw_dist_x, dist_to_front + screw_dist_y)]:
+            b.add_mounting_hole_to_bottom(x_pos=x, y_pos=y, hole_type="base-only",
+                                          base_thickness=b.bottom_thickness, base_diameter=20)
+            b.add_mounting_hole_to_bottom(x_pos=x, y_pos=y, hole_type="M3-tightfit",
+                                          base_thickness=5.5, base_diameter=7)
+        return b.get_body()
+
 
     raise ValueError(f"Unknown shelf type: {shelf_type}")
 
 
 if __name__ == "__main__":
     # debugging/testing
-    #for t in ["stuff", "stuff-thin", "nuc", "usw-flex", "usw-flex-mini", "anker-powerport5", "anker-A2123", "hdd35", "dual-ssd"]:
-    for t in ["usw-flex-mini"]:
+    # for t in ["stuff", "stuff-thin", "nuc", "usw-flex", "usw-flex-mini", "anker-powerport5", "anker-A2123", "hdd35", "dual-ssd"]:
+    for t in ["raspi"]:
         print(f"Creating {t} shelf")
         result = create_6in_shelf(t, hole_count)
         result.export_stl(f"shelf_6in_{t}.stl")
