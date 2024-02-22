@@ -14,7 +14,8 @@ from nimble_builder import shelf_builder
 # "usw-flex"                - for Ubiquiti USW-Flex
 # "usw-flex-mini"           - for Ubiquiti Flex Mini
 # "anker-powerport5"        - for Anker PowerPort 5
-# "anker-A2123"             - for Anker 360 Charger 60W
+# "anker-a2123"             - for Anker 360 Charger 60W (a2123)
+# "anker-atom3slim"         - for Anker PowerPort Atom III Slim (AK-194644090180)
 # "hdd35"                   - for 3.5" HDD
 # "dual-ssd"                - for 2x 2.5" SSD
 # "raspi"                   - for Raspberry Pi
@@ -72,26 +73,13 @@ def create_6in_shelf(shelf_type, hole_count) -> cad.Body:
         b.add_mounting_hole_to_back(x_pos=+75 / 2, z_pos=b._height / 2, hole_type="M3-tightfit")
         return b.get_body()
     if shelf_type == "anker-powerport5":
-        width = 60.6
-        length = 90.8
-        height = 25
-        b = get_builder(hole_count)
-        b.make_front(front_type="full", bottom_type="closed", beam_wall_type="ramp")
-        b.cut_opening("<Y", 53, offset_y=b.bottom_thickness)
-        b.make_tray(width=width + 10, depth=length + 3, sides="open", back="open")
-        b.add_cage(inner_width=width, inner_depth=length, height=height, back_cutout_width=40)
-        return b.get_body()
-    if shelf_type == "anker-A2123":
+        return create_ziptie_shelf(hole_count, width=56, length=90.8, height=25, cutout_width=53)
+    if shelf_type == "anker-atom3slim":
+        return create_ziptie_shelf(hole_count, width=86.5, length=90, height=20, cutout_width=71)
+    if shelf_type == "anker-a2123":
         # 99 x 70 x 26 mm
-        width = 70
-        length = 99
-        height = 25  # max for cage on 2 hole shelf
-        b = get_builder(hole_count)
-        b.make_front(front_type="full", bottom_type="closed", beam_wall_type="ramp")
-        b.cut_opening("<Y", 65, offset_y=b.bottom_thickness)
-        b.make_tray(width=width + 10, depth=length + 3, sides="open", back="open")
-        b.add_cage(inner_width=width, inner_depth=length, height=height, back_cutout_width=50)
-        return b.get_body()
+        # use height = 25, max for cage on 2 hole shelf
+        return create_ziptie_shelf(hole_count, width=70, length=99, height=25, cutout_width=65)
     if shelf_type == "hdd35":
         width = 102.8  # 101.6 + 1.2 clearance
         screw_pos1 = 77.3  # distance from front
@@ -148,10 +136,21 @@ def create_6in_shelf(shelf_type, hole_count) -> cad.Body:
     raise ValueError(f"Unknown shelf type: {shelf_type}")
 
 
+def create_ziptie_shelf(hole_count: int, width: float, length: float, height: float, cutout_width: float):
+    b = get_builder(hole_count)
+    b.make_front(front_type="full", bottom_type="closed", beam_wall_type="ramp")
+    b.cut_opening("<Y", cutout_width, offset_y=b.bottom_thickness)
+    b.make_tray(width=width + 10, depth=length + 3, sides="open", back="open", bottom_type="full")
+    b.add_cage(inner_width=width, inner_depth=length, height=height, back_cutout_width=width - 20)
+    result = b.get_body()
+    return result
+
+
 def create_and_save_all():
     for (t, c) in [
             ("stuff", 3), ("stuff-thin", 3), ("nuc", 3), ("nuc", 4),
-            ("usw-flex", 3), ("usw-flex-mini", 2), ("anker-powerport5", 2), ("anker-A2123", 2),
+            ("usw-flex", 3), ("usw-flex-mini", 2),
+            ("anker-powerport5", 2), ("anker-a2123", 2), ("anker-atom3slim", 2),
             ("hdd35", 2), ("dual-ssd", 2), ("raspi", 2)]:
         print(f"Creating {t} shelf")
         result = create_6in_shelf(t, c)
@@ -160,8 +159,8 @@ def create_and_save_all():
 
 if __name__ == "__main__":
     # debugging/testing
-    # create_and_save_all()
-    create_6in_shelf("raspi", 2).export_stl("out.stl")
+    #create_and_save_all()
+    create_6in_shelf("anker-atom3slim", 2).export_stl("out.stl")
 else:
     result = create_6in_shelf(shelf_type, hole_count)
     cad.show(result)  # when run in cq-cli, will return result

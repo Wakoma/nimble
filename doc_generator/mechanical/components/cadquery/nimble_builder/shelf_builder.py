@@ -292,7 +292,7 @@ class ShelfBuilder:
                                     ) -> None:
         """
         Add a mounting hole to the shelf
-        """        
+        """
         base = cad.make_cylinder(d=base_diameter, h=base_thickness, center="base")
         base.move((x_pos, y_pos, 0.0))
         self._shelf.add(base)
@@ -355,18 +355,20 @@ class ShelfBuilder:
                  inner_depth: float,
                  height: float = 0,
                  back_cutout_width: float = 0,
+                 add_ziptie_channels: bool = True,
                  ):
         wall_thickness = 2.5
-        offset_z = 4
-        holder_pos_y1 = inner_depth * 0.25
-        holder_pos_y2 = inner_depth * 0.75
-        holder_width = 8
-        holder_gap = 6
-        holder_gap_height = 8
-        holder_thickness = 3
+        offset_top = 2
+        offset_bottom = 2
+        channel_width = 5
+        guide_width = 8
+        guide_radius = 6
+        ziptie_pos_y1 = inner_depth * 0.25
+        ziptie_pos_y1 = max(ziptie_pos_y1, self._front_depth + channel_width / 2)
+        ziptie_pos_y2 = inner_depth * 0.75
         if height == 0:
-            height = self._height - holder_thickness
-        cage_height = height - offset_z
+            height = self._height
+        cage_height = height + self.bottom_thickness - offset_top
 
         # basic cage
         sketch = cad.make_sketch()
@@ -375,34 +377,41 @@ class ShelfBuilder:
         if back_cutout_width > 0:
             sketch.cut_rect(back_cutout_width, inner_depth + wall_thickness + 1, center="X")
         cage = cad.make_extrude("XY", sketch, cage_height)
-
-        # add slots
-        padding_x = 4
-        padding_y = 4
-        cut_slots(cage, ">X", (0, inner_depth), (0, cage_height), padding_x, padding_y)
-        if back_cutout_width == 0:
-            cut_slots(cage, ">Y", inner_width, (0, cage_height), padding_x, padding_y)
-
-        # cable tie holders
-        sketch_holders = cad.make_sketch()
-        sketch_holders.add_rect(inner_width + wall_thickness * 4 + holder_gap * 2, holder_width,
-                                pos=[(0, holder_pos_y1), (0, holder_pos_y2)])
-        sketch_holders.cut_rect(inner_width, inner_depth, center="X")
-        holders = cad.make_extrude("XY", sketch_holders, height + holder_thickness)
-        holders.chamfer(">Z and >X and |Y", holder_gap * 0.8)
-        holders.chamfer(">Z and <X and |Y", holder_gap * 0.8)
-        cage.add(holders)
-        # cut channels for the cable tie holders
-        sketch_holders_cut = cad.make_sketch()
-        sketch_holders_cut.add_rect(inner_width + wall_thickness * 2 + holder_gap * 2, inner_depth, center="X")
-        sketch_holders_cut.cut_rect(inner_width + wall_thickness * 2, inner_depth, center="X")
-        holders_cut = cad.make_extrude("XY", sketch_holders_cut, (height - holder_gap_height, height))
-        holders_cut.chamfer(">Z and >X and |Y", holder_gap * 0.6)
-        holders_cut.chamfer(">Z and <X and |Y", holder_gap * 0.6)
-        holders_cut.chamfer("<Z and |Y", holder_gap * 0.3)
-        cage.cut(holders_cut)
-
         self._shelf.add(cage)
+
+
+        # cable tie channels
+
+        if not add_ziptie_channels:
+            return
+
+        sketch_channel_guide = cad.make_sketch()
+        sketch_channel_guide.add_rect(inner_width + guide_radius * 2, guide_width,
+                                      pos=[(0, ziptie_pos_y1), (0, ziptie_pos_y2)])
+        sketch_channel_guide.cut_rect(inner_width, 999)
+        channel_guide = cad.make_extrude_z(sketch_channel_guide, cage_height)
+        channel_guide.fillet(">Z and >X and |Y", guide_radius / 2)
+        channel_guide.fillet(">Z and <X and |Y", guide_radius / 2)
+        self._shelf.add(channel_guide)
+
+        sketch_channels = cad.make_sketch()
+        sketch_channels.add_rect(self._width, channel_width,
+                                 pos=[(0, ziptie_pos_y1), (0, ziptie_pos_y2)])
+        self._shelf.cut(cad.make_extrude_z(sketch_channels, 999))
+
+
+        # cable tie guides
+        sketch_guides = cad.make_sketch()
+        sketch_guides.add_slot(r=guide_radius,
+                               start=(0, self.bottom_thickness + guide_radius + offset_bottom),
+                               end=(0, cage_height - guide_radius))
+        sketch_guides.cut_rect((-999, 0), (0, 999))
+        sketch_guides.move((inner_width / 2, 0))
+        sketch_guides.mirror("X")
+        self._shelf.add(cad.make_extrude_y(sketch_guides, guide_width, center=True).move((0, ziptie_pos_y1, 0)))
+        self._shelf.add(cad.make_extrude_y(sketch_guides, guide_width, center=True).move((0, ziptie_pos_y2, 0)))
+
+
 
 
     def get_body(self) -> cad.Body:
