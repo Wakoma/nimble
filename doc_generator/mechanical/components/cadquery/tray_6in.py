@@ -134,7 +134,7 @@ def create_6in_shelf(shelf_type, hole_count) -> cad.Body:
         b.make_front(front_type="full", bottom_type="closed")
         b.cut_opening("<Y", (-15, 39.5), size_y=(6, 25))
         b.cut_opening("<Y", (-41.5, -25.5), size_y=(6, 22))
-        b.make_tray(width="standard", depth=111, sides="w-pattern", back="open")
+        b.make_tray(width="standard", depth=111, sides="ramp", back="open")
         for (x, y) in [(offset_x, dist_to_front),
                        (offset_x + screw_dist_x, dist_to_front),
                        (offset_x, dist_to_front + screw_dist_y),
@@ -145,17 +145,23 @@ def create_6in_shelf(shelf_type, hole_count) -> cad.Body:
                                           base_thickness=5.5, base_diameter=7)
         return b.get_body()
 
-
     raise ValueError(f"Unknown shelf type: {shelf_type}")
+
+
+def create_and_save_all():
+    for (t, c) in [
+            ("stuff", 3), ("stuff-thin", 3), ("nuc", 3), ("nuc", 4),
+            ("usw-flex", 3), ("usw-flex-mini", 2), ("anker-powerport5", 2), ("anker-A2123", 2),
+            ("hdd35", 2), ("dual-ssd", 2), ("raspi", 2)]:
+        print(f"Creating {t} shelf")
+        result = create_6in_shelf(t, c)
+        result.export_stl(f"shelf_6in_{c}u_{t}.stl")
 
 
 if __name__ == "__main__":
     # debugging/testing
-    # for t in ["stuff", "stuff-thin", "nuc", "usw-flex", "usw-flex-mini", "anker-powerport5", "anker-A2123", "hdd35", "dual-ssd"]:
-    for t in ["raspi"]:
-        print(f"Creating {t} shelf")
-        result = create_6in_shelf(t, hole_count)
-        result.export_stl(f"shelf_6in_{t}.stl")
+    # create_and_save_all()
+    create_6in_shelf("raspi", 2).export_stl("out.stl")
 else:
     result = create_6in_shelf(shelf_type, hole_count)
     cad.show(result)  # when run in cq-cli, will return result
