@@ -181,7 +181,7 @@ class ShelfBuilder:
         plate_sketch.add_rect(plate_width, (self._front_depth, plate_depth), center="X")
         plate = cad.make_extrude("XY", plate_sketch, self.bottom_thickness)
 
-        if sides == "open" and back == "open":
+        if sides in ["open", "ramp"] and back == "open":
             plate.fillet(">Y and |Z", 3)
 
         self._shelf.add(plate)
