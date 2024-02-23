@@ -31,10 +31,10 @@ with locally sourced hardware and 3D-printed components.
 
 ## Repo Structure
 
-* doc = Documentation. BOM.
-* gen = Generated CAD files. 
-* res = Resources. Media/images. Publications
-* src = Source Files. 
+* [doc](doc) = Documentation. BOM.
+* [gen](gen) = Generated CAD files. 
+* [res](res) = Resources. Media/images. Publications
+* [src](src) = Source Files. 
 
 <br />
 
