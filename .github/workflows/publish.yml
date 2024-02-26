@@ -53,7 +53,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: "doc_generator/doc_generator/build/static/"
+          path: "doc_generator/build/static/"
 
   # Deployment job
   deploy:
