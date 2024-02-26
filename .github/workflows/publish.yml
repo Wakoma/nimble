@@ -44,7 +44,7 @@ jobs:
 
       - name: Install requirements
         run: |
-          pip install -r doc_generator\requirements.txt
+          pip install -r doc_generator/requirements.txt
 
       - name: Generate STL
         run: |
