@@ -61,7 +61,7 @@ def generate():
                 <head>
                 <title>Nimble generated files</title>
                 <style>
-                    body { font-family: Arial, sans-serif; }
+                    body { font-family: sans-serif; }
                 </style>
                 </head>
                 <body>
