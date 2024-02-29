@@ -7,7 +7,7 @@ name: Deploy Static STLs
 
 on:
   push:
-    branches: [ smart_doc, ak_smart_doc ]
+    branches: [ smart_doc ]
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
