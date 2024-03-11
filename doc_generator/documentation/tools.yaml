@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2023 Andreas Kahler <mail@andreaskahler.com>
+#
+# SPDX-License-Identifier: CC-BY-SA-4.0
+
+Screwdriver_Philips_No2:
+    Name: No. 2 Phillips screwdriver
+    Description: >
+        No2 Phillips screwdriver. This is the correct size
+        form an M4 pan head screw
+    Specs:
+        Drive Size: No. 2
+
+Allen_3mm:
+    Name: Allen Key 3mm
+    Description: >
+        Allen Key 3mm
+    Specs:
+        Drive Size: 3mm

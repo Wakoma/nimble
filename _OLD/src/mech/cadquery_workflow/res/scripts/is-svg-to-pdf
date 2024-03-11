@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# SPDX-FileCopyrightText: 2023 Pieter Hijma <pieter@opentoolchain.org>
+# SPDX-FileCopyrightText: 2023 Jeremy Wright <wrightjmf@gmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+if [ $# = 1 ]
+then
+    filename=$1
+    filename_output="${filename:0:-4}.pdf"
+    inkscape --export-pdf=$filename_output --export-pdf-version=1.4 $filename 
+else
+    echo "USAGE: $(basename $0) <file.svg>"
+fi

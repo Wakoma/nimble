@@ -5,3 +5,5 @@
 /src/mech/cadquery_workflow/autodoc_integration/**.pdf
 
 _site/
+doc_generator/build/*
+.vscode/*
