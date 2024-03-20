@@ -281,3 +281,11 @@ def get_files(config_hash):
         return FileResponse(str(build_path) + ".zip", headers={'Content-Disposition': 'attachment; filename=' + config_hash + ".zip"})
     else:
         return HTMLResponse(content="<p>The File is Still Processing</p>", status_code=307)
+
+@app.get("/wakoma/nimble/preview")
+def get_preview(config_hash):
+    """
+    Sends the auto-generated glTF file back to the caller.
+    """
+
+    

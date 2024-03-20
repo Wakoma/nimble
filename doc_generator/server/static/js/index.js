@@ -1,4 +1,40 @@
 ///
+/// Validate form before allowing the user to submit it.
+///
+function validate_form() {
+    // Validate the server entry
+    var server_1 = document.getElementById("server_1");
+    if (server_1.value == "none") {
+        alert("Server cannot be None.");
+        return;
+    }
+
+    // Validate the router entry
+    var router_1 = document.getElementById("router_1");
+    if (router_1.value == "none") {
+        alert("Router cannot be None.");
+        return;
+    }
+
+    // Validate the switch entry
+    var switch_1 = document.getElementById("switch_1");
+    if (switch_1.value == "none") {
+        alert("Switch cannot be None.");
+        return;
+    }
+
+    // Validate the charge controller entry
+    var charge_controller_1 = document.getElementById("charge_controller_1");
+    if (charge_controller_1.value == "none") {
+        alert("Charge controller cannot be None.");
+        return;
+    }
+
+    trigger_orchestration();
+}
+
+
+///
 /// Called when the user wants to send the collected components to the orchestration script.
 ///
 function trigger_orchestration() {
@@ -80,6 +116,4 @@ function poll(response_object) {
             console.log(`Error: ${xhr.statusText}`);
         }
     };
-
-    console.log(response_object[0]["redirect"]);
 }
