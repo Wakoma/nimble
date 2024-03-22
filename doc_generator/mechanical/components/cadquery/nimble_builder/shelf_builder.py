@@ -360,8 +360,8 @@ class ShelfBuilder:
         wall_thickness = 2.5
         offset_top = 2
         offset_bottom = 2
-        channel_width = 5
-        guide_width = 8
+        channel_width = 14
+        guide_width = 14 + 3
         guide_radius = 6
         ziptie_pos_y1 = inner_depth * 0.25
         ziptie_pos_y1 = max(ziptie_pos_y1, self._front_depth + channel_width / 2)
