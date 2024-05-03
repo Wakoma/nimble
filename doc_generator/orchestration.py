@@ -1,5 +1,6 @@
 """
-Orchestration script using exsource
+Orchestration script using exsource.
+This is a module used by generate.py and generate_static.py
 """
 
 import os

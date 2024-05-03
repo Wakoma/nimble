@@ -1,3 +1,6 @@
+"""
+Run orchestration script with specified config 
+"""
 
 from orchestration import OrchestrationRunner
 
