@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 """
 Generate a bunch of STL files
 to show case the possiblilties of the nimble cadquery code
