@@ -64,4 +64,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
-        if: github.ref == 'refs/heads/workflow-fix'
+        if: github.ref == 'refs/heads/master'
