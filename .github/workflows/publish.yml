@@ -30,6 +30,12 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      # Download artifact from other workflow
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yml
+          path: "github-pages"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
