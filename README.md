@@ -37,22 +37,27 @@ with locally sourced hardware and 3D-printed components.
 * Mastodon, Peertube, Pixelfed (coming soon)
 * [Zotero Library](https://www.zotero.org/groups/2403673/communitynetworks/library)
 
-![Nimble model m 36](res/assets/media/img/Model_M/Large/36.jpg)
+![Nimble model m 36](assets/img/Model_M/36.jpg)
 
-# Recent Event
+## State of this repository
+
+This repository is in transition as we work towards making all of the mechanical models parametric, and automatically generating the documentation for any configuration. See the [post-hackathon release](https://github.com/Wakoma/nimble/releases/tag/Post-hackathon) for the state of the repository before these changes.
+
+## Recent Event
 
 More event information [here](https://otfn.org/hackathon/)
 
-![Hackathon](res/assets/media/img/OTFNhackathon.jpeg)
+![Hackathon](assets/img/OTFNhackathon.jpeg)
 
-# Important Links
+## Important Links
 
-* <https://wakoma.co/nimble/>
-* <https://www.printables.com/model/80708-wakoma-nimble-new-2021-model>
+* [Nimble website](https://wakoma.co/nimble/)
+* [Nimble printables page](https://www.printables.com/model/80708-wakoma-nimble-new-2021-model)
+* [State of this repository after the OTFN hackathon](https://github.com/Wakoma/nimble/releases/tag/Post-hackathon)
 
-# Support
+## Support
 
 For more info have a look at <https://wakoma.co/nimble>,
 or reach out to <mailto:info@wakoma.co>.
 
-![Mesh](gen/media/img/mesh_big.png)
+![Mesh](assets/img/mesh_big.png)
