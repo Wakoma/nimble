@@ -7,10 +7,9 @@ name: Publish
 
 on:
   workflow_run:
-    workflows: ["Build"]
-    branches: [master]
-    types: 
-      - completed
+    workflows: Build 
+    branches: master
+    types: completed
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
