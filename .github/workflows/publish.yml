@@ -7,7 +7,7 @@ name: Deploy Static STLs
 
 on:
   push:
-    branches: [ smart_doc ]
+    branches: [ smart_doc_cleanup ]
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -44,16 +44,16 @@ jobs:
 
       - name: Install requirements
         run: |
-          pip install -r doc_generator/requirements.txt
+          pip install -r requirements.txt
 
       - name: Generate STL
         run: |
-          python doc_generator/generate_static.py
+          python generate_static.py
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: "doc_generator/build/static/"
+          path: "build/static/"
 
   # Deployment job
   deploy:
