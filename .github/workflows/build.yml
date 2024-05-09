@@ -5,11 +5,7 @@
 
 name: Build
 
-on:
-  push:
-    branches:
-      - master
-  pull_request: {}
+on: [push, pull_request]
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
