@@ -110,7 +110,7 @@ class OrchestrationRunner:
 
         # TODO: get from input
         # selected_devices_ids = config.devices
-        selected_devices_ids = ['NUC10i5FNH', 'RPi4', 'RPi4']
+        selected_devices_ids = ['NUC10i5FNH'] #, 'RPi4', 'RPi4']
         json_filename = self._module_path / "devices.json"
 
         # read json, select entries
