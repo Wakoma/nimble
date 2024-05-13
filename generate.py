@@ -27,6 +27,9 @@ def generate(selected_devices_ids):
 
 
 def generate_example_configuration():
+    """
+    Generate the trays and assembly model for a simple set of devices
+    """
     selected_devices_ids = ['NUC10i5FNH', 'RPi4', 'RPi4']
     generate(selected_devices_ids)
 
