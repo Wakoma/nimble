@@ -6,7 +6,8 @@ create and bundle all STLs (and eventually all documentation)
 for a specific nimble configuration.
 """
 
-from nimble_orchestration.orchestration import OrchestrationRunner, NimbleConfiguration
+from nimble_orchestration.orchestration import OrchestrationRunner
+from nimble_orchestration.configuration import NimbleConfiguration
 
 def generate(selected_devices_ids):
     """

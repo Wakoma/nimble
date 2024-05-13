@@ -1,4 +1,7 @@
-
+"""
+This module contains a simple class for generating a file that stores the basic assembly
+information.
+"""
 
 import pathlib
 import yaml

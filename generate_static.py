@@ -8,10 +8,9 @@ direct download without them needing to be commited to the repository
 """
 import os
 
-from nimble_orchestration.orchestration import (OrchestrationRunner,
-                                                GeneratedMechanicalComponent,
-                                                REL_MECH_DIR,
-                                                BUILD_DIR)
+from nimble_orchestration.orchestration import OrchestrationRunner
+from nimble_orchestration.components import GeneratedMechanicalComponent
+from nimble_orchestration.paths import BUILD_DIR, REL_MECH_DIR
 
 def generate():
     """
