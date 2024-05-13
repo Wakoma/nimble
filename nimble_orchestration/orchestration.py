@@ -6,18 +6,17 @@ This is a module used by generate.py and generate_static.py
 import os
 import posixpath
 import json
-from copy import deepcopy
+from copy import copy, deepcopy
 from dataclasses import dataclass
-import shutil
 import exsource_tools
 import exsource_tools.cli
 import exsource_tools.tools
 
-from utility.device import Device
-from utility.exsource_def_generator import ExsourceDefGenerator
-from utility.assembly_def_generator import AssemblyDefGenerator
+from nimble_orchestration.device import Device
+from nimble_orchestration.exsource_def_generator import ExsourceDefGenerator
+from nimble_orchestration.assembly_def_generator import AssemblyDefGenerator
 
-MODULE_PATH = os.path.split(__file__)[0]
+MODULE_PATH = os.path.normpath(os.path.join(os.path.split(__file__)[0], '..'))
 BUILD_DIR = os.path.join(MODULE_PATH, "build")
 REL_MECH_DIR = os.path.relpath(os.path.join(MODULE_PATH, "mechanical"), BUILD_DIR)
 
@@ -51,6 +50,87 @@ class RackParameters:
         """
         return self.base_clearance + total_height_in_units * self.mounting_hole_spacing
 
+class MechanicalComponent:
+    """
+    This is a generic class for any mechanical component. If it is a generic
+    component rather than a generated one then use this class, for generated
+    components use the child-class GeneratedMechanicalComponent
+    """
+
+    def __init__(self, name: str, description:str, output_files: list) -> None:
+        self._name = name
+        self._description = description
+        self._output_files = output_files
+
+    @property
+    def name(self):
+        """Return the name of the component"""
+        return self._name
+
+    @property
+    def description(self):
+        """Return the description of the component"""
+        return self._description
+
+    @property
+    def output_files(self):
+        """Return a copy of the list of output CAD files that represent the component"""
+        return copy(self._output_files)
+
+    @property
+    def step_representation(self):
+        """
+        Return the path to the STEP file that represents this part. Return None
+        if not defined
+        """
+        for output_file in self.output_files:
+            if output_file.lower().endswith(('stp','step')):
+                return output_file
+        return None
+
+class GeneratedMechanicalComponent(MechanicalComponent):
+
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        output_files: list,
+        source_files: list,
+        parameters: dict,
+        application: str
+    ) -> None:
+
+        super().__init__(name, description, output_files)
+        self._source_files = source_files
+        self._parameters = parameters
+        self._application = application
+
+    @property
+    def source_files(self):
+        """Return a copy of the list of the input CAD files that represent the component"""
+        return copy(self._source_files)
+
+    @property
+    def parameters(self):
+        """Return the parameters associated with generating this mechancial component"""
+        return deepcopy(self._parameters)
+
+    @property
+    def application(self):
+        """Return the name of the application used to process the input CAD files"""
+        return self._application
+
+    @property
+    def as_exsource_dict(self):
+        """Return this object as a dictionary of the part information for exsource"""
+        return {
+            "name": self.name,
+            "description": self.description,
+            "output_files": self.output_files,
+            "source_files": self.source_files,
+            "parameters": self.parameters,
+            "application": self.application
+        }
 
 class NimbleConfiguration:
     """
@@ -95,9 +175,6 @@ class NimbleConfiguration:
         return sum([device.height_in_units for device in self._devices])
 
     def _generate_components_list(self):
-        
-        #TODO make objects for these components
-
 
         # collect all needed parts and their parameters
 
@@ -116,7 +193,7 @@ class NimbleConfiguration:
 
     def get_component(self, name):
         for component in self.components:
-            if component['name'] == name:
+            if component.name == name:
                 return component
         return None
 
@@ -126,58 +203,58 @@ class NimbleConfiguration:
         source = posixpath.normpath(source)
         beam_height = self._rack_params.beam_height(self.total_height_in_units)
 
-        return {
-            "name": "rack_leg",
-            "description": "3D printed rack leg",
-            "output_files": [
+        return GeneratedMechanicalComponent(
+            name="rack_leg",
+            description="3D printed rack leg",
+            output_files=[
                 "./printed_components/beam.step",
                 "./printed_components/beam.stl",
-                ],
-            "source_files": [source],
-            "parameters": {
+            ],
+            source_files=[source],
+            parameters={
                 "length": beam_height,
                 "hole_spacing": self._rack_params.mounting_hole_spacing,
             },
-            "application": "cadquery"
-        }
+            application="cadquery"
+        )
 
     @property
     def baseplate(self):
         source = os.path.join(REL_MECH_DIR, "components/cadquery/base_plate.py")
         source = posixpath.normpath(source)
-        return {
-            "name": "baseplate",
-            "description": "3D printed base plate",
-            "output_files": [
+        return GeneratedMechanicalComponent(
+            name="baseplate",
+            description="3D printed base plate",
+            output_files=[
                 "./printed_components/baseplate.step",
                 "./printed_components/baseplate.stl",
-                ],
-            "source_files": [source],
-            "parameters": {
+            ],
+            source_files=[source],
+            parameters={
                 "width": self._rack_params.single_width,
                 "depth": self._rack_params.single_width,
             },
-            "application": "cadquery"
-        }
+            application="cadquery"
+        )
 
     @property
     def topplate(self):
         source = os.path.join(REL_MECH_DIR, "components/cadquery/top_plate.py")
         source = posixpath.normpath(source)
-        return {
-            "name": "topplate",
-            "description": "3D printed top plate",
-            "output_files": [
+        return GeneratedMechanicalComponent(
+            name="topplate",
+            description="3D printed top plate",
+            output_files=[
                 "./printed_components/topplate.step",
                 "./printed_components/topplate.stl",
-                ],
-            "source_files": [source],
-            "parameters": {
+            ],
+            source_files=[source],
+            parameters={
                 "width": self._rack_params.single_width,
                 "depth": self._rack_params.single_width,
             },
-            "application": "cadquery"
-        }
+            application="cadquery"
+        )
 
     @property
     def trays(self):
@@ -187,21 +264,21 @@ class NimbleConfiguration:
         trays = []
         for device in self._devices:
             tray_id = device.get_tray_id()
-            trays.append({
-                "name": tray_id,
-                "description": "tray for " + device.name,
-                "output_files": [
+            trays.append(GeneratedMechanicalComponent(
+                name=tray_id,
+                description="tray for " + device.name,
+                output_files=[
                     f"./printed_components/{tray_id}.step",
                     f"./printed_components/{tray_id}.stl",
-                    ],
-                "source_files": [source],
-                "parameters": {
+                ],
+                source_files=[source],
+                parameters={
                     "height_in_hole_unites": device.height_in_units,
                     "tray_width": self._rack_params.tray_width,
                     "tray_depth": self._rack_params.tray_depth,
                 },
-                "application": "cadquery"
-            })
+                application="cadquery"
+            ))
         return trays
 
     @property
@@ -209,7 +286,7 @@ class NimbleConfiguration:
 
         #TODO Create and "assembled_component" class which knows which mechanical
         # component it is using to remove the string based matching.
-        
+
         assembly = AssemblyDefGenerator()
         self._register_rack_assembly(assembly)
         self._register_trays_assembly(assembly)
@@ -220,7 +297,7 @@ class NimbleConfiguration:
         # base plate
         assembly.add_part(
             name="baseplate",
-            step_file=self.get_component("baseplate")['output_files'][0],
+            step_file=self.get_component("baseplate").step_representation,
             position=(0, 0, 0),
             assembly_step="1"
         )
@@ -237,7 +314,7 @@ class NimbleConfiguration:
         for name, x_pos, y_pos in legs:
             assembly.add_part(
                 name=name,
-                step_file=self.get_component("rack_leg")['output_files'][0],
+                step_file=self.get_component("rack_leg").step_representation,
                 position=(x_pos, y_pos, self._rack_params.base_plate_thickness),
                 assembly_step="2"
             )
@@ -247,7 +324,7 @@ class NimbleConfiguration:
         top_pos = beam_height + self._rack_params.base_plate_thickness
         assembly.add_part(
             name="topplate",
-            step_file=self.get_component("topplate")['output_files'][0],
+            step_file=self.get_component("topplate").step_representation,
             position=(0, 0, top_pos),
             assembly_step="3"
         )
@@ -266,7 +343,7 @@ class NimbleConfiguration:
         for (index, device) in enumerate(self.devices):
             assembly.add_part(
                 name=f"tray_{index}",
-                step_file=self.get_component(device.get_tray_id())['output_files'][0],
+                step_file=self.get_component(device.get_tray_id()).step_representation,
                 position=(x_pos, y_pos, z_pos),
                 assembly_step="4"
             )
@@ -297,9 +374,9 @@ class OrchestrationRunner:
         generate the rack components
         """
         exsource = ExsourceDefGenerator()
-        exsource_path = os.path.join(BUILD_DIR, "componet-exsource-def.yaml")
+        exsource_path = os.path.join(BUILD_DIR, "component-exsource-def.yaml")
         for component in components:
-            exsource.add_part(**component)
+            exsource.add_part(**component.as_exsource_dict)
         exsource.save(exsource_path)
         self._run_exsource(exsource_path)
 
@@ -344,4 +421,3 @@ class OrchestrationRunner:
         processor = exsource_tools.tools.ExSourceProcessor(exsource_def, None, None)
         processor.make()
         os.chdir(cur_dir)
-

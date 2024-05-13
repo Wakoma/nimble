@@ -1,5 +1,5 @@
 
-from yaml_cleaner import YamlCleaner
+from nimble_orchestration.yaml_cleaner import YamlCleaner
 
 import yaml
 import pathlib

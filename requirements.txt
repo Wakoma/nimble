@@ -1,9 +1,0 @@
-# SPDX-FileCopyrightText: 2023 Daniel Mohns <daniel.mohns@posteo.de>
-#
-# SPDX-License-Identifier: Unlicense
-
-cadquery>=2
-cadscript>=0.5.2
-exsource-tools
-git+https://github.com/CadQuery/cq-cli.git
-gitbuilding

@@ -4,7 +4,7 @@
 Run orchestration script with specified config 
 """
 
-from orchestration import OrchestrationRunner, NimbleConfiguration
+from nimble_orchestration.orchestration import OrchestrationRunner, NimbleConfiguration
 
 def generate(selected_devices_ids):
     """
