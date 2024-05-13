@@ -1,9 +1,8 @@
 
-from nimble_orchestration.yaml_cleaner import YamlCleaner
 
-import yaml
 import pathlib
-
+import yaml
+from nimble_orchestration.yaml_cleaner import YamlCleaner
 
 class AssemblyDefGenerator:
     """
@@ -41,5 +40,5 @@ class AssemblyDefGenerator:
                 "parts": self._parts
             }
         }
-        with open(output_file, "w") as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             yaml.dump(YamlCleaner.clean(data), f, sort_keys=False)

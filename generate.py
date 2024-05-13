@@ -26,7 +26,6 @@ def generate(selected_devices_ids):
 
 def generate_example_configuration():
     selected_devices_ids = ['NUC10i5FNH', 'RPi4', 'RPi4']
-    
     generate(selected_devices_ids)
 
 if __name__ == "__main__":

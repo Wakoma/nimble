@@ -103,5 +103,5 @@ class ExsourceDefGenerator:
         data = {
             "exports": self._parts
         }
-        with open(output_file, "w") as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             yaml.dump(YamlCleaner.clean(data), f, sort_keys=False)

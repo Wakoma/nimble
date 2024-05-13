@@ -1,3 +1,6 @@
+"""
+Simple setup script to install both nimble_orchestration and nimble_builder as packages
+"""
 from setuptools import  setup
 
 setup(
