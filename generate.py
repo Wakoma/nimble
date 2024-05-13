@@ -1,7 +1,9 @@
 #! /usr/bin/env python
 
 """
-Run orchestration script with specified config 
+This script is in development. It is being developed to
+create and bundle all STLs (and eventually all documentation)
+for a specific nimble configuration.
 """
 
 from nimble_orchestration.orchestration import OrchestrationRunner, NimbleConfiguration

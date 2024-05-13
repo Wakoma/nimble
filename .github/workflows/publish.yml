@@ -41,13 +41,13 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install requirements
+      - name: Install nimble packages
         run: |
-          pip install -r requirements.txt
+          pip install .
 
-      - name: Generate STL
+      - name: Generate STLs
         run: |
-          python generate_static.py
+          ./generate_static.py
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1

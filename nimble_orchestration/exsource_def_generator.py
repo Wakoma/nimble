@@ -52,6 +52,7 @@ class ExsourceDefGenerator:
         self._parts = {}
 
     def add_part(self,
+                 key: str,
                  name: str,
                  description: str,
                  output_files: list,
@@ -62,6 +63,7 @@ class ExsourceDefGenerator:
         """
         Add a part to the exsource definition file.
         """
+
         part = {
             "name": name,
             "description": description,
@@ -71,30 +73,10 @@ class ExsourceDefGenerator:
             "application": application,
             "dependencies": dependencies
         }
-        if name in self._parts:
-            print(f"Part named: {name} already specified in exsource. Skipping!")
-        self._parts[name] = part
+        if key in self._parts:
+            print(f"Part with id: {key} already specified in exsource. Skipping!")
+        self._parts[key] = part
 
-    def get_part_names(self) -> list:
-        """
-        Get a list of all part names.
-        """
-        return [part["name"] for part in self._parts]
-
-    def get_part_step_file(self, part_name: str) -> str | None:
-        """
-        Get the step file for a part.
-        """
-        part = self._parts[part_name]
-        outfiles = part["output-files"]
-        if len(outfiles) == 1:
-            return outfiles[0]
-        if len(outfiles) == 0:
-            raise ValueError(f"Part {part_name} has no output files.")
-        for outfile in outfiles:
-            if outfile.endswith(".step"):
-                return outfile
-        raise ValueError(f"Part {part_name} has no step file.")
 
     def save(self, output_file: str | pathlib.Path):
         """

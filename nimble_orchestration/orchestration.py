@@ -57,14 +57,20 @@ class MechanicalComponent:
     components use the child-class GeneratedMechanicalComponent
     """
 
-    def __init__(self, name: str, description:str, output_files: list) -> None:
+    def __init__(self, key: str, name: str, description:str, output_files: list) -> None:
+        self._key = key
         self._name = name
         self._description = description
         self._output_files = output_files
 
     @property
+    def key(self):
+        """Return the unique key identifying the component"""
+        return self._key
+
+    @property
     def name(self):
-        """Return the name of the component"""
+        """Return the human readable name of the component"""
         return self._name
 
     @property
@@ -92,6 +98,7 @@ class GeneratedMechanicalComponent(MechanicalComponent):
 
     def __init__(
         self,
+        key: str,
         name: str,
         description: str,
         output_files: list,
@@ -100,7 +107,7 @@ class GeneratedMechanicalComponent(MechanicalComponent):
         application: str
     ) -> None:
 
-        super().__init__(name, description, output_files)
+        super().__init__(key, name, description, output_files)
         self._source_files = source_files
         self._parameters = parameters
         self._application = application
@@ -124,6 +131,7 @@ class GeneratedMechanicalComponent(MechanicalComponent):
     def as_exsource_dict(self):
         """Return this object as a dictionary of the part information for exsource"""
         return {
+            "key": self.key,
             "name": self.name,
             "description": self.description,
             "output_files": self.output_files,
@@ -191,9 +199,9 @@ class NimbleConfiguration:
         """
         return deepcopy(self._components)
 
-    def get_component(self, name):
+    def get_component(self, key):
         for component in self.components:
-            if component.name == name:
+            if component.key == key:
                 return component
         return None
 
@@ -204,8 +212,9 @@ class NimbleConfiguration:
         beam_height = self._rack_params.beam_height(self.total_height_in_units)
 
         return GeneratedMechanicalComponent(
-            name="rack_leg",
-            description="3D printed rack leg",
+            key="rack_leg",
+            name="Rack leg",
+            description="One of the 4 legs of the printed rack",
             output_files=[
                 "./printed_components/beam.step",
                 "./printed_components/beam.stl",
@@ -223,8 +232,9 @@ class NimbleConfiguration:
         source = os.path.join(REL_MECH_DIR, "components/cadquery/base_plate.py")
         source = posixpath.normpath(source)
         return GeneratedMechanicalComponent(
-            name="baseplate",
-            description="3D printed base plate",
+            key="baseplate",
+            name="Baseplate",
+            description="The base plate of the rack",
             output_files=[
                 "./printed_components/baseplate.step",
                 "./printed_components/baseplate.stl",
@@ -242,7 +252,8 @@ class NimbleConfiguration:
         source = os.path.join(REL_MECH_DIR, "components/cadquery/top_plate.py")
         source = posixpath.normpath(source)
         return GeneratedMechanicalComponent(
-            name="topplate",
+            key="topplate",
+            name="Top plate",
             description="3D printed top plate",
             output_files=[
                 "./printed_components/topplate.step",
@@ -265,8 +276,9 @@ class NimbleConfiguration:
         for device in self._devices:
             tray_id = device.get_tray_id()
             trays.append(GeneratedMechanicalComponent(
-                name=tray_id,
-                description="tray for " + device.name,
+                key=tray_id,
+                name=f"{device.name} tray",
+                description="A tray for " + device.name,
                 output_files=[
                     f"./printed_components/{tray_id}.step",
                     f"./printed_components/{tray_id}.stl",
@@ -389,6 +401,7 @@ class OrchestrationRunner:
         exsource = ExsourceDefGenerator()
         exsource_path = os.path.join(BUILD_DIR, "assembly-exsource-def.yaml")
         exsource.add_part(
+            key="assembly",
             name="assembly",
             description="assembly",
             output_files=[

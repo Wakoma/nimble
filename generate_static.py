@@ -1,42 +1,73 @@
 #! /usr/bin/env python
 
 """
-Generate a bunch of STL files
-to show case the possiblilties of the nimble cadquery code
-
-To be replaced later with code that builds complete bundles
-of STL files and documentation for custom configurations
+This script generates a number of STL files and also creates
+as simple website to view them. This is designed to be run
+via a github action to provide a list of available STLs for
+direct download without them needing to be commited to the repository
 """
 import os
-import sys
-from pathlib import Path
 
-from orchestration import OrchestrationRunner
-import cadquery as cq
-from cadquery import cqgi
-
-# List of generated files (description, filename)
-generated_files = []
-
+from nimble_orchestration.orchestration import (OrchestrationRunner,
+                                                GeneratedMechanicalComponent,
+                                                REL_MECH_DIR,
+                                                BUILD_DIR)
 
 def generate():
+    """
+    Main script function. Gets a list of printed components (legs and shelves)
+    and uses the orchestration runner to build them
+    """
 
-    print("Starting generate()")
-    runner = OrchestrationRunner("static", "static")
+    components = get_component_list()
+    runner = OrchestrationRunner()
+    runner.generate_components(components)
+    output_static_site(components)
 
-    print("Setting up build environment")
-    runner.setup(create_only_build_dir=True)
+def get_component_list():
+    """
+    Generate the component list. This is 4 types of legs and some
+    shelves
+    """
 
-    generate_leg(294, 3.6, runner._build_dir / "beam-21holes.stl")
-    generated_files.append(("Rack leg with 21 holes", "beam-21holes.stl"))
-    generate_leg(168, 3.6, runner._build_dir / "beam-12holes.stl")
-    generated_files.append(("Rack leg with 12 holes", "beam-12holes.stl"))
-    generate_leg(294, 5.8, runner._build_dir / "beam-M6-21holes.stl")
-    generated_files.append(("Rack leg with 21 holes (M6 version)", "beam-M6-21holes.stl"))
-    generate_leg(168, 5.8, runner._build_dir / "beam-M6-12holes.stl")
-    generated_files.append(("Rack leg with 12 holes (M6 version)", "beam-M6-12holes.stl"))
+    components = []
 
-    for (t, c) in [
+    components.append(
+        generate_leg(
+            length=294,
+            mounting_holes_dia=3.6,
+            name="Rack leg with 21 holes",
+            out_file="./printed_components/beam-21holes.stl"
+        )
+    )
+    components.append(
+        generate_leg(
+            length=168,
+            mounting_holes_dia=3.6,
+            name="Rack leg with 12 holes",
+            out_file="./printed_components/beam-12holes.stl"
+        )
+    )
+
+    components.append(
+        generate_leg(
+            length=294,
+            mounting_holes_dia=5.8,
+            name="Rack leg with 21 M6 holes",
+            out_file="./printed_components/beam-M6-21holes.stl"
+        )
+    )
+
+    components.append(
+        generate_leg(
+            length=168,
+            mounting_holes_dia=5.8,
+            name="Rack leg with 12 M6 holes",
+            out_file="./printed_components/beam-M6-12holes.stl"
+        )
+    )
+
+    for (shelf_type, hole_count) in [
             ("stuff", 3),
             ("stuff-thin", 3),
             ("nuc", 3),
@@ -49,95 +80,92 @@ def generate():
             ("hdd35", 2),
             ("dual-ssd", 2),
             ("raspi", 2)]:
-        filename = f"shelf_6in_{c}u_{t}.stl"
-        out_file = runner._build_dir / (filename)
-        print(f"Creating {t} shelf, saving to {out_file}")
-        generate_shelf(t, c, out_file)
-        generated_files.append((f"6 inch shelf, type {t}, height {c} units", filename))
 
-    # create index.html with links to all generated files
-    index_file = runner._build_dir / "index.html"
-    with open(index_file, "w") as f:
+        components.append(generate_shelf(shelf_type, hole_count))
+
+    return components
+
+
+def generate_leg(length, mounting_holes_dia, name, out_file):
+    """
+    Helper function to generate a leg. Returns a GeneratedMechanicalComponent
+    object which contains the data for the leg.
+    """
+    source = os.path.join(REL_MECH_DIR, "components/cadquery/rack_leg.py")
+    key = name.lower().replace(' ', '_')
+    return GeneratedMechanicalComponent(
+        key=key,
+        name=name,
+        description='A leg for a nimble rack',
+        output_files=[out_file],
+        source_files=[source],
+        parameters={
+            "length": length,
+            "mounting_holes_dia": mounting_holes_dia
+        },
+        application="cadquery"
+    )
+
+
+def generate_shelf(shelf_type, hole_count):
+    """
+    Helper function to generate a shelf/tray. Returns a GeneratedMechanicalComponent
+    object which contains the data for the shelf.
+    """
+    out_file = f"./printed_components/shelf_6in_{shelf_type}u_{hole_count}.stl"
+    source = os.path.join(REL_MECH_DIR, "components/cadquery/tray_6in.py")
+    device_name = shelf_type.replace('-', ' ')
+    return GeneratedMechanicalComponent(
+        key=f"{shelf_type}_{hole_count}u",
+        name=f"Tray for {device_name}",
+        description=f"Tray for {device_name}, height = {hole_count}u",
+        output_files=[out_file],
+        source_files=[source],
+        parameters={'shelf_type': shelf_type, 'hole_count': hole_count},
+        application="cadquery"
+    )
+
+def output_static_site(components):
+    """
+    Create a sumple web page (index.html) with links to all generated files
+    """
+
+    index_file = os.path.join(BUILD_DIR, "index.html")
+    with open(index_file, "w", encoding="utf-8") as f:
         f.write("<html>")
         f.write("""
                 <head>
-                <title>Nimble generated files</title>
+                <title>Nimble STLs for printing</title>
                 <style>
                     body { font-family: sans-serif; }
                 </style>
                 </head>
                 <body>
-                <p>
-                This is temporary output of the new "smart doc" Nimble feature.
-                </p>
+                
+                <h1>
+                Nimble STL files
+                </h1>
 
                 <p>
-                In the future it will create complete bundles
-                of STL files and documentation for custom configurations<br><br>
-                </p>
-
-                <p>
-                For more details on this project see
+                Nimble is going through a transition towards live generation of all files and documentation
+                for hardware configuration. We call this "Smart Doc". For more details on Nimble see
                 <a href="https://github.com/Wakoma/nimble">https://github.com/Wakoma/nimble</a>
                 </p>
+                </p>
+
+                <p>
+                Smart Doc" is not yet finished, but the code already generates a number of nimble components
+                that may be useful to you. You can find them below.
+                </p>
+                
                 """)
 
         f.write("<h3>Generated files:</h3>")
         f.write("<ul>")
-        for (desc, filename) in generated_files:
-            f.write(f"<li><a href='{filename}'>{desc}</a></li>")
+        for component in components:
+            f.write(f"<li><a href='{component.output_files[0]}'>{component.name}</a></li>")
         f.write("</ul>")
         f.write("</body></html>")
-
-    print("Finished generate()")
-
-
-def generate_leg(length, mounting_holes_dia, out_file):
-    params = {'length': length, 'mounting_holes_dia': mounting_holes_dia}
-    run_cqgi_model_script_and_save("rack_leg.py", params, out_file)
-
-
-def generate_shelf(shelf_type, hole_count, out_file):
-    params = {'shelf_type': shelf_type, 'hole_count': hole_count}
-    run_cqgi_model_script_and_save("tray_6in.py", params, out_file)
-
-
-def run_cqgi_model_script_and_save(file_name, params, out_file):
-    """
-    Handle executing the model script via CQGI, save result
-    """
-    # get path to this script file
-    module_folder = Path(os.path.abspath(__file__)).parent
-    module_folder.resolve()
-
-    # remember python path to restore later
-    python_path = sys.path
-
-    # Add the path to the cadquery script to the python path
-    cq_path = module_folder / "mechanical" / "components" / "cadquery"
-    sys.path.append(str(cq_path))
-
-    # Read and execute the cadquery script
-    user_script = ""
-    with open(cq_path / file_name) as f:
-        user_script = f.read()
-
-    # Build the object with the customized parameters and get it ready to export
-    build_result = cqgi.parse(user_script).build(build_parameters=params)
-
-    # restore python path
-    sys.path = python_path
-
-    if build_result.success:
-        res = build_result.results[0].shape
-
-        if not os.path.exists(out_file):
-            cq.exporters.export(res, str(out_file))
-    else:
-        print(f"Failed to build {file_name}")
-        print(build_result.exception)
-
-
 
 if __name__ == "__main__":
     generate()
