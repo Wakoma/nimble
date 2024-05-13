@@ -40,7 +40,7 @@ exports:
 import pathlib
 import yaml
 
-from .yaml_cleaner import YamlCleaner
+from yaml_cleaner import YamlCleaner
 
 
 class ExsourceDefGenerator:
