@@ -1,36 +1,33 @@
+#! /usr/bin/env python
+
 """
 Run orchestration script with specified config 
 """
 
-from orchestration import OrchestrationRunner
+from orchestration import OrchestrationRunner, NimbleConfiguration
 
-
-def generate_docs(config, config_hash, force_rebuild=True):
+def generate(selected_devices_ids):
     """
-    generate all models and update documentation
+    This will eveneually generate everything needed for a specific nimble
+    configuration including, STL files, renders, of assembly steps, and assembly
+    documentation. Currently it only creates the rack components.
     """
 
-    print("Starting build for config_hash: " + config_hash)
-    runner = OrchestrationRunner(config, config_hash, force_rebuild=force_rebuild)
+    config = NimbleConfiguration(selected_devices_ids)
 
-    print("Setting up build environment")
-    runner.setup()
+    print("Starting build")
+    runner = OrchestrationRunner()
 
-    print("Running orchestration")
-    runner.generate_exsource_files()
+    print("Generating components")
+    runner.generate_components(config.components)
 
-    print("Running exsource make")
-    runner.run_exsource()
-
-    # todo: write gitbuilding files
-
-    print("Creating zip file")
-    runner.create_zip()
-
-    print("Finished build for config_hash: " + config_hash)
+    runner.generate_assembly(config.assembly_definition)
 
 
-# if main script, run generate_docs with test config
+def generate_example_configuration():
+    selected_devices_ids = ['NUC10i5FNH', 'RPi4', 'RPi4']
+    
+    generate(selected_devices_ids)
+
 if __name__ == "__main__":
-    config = {'config': {'server_1': 'Hardware_1', 'router_1': 'Hardware_2', 'switch_1': 'Hardware_9', 'charge_controller_1': 'Hardware_4'}}
-    generate_docs(config, "test_config_hash")
+    generate_example_configuration()

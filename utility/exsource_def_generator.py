@@ -47,10 +47,9 @@ class ExsourceDefGenerator:
     """
     Generate the exsource definition file.
     """
-    _parts = {}
 
     def __init__(self) -> None:
-        pass
+        self._parts = {}
 
     def add_part(self,
                  name: str,
@@ -73,7 +72,7 @@ class ExsourceDefGenerator:
             "dependencies": dependencies
         }
         if name in self._parts:
-            raise ValueError(f"Part {name} already exists.")
+            print(f"Part named: {name} already specified in exsource. Skipping!")
         self._parts[name] = part
 
     def get_part_names(self) -> list:
