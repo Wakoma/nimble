@@ -35,15 +35,23 @@ with locally sourced hardware and 3D-printed components.
 
 ## State of this repository
 
-This repository is in transition as we work towards making all of the mechanical models parametric, and automatically generating the documentation for any configuration. See the [post-hackathon release](https://github.com/Wakoma/nimble/releases/tag/Post-hackathon) for the state of the repository before these changes.
+We are excited to announce that we have received a grant from NLnet Foundation! With this generous funding our team is working with several incredible partners from the open hardware community to develop a smart documentation system which automatically generates all documentation and 3D models needed for any custom nimble configuration. We call this project Smart-Doc.
 
+This repository is in transition as we work towards the Smart-Doc goals of making all of the mechanical models parametric, and automatically generating the documentation for any configuration. To see repository before these changes, see the [post-hackathon release](https://github.com/Wakoma/nimble/releases/tag/Post-hackathon). This was the Nimble repository after the great work done at the [Open Toolchain Foundation](https://forum.opentoolchain.org/) hackathon.
 
-## 2024 Update
-We are excited to announce that we have received a grant from NLnet Foundation! With this generous funding our team is working with several incredible partners from the open hardware community to develop a 'nimble builder', and tools to automatically generate user-friendly documentation.
+For more information on our Smart-Doc project please see:
 
-Please find more information on the project [here](https://nlnet.nl/project/HardwareManuals/).
+* Jeremy's blog post: [First Nimble Project Update](https://7bindustries.com/blog/nimble_project_1.html)
+* This project is funded by  NLnet Foundation! See their announcemnt [here](https://nlnet.nl/project/HardwareManuals/).
+* Github [project plan](https://github.com/orgs/Wakoma/projects/7)
+
 
 ![nlnet](https://nlnet.nl/logo/banner.png)
+
+## Generating models locally
+
+You can run the nimble code on your own computer. [Find out more about local model generation](generate.md)
+
 
 ## Recent Event
 
