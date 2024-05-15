@@ -5,7 +5,7 @@ on: [push]
 jobs:
   python-lint:
     
-    name: lint
+    name: Lint Python
     runs-on: ubuntu-latest
     steps:
       - name: "Check out the repo"
@@ -35,7 +35,7 @@ jobs:
 
   cadquery-lint:
     
-    name: lint
+    name: Lint CadQuery
     runs-on: ubuntu-latest
     steps:
       - name: "Check out the repo"
@@ -60,4 +60,4 @@ jobs:
           pip install .[dev]
       - name: Lint CadQuery scripts
         run: |
-          ./lint_test.py -t cad-query
+          ./lint_test.py -t cadquery
