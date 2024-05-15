@@ -14,5 +14,11 @@ setup(
         'exsource-tools',
         'cq-cli @ git+https://github.com/CadQuery/cq-cli.git',
         'gitbuilding'
-    ]
+    ],
+    extras_require={
+        'dev': [
+            'pylint',
+            'colorama'
+        ]
+    }
 )
