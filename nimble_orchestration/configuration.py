@@ -1,5 +1,5 @@
 """
-This configuration module stores clsses the standard rack parameters for nimble and also
+This configuration module stores the standard rack parameters for nimble and also
 the a class for generating a full cofiguration for a nimble rack `NimbleConfiguration()`.
 """
 
