@@ -1,7 +1,10 @@
+"""
+Contains an object that represents the information of a device in the devices.json file.
+"""
 
 class Device:
     """
-    Represents a device from the devices.json file
+    Represents a subset of the information for a device from the devices.json file
 
     Example node:
       {
@@ -34,19 +37,23 @@ class Device:
       }
     """
 
-    def __init__(self, jsonNode):
-        self.id = jsonNode['ID']
-        # self.name = jsonNode['Name']
-        self.name = jsonNode['Hardware']
-        # self.category = jsonNode['Category']
-        self.category = jsonNode['Type']
-        self.height_in_units = int(jsonNode['HeightUnits'])
-        # self.width = jsonNode['Width']
-        self.width = jsonNode['LengthMm']
-        self.depth = jsonNode['Depth']
-        self.shelf_id = jsonNode['ShelfId']
-        # self.tray_type = jsonNode['TrayType']
-        self.shelf_type = jsonNode['Shelf']
+    def __init__(self, json_node):
+        self.id = json_node['ID']
+        # self.name = json_node['Name']
+        self.name = json_node['Hardware']
+        # self.category = json_node['Category']
+        self.category = json_node['Type']
+        self.height_in_units = int(json_node['HeightUnits'])
+        # self.width = json_node['Width']
+        self.width = json_node['LengthMm']
+        self.depth = json_node['Depth']
+        self.shelf_id = json_node['ShelfId']
+        # self.tray_type = json_node['TrayType']
+        self.shelf_type = json_node['Shelf']
 
-    def get_tray_id(self):
+    @property
+    def tray_id(self):
+        """
+        Return and identification for the shelf.
+        """
         return f"tray_h{self.height_in_units}_t{self.shelf_type.lower().replace(' ', '_')}"

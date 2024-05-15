@@ -112,7 +112,7 @@ class NimbleConfiguration:
         """
         Return the total height of the needed rack in units
         """
-        return sum([device.height_in_units for device in self._devices])
+        return sum(device.height_in_units for device in self._devices)
 
     def _generate_assembled_components_list(self):
 
@@ -236,7 +236,7 @@ class NimbleConfiguration:
             x_pos = -self._rack_params.tray_width / 2.0
             y_pos = -self._rack_params.single_width / 2.0 - 4
             z_pos = z_offset + height_in_u * self._rack_params.mounting_hole_spacing
-            tray_id = device.get_tray_id()
+            tray_id = device.tray_id
 
             component = GeneratedMechanicalComponent(
                 key=tray_id,

@@ -13,7 +13,8 @@ def usage():
     Prints a usage message for this utility.
     """
     print("This utility exists to update the devices.json file in the root of the repository.")
-    print("The orchestration and generation scripts rely on this file to generate the models and assemblies.")
+    print("The orchestration and generation scripts rely on this file to generate the models "
+          "and assemblies.")
     print("Usage:")
     print("    ./devices_json_updater.py [path_to_nocodb_csv_file]")
 
