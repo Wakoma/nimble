@@ -31,7 +31,7 @@ def generate_example_configuration():
     """
     Generate the trays and assembly model for a simple set of devices
     """
-    selected_devices_ids = ['NUC10i5FNH', 'RPi4', 'RPi4']
+    selected_devices_ids = ['NUC10i5FNH', 'Raspberry_Pi_4B', 'Raspberry_Pi_4B']
     generate(selected_devices_ids)
 
 if __name__ == "__main__":
