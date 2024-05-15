@@ -55,8 +55,6 @@ def lint(pylint_args):
     something needs doing in the future and you want to push to master then make an issue.
     """
 
-    
-
 
     output = Run(pylint_args, exit=False)
 
