@@ -4,52 +4,69 @@ SPDX-FileCopyrightText: 2023 Andreas Kahler <mail@andreaskahler.com>
 SPDX-License-Identifier: CERN-OHL-S-2.0
 -->
 
-# nimble smart-doc
+# Automatic generation of configured Nimble hardware
 
-This is the base directory for the "smart-doc" project which aims to have a automated workflow creating assembly instructions for custom Nimble setups.
+## Overview
 
-This is work in progress. Here are some links on where to find further information:
+Nimble hardware models are generated using Python. For CAD we used [CadQuery](https://cadquery.readthedocs.io/en/latest/intro.html). CadQuery scripts can be found in the `mechanical` directory, with individual components in the `mechanical/components/cadquery` directory. Our CadQuery scripts also our `nimble-builder` module of helper functions.
 
-* Jeremy did a blog post about this: [First Nimble Project Update](https://7bindustries.com/blog/nimble_project_1.html)
-* This project is funded by  NLnet Foundation! See their announcemnt [here](https://nlnet.nl/project/HardwareManuals/).
-* Github [project plan](https://github.com/orgs/Wakoma/projects/7)
-* See this [pull request](https://github.com/Wakoma/nimble/pull/23) to follow along current implementation status
-
-# Output
-
-Currently this branch triggers the creation of STLs built using our workflow.
-
-See lastest version here: https://wakoma.github.io/nimble/
+Our preferred way to generate the models needed for a nimble configuration is via our orchestration module `nimble-orchestration`. This can be used to generate trays for networking components, nimble-rack components, and a final CAD assembly. The orchestration system uses [cq-cli](https://github.com/CadQuery/cq-cli) to execute CadQuery scripts, and [ExSource Tools](https://gitlab.com/gitbuilding/exsource-tools) to manage the process of turning scripts into useable models. The orchestration script will eventually use [GitBuilding](https://gitbuilding.io) to generate assembly manuals.
 
 
-# Orchestration script
+## Installation
 
-The orchestration script is the central component of the workflow.
+You must have [Python 3.8](https://www.python.org/about/gettingstarted/) or higher installed on your system and also have pip installed. We recommend that you use a [Python virtual environment](https://realpython.com/python-virtual-environments-a-primer/) for interacting with nimble.
 
-* It is passed in a nimble configuration
-* It triggers building 3d models in STL and STEP format from CadQuery/CadScript code
-* It triggers rendering of diagrams/views of these models and assemblies including them (also done with Cadquery functionality)
-* It triggers creation of assembly manuals using GitBuilding
+Clone or download this repository to your computer
 
-## Python modules
+Open a terminal (for example PowerShell in Windows) and navigate to this repository
 
-(Please note that this is all work in progress)
+Run:
 
-* generate.py runs the orchestration script with a specified nimble config 
-* generate_static.py generates a bunch of STL files to show case the possiblilties of the nimble cadquery code. This is temporarily used to build github pages available at https://wakoma.github.io/nimble/
-* orchestrations.py implements the OrchestrationRunner class, used by generate.py and generate_static.py
+    pip install -e .
 
-## Dependencies
+*Note, if pip doesn't work depending on your system is configured you man need to replace `pip` with `pipx`, `pip3`, or `python -m pip`.*
 
-Run the following in a Python virtual environment to install the dependencies.
+*Also note: The `-e` is optional. It allows you to adjust the code in `nimble-builder` or `nimble-orchestration` without having to run the installation again.*
 
-```
-pip install -r requirements.txt
-```
 
-## Usage
+## Running the code
 
-generate.py currently can be run without arguments to create 3d models for an example configuration.
-This later will be enhanced with the possibility to pass in configurations using devices from a database of supported equipment.
+As the code is very much a work in progress we do not have detailed documentation of how to it for custom configurations.
 
-There is also a python based web server back end that use the orchestration script. Please refer to the server sub folder for details.
+For now the best way to run the code is with the two scripts in this repository.
+
+### Generate static
+
+The script `generate-static.py` is used to create a number of example components for a Nimble rack. The script is not trying to support any specific configuration, but is instead being developed to provide a static library interface for which a large number of Nimble components can be downloaded.
+
+To run this script, run the following command:
+
+    python generate-static.py
+
+This should create the `build` directory. Inside this the `printed_components` directory should contain a number of `stl` files that can be 3D printed.
+
+The script also creates a simple web-page with an index of all of the files.
+
+It also creates a number of files that are used by the orchestration script.
+
+If you don't want to run this locally you can see a [hosted version of the output](https://wakoma.github.io/nimble/).
+
+
+### Generate static
+
+The script `generate.py` is our test-bed script for generating a complete set of information for a nimble configuration.
+
+Currently the configuration is just a list of the networking components which are hard coded. At a future date it should be possible to pass a configuration and other parameters to this script.
+
+To run this script, run the following command:
+
+    python generate.py
+
+This should create the `build` directory. Inside this the `printed_components` directory should contain a number of `step` files that can be 3D printed (you may need to convert them to `stl` files first).
+
+The script also creates an `stl` and a `gltf` of the final assembled rack. **Don't print this, it is not going to print properly as one piece!**
+
+It also creates a number of files that are used by the orchestration script.
+
+At a later date this script will be improved to create a directory (and associated zip-file of each configuration).

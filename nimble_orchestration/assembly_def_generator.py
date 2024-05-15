@@ -1,27 +1,28 @@
+"""
+This module contains a simple class for generating a file that stores the basic assembly
+information.
+"""
 
-from .yaml_cleaner import YamlCleaner
-from .exsource_def_generator import ExsourceDefGenerator
-
-import yaml
 import pathlib
-
+import yaml
+from nimble_orchestration.yaml_cleaner import YamlCleaner
 
 class AssemblyDefGenerator:
     """
     Generate the assembly definition file.
     """
-    _parts = []
 
-    def __init__(self, exsource: ExsourceDefGenerator) -> None:
-        self._exsource = exsource
+    def __init__(self):
+        self._parts = []
 
-    def add_part(self, name: str, part_name: str, position, assembly_step: str | None = None):
+
+    def add_part(self, name: str, step_file: str, position, assembly_step: str | None = None):
         """
         Add a part to the assembly definition file.
         """
         part = {
             "name": name,
-            "step-file": self._exsource.get_part_step_file(part_name),
+            "step-file": step_file,
             "position": position,
             "assembly-step": assembly_step
         }
@@ -42,5 +43,5 @@ class AssemblyDefGenerator:
                 "parts": self._parts
             }
         }
-        with open(output_file, "w") as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             yaml.dump(YamlCleaner.clean(data), f, sort_keys=False)

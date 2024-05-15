@@ -80,7 +80,7 @@ class AssemblyRederer:
 if "show_object" in globals() or __name__ == "__cqgi__":
     # CQGI should execute this whenever called
     assembly = AssemblyRederer(assembly_definition_file).generate()
-    show_object(assembly)
+    show_object(assembly) # pylint: disable=undefined-variable
 
 if __name__ == "__main__":
     # for debugging
