@@ -1,4 +1,7 @@
-
+"""
+A number of helper functions for CadQuery used to simplify the creation of nimble
+rack components
+"""
 from typing import Literal
 import cadscript as cad
 

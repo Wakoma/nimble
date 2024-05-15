@@ -19,7 +19,7 @@ from nimble_builder import shelf_builder
 # "hdd35"                   - for 3.5" HDD
 # "dual-ssd"                - for 2x 2.5" SSD
 # "raspi"                   - for Raspberry Pi
-shelf_type = "stuff"
+shelf_type = "usw-flex-mini"
 hole_count = 2
 
 
@@ -63,7 +63,6 @@ def create_6in_shelf(shelf_type, hole_count) -> cad.Body:
     if shelf_type == "usw-flex-mini":
         b = get_builder(hole_count)
         b.side_wall_thickness = 3.8  # extra thick to have thinner tray
-        b.init_values()  # re-init to apply the new thickness
         b.make_front(front_type="full", bottom_type="closed")
         b.cut_opening("<Y", 85, offset_y=5, size_y=19)
         b.make_tray(width="standard", depth=73.4, sides="slots", back="slots")

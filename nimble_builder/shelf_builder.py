@@ -7,18 +7,12 @@ import cadscript as cad
 from cadscript.interval import Interval2D, Interval1D
 
 
-from .helpers import cut_slots, cut_w_pattern
+from nimble_builder.helpers import cut_slots, cut_w_pattern
+import nimble_builder
 
-
-
-# standard sizes for the shelf
-beam_width = 20             # width and depth of the beams that the front panels are attached to
 width_6in = 155             # full width (front panel) of the 6 inch nimble rack
 width_10in = 254            # full width (front panel) of the 10 inch rack
 width_10in_reduced = 250    # front panel width for 10 inch rack, reduced to fit into a 250mm wide printer
-
-# standard distances between the holes in the front panels (6 inch nimble rack)
-hole_dist_y = 14
 
 no_slots = False  # speedup for debugging
 
@@ -41,6 +35,7 @@ class ShelfBuilder:
     side_wall_offset = 16       # distance between side walls to the bouding box of the rack
 
     _shelf: cad.Body
+    _has_front: bool
     _vertical_hole_count: int
     _width_type: Literal["6inch", "10inch", "10inch_reduced"]
     _width: float
@@ -55,21 +50,24 @@ class ShelfBuilder:
     def __init__(self,
                  vertical_hole_count: int,
                  width: Literal["6inch", "10inch", "10inch_reduced"],
+                 rack_params=None
                  ) -> None:
         """
         Initialize the shelf builder
         """
+
+        if not rack_params:
+            rack_params = nimble_builder.RackParameters()
+        self._rack_params = rack_params
+
         self._vertical_hole_count = vertical_hole_count
         self._width_type = width
         self._width = width_6in if width == "6inch" else width_10in if width == "10inch" else width_10in_reduced
-        self.init_values()
-
-    def init_values(self):
-        self._height = self._vertical_hole_count * hole_dist_y
-        self._hole_dist_x = self._width - beam_width
-        self._hole_offset_y = hole_dist_y / 2
-        self._inner_width = self._width - 2 * beam_width - 2 * self.side_wall_thickness
-        self._front_depth = beam_width + 2.75  # the size of the front panel part in y direction
+        self._height = self._vertical_hole_count * self._rack_params.mounting_hole_spacing
+        self._hole_dist_x = self._width - self._rack_params.beam_width
+        self._hole_offset_y = self._rack_params.mounting_hole_spacing / 2
+        self._inner_width = self._width - 2 * self._rack_params.beam_width - 2 * self.side_wall_thickness
+        self._front_depth = self._rack_params.beam_width + 2.75  # the size of the front panel part in y direction
         self._padding_front = self._front_depth  # the space between the front panel and where slots etc can start at the try bottom
 
     def make_front(self,
@@ -87,7 +85,7 @@ class ShelfBuilder:
         sketch.add_rect(self._width, (-self.panel_thickness, 0), center="X")
         # wall next to the beam
         if beam_wall_type != "none":
-            sketch.add_rect((self._inner_width / 2, self._width / 2 - beam_width),
+            sketch.add_rect((self._inner_width / 2, self._width / 2 - self._rack_params.beam_width),
                             self._front_depth, center=False)
         sketch.mirror("X")
 
@@ -97,7 +95,7 @@ class ShelfBuilder:
         front.cut_hole("<Y", d=self.hole_diameter, pos=pattern_holes)
 
         if beam_wall_type == "ramp":
-            front.chamfer(">Y and >Z and |X", min(self._height, beam_width))
+            front.chamfer(">Y and >Z and |X", min(self._height, self._rack_params.beam_width))
 
         self._shelf = front
 
@@ -190,7 +188,7 @@ class ShelfBuilder:
         # for thin trays connect the walls
 
         if sides != "open" and self._front_depth > 0:
-            if plate_width > self._width - 2 * beam_width:
+            if plate_width > self._width - 2 * self._rack_params.beam_width:
                 # broad tray
                 left = self._inner_width / 2
                 right = plate_width / 2
@@ -202,7 +200,7 @@ class ShelfBuilder:
             if abs(left - right) > 0.5:
                 extra_sketch = cad.make_sketch()
                 extra_sketch.add_rect((left, right),
-                                      (beam_width + 0.25, self._front_depth))
+                                      (self._rack_params.beam_width + 0.25, self._front_depth))
                 extra_sketch.mirror("X")
                 extra_walls = cad.make_extrude("XY", extra_sketch, self._height)
                 self._shelf.add(extra_walls)
@@ -423,7 +421,7 @@ class ShelfBuilder:
 
 # for development and debugging
 if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
-    b = ShelfBuilder(vertical_hole_count=3, width="10inch")
-    b.make_front(front_type="slots", bottom_type="closed")
-    b.make_tray(width="standard", depth=80, sides="ramp", back="open")
-    cad.show(b._shelf)
+    shelf = ShelfBuilder(vertical_hole_count=3, width="10inch")
+    shelf.make_front(front_type="slots", bottom_type="closed")
+    shelf.make_tray(width="standard", depth=80, sides="ramp", back="open")
+    cad.show(shelf.get_body())
