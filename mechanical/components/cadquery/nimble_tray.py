@@ -91,4 +91,4 @@ def create(number_of_units, tray_width, tray_depth):
 
 # CQGI should execute this whenever called
 obj = create(height_in_hole_unites, tray_width, tray_depth)
-show_object(obj) # pylint: disable=undefined-variable
+show_object(obj)
