@@ -43,7 +43,7 @@ class Device:
         self.name = json_node['Hardware']
         # self.category = json_node['Category']
         self.category = json_node['Type']
-        self.height_in_units = int(json_node['HeightUnits'])
+        self.height_in_u = int(json_node['HeightUnits'])
         # self.width = json_node['Width']
         self.width = json_node['LengthMm']
         self.depth = json_node['Depth']
@@ -56,4 +56,4 @@ class Device:
         """
         Return and identification for the shelf.
         """
-        return f"tray_h{self.height_in_units}_t{self.shelf_type.lower().replace(' ', '_')}"
+        return f"tray_h{self.height_in_u}_t{self.shelf_type.lower().replace(' ', '_')}"

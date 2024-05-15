@@ -1,5 +1,6 @@
 
 from dataclasses import dataclass
+from typing import Literal
 
 @dataclass
 class RackParameters:
@@ -8,7 +9,7 @@ class RackParameters:
     """
 
     beam_width: float = 20.0
-    single_width: float = 155
+    nominal_rack_width: Literal["6inch", "10inch", "10inch_reduced"] = "6inch"
     tray_depth: float = 115
     mounting_hole_spacing: float = 14
     base_plate_thickness: float = 3
@@ -22,15 +23,33 @@ class RackParameters:
     end_plate_star_width: float = 9
 
     @property
+    def rack_width(self):
+        """
+        Return the rack width in mm as determined by the nominal_rack_width.
+        Options are:
+            "6inch"  - 155mm - full width (front panel) of the 6 inch nimble rack
+            "10inch" - 254mm - full width (front panel) of the 10 inch rack
+            "10inch_reduced - 250mm - as above bu reduced to fit into a 250mm wide printer
+        """
+        if self.nominal_rack_width == "6inch":
+            return 155
+        if self.nominal_rack_width == "10inch":
+            return 254
+        if self.nominal_rack_width == "10inch_reduced":
+            return 250
+        raise ValueError(f"Unknown rack witdth {self.nominal_rack_width}")
+
+    @property
     def tray_width(self):
         """
         Return derived parameter for the width of a standard tray
         """
-        return self.single_width - 2 * self.beam_width
+        return self.rack_width - 2 * self.beam_width
 
-    def beam_height(self, total_height_in_units):
+    def beam_height(self, total_height_in_u):
         """
         Return derived parameter for the height of a beam for a rack with a given
         total height specified in units.
         """
-        return self.base_clearance + total_height_in_units * self.mounting_hole_spacing
+        return self.base_clearance + total_height_in_u * self.mounting_hole_spacing
+

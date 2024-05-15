@@ -214,7 +214,7 @@ def read_item(number_of_units: float = 2, tray_width: float = 115, tray_depth: f
     import cadquery as cq
 
     # Run the script with customized parameters
-    tray = cqgi_model_script("nimble_tray.py", {"height_in_hole_unites": number_of_units, "tray_width": tray_width, "tray_depth": tray_depth})
+    tray = cqgi_model_script("nimble_tray.py", {"height_in_u": number_of_units, "tray_width": tray_width, "tray_depth": tray_depth})
 
     # In case there was an error
     if (type(tray).__name__ == "HTMLResponse"):

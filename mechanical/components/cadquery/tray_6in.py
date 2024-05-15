@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 import cadscript as cad
+import nimble_builder
 from nimble_builder import shelf_builder
 
 # parameters to be set in exsource-def.yaml file
@@ -24,7 +25,8 @@ hole_count = 2
 
 
 def get_builder(hole_count) -> shelf_builder.ShelfBuilder:
-    shelf = shelf_builder.ShelfBuilder(hole_count, width="6inch")
+    rack_params = nimble_builder.RackParameters(nominal_rack_width="6inch")
+    shelf = shelf_builder.ShelfBuilder(hole_count, rack_params=rack_params)
     return shelf
 
 

@@ -10,9 +10,6 @@ from cadscript.interval import Interval2D, Interval1D
 from nimble_builder.helpers import cut_slots, cut_w_pattern
 import nimble_builder
 
-width_6in = 155             # full width (front panel) of the 6 inch nimble rack
-width_10in = 254            # full width (front panel) of the 10 inch rack
-width_10in_reduced = 250    # front panel width for 10 inch rack, reduced to fit into a 250mm wide printer
 
 no_slots = False  # speedup for debugging
 
@@ -35,9 +32,7 @@ class ShelfBuilder:
     side_wall_offset = 16       # distance between side walls to the bouding box of the rack
 
     _shelf: cad.Body
-    _has_front: bool
-    _vertical_hole_count: int
-    _width_type: Literal["6inch", "10inch", "10inch_reduced"]
+    _height_in_u: int
     _width: float
     _height: float
     _inner_width: float  # inside walls between the beams
@@ -48,8 +43,7 @@ class ShelfBuilder:
 
 
     def __init__(self,
-                 vertical_hole_count: int,
-                 width: Literal["6inch", "10inch", "10inch_reduced"],
+                 height_in_u: int,
                  rack_params=None
                  ) -> None:
         """
@@ -60,13 +54,11 @@ class ShelfBuilder:
             rack_params = nimble_builder.RackParameters()
         self._rack_params = rack_params
 
-        self._vertical_hole_count = vertical_hole_count
-        self._width_type = width
-        self._width = width_6in if width == "6inch" else width_10in if width == "10inch" else width_10in_reduced
-        self._height = self._vertical_hole_count * self._rack_params.mounting_hole_spacing
-        self._hole_dist_x = self._width - self._rack_params.beam_width
+        self._height_in_u = height_in_u
+        self._height = self._height_in_u * self._rack_params.mounting_hole_spacing
+        self._hole_dist_x = self._rack_params.rack_width - self._rack_params.beam_width
         self._hole_offset_y = self._rack_params.mounting_hole_spacing / 2
-        self._inner_width = self._width - 2 * self._rack_params.beam_width - 2 * self.side_wall_thickness
+        self._inner_width = self._rack_params.rack_width - 2 * self._rack_params.beam_width - 2 * self.side_wall_thickness
         self._front_depth = self._rack_params.beam_width + 2.75  # the size of the front panel part in y direction
         self._padding_front = self._front_depth  # the space between the front panel and where slots etc can start at the try bottom
 
@@ -82,10 +74,10 @@ class ShelfBuilder:
 
         sketch = cad.make_sketch()
         # front panel
-        sketch.add_rect(self._width, (-self.panel_thickness, 0), center="X")
+        sketch.add_rect(self._rack_params.rack_width, (-self.panel_thickness, 0), center="X")
         # wall next to the beam
         if beam_wall_type != "none":
-            sketch.add_rect((self._inner_width / 2, self._width / 2 - self._rack_params.beam_width),
+            sketch.add_rect((self._inner_width / 2, self._rack_params.rack_width / 2 - self._rack_params.beam_width),
                             self._front_depth, center=False)
         sketch.mirror("X")
 
@@ -156,12 +148,13 @@ class ShelfBuilder:
         # basic size
         plate_width = 0 if not isinstance(width, (float, int)) else width
         if width == "standard":
-            if self._width_type == "6inch":
-                plate_width = 115  # could be a bit larger, use this for backwards compatibility
+            if self._rack_params.nominal_rack_width == "6inch":
+                 # could be a bit larger, use this for backwards compatibility
+                plate_width = 115 
             else:
                 plate_width = self._inner_width + 2 * self.side_wall_thickness
         elif width == "broad":
-            plate_width = self._width - 2 * self.side_wall_offset
+            plate_width = self._rack_params.rack_width - 2 * self.side_wall_offset
         if not isinstance(plate_width, (float, int)) and plate_width <= 0:
             raise ValueError("Invalid width")
         self.plate_width = plate_width
@@ -188,7 +181,7 @@ class ShelfBuilder:
         # for thin trays connect the walls
 
         if sides != "open" and self._front_depth > 0:
-            if plate_width > self._width - 2 * self._rack_params.beam_width:
+            if plate_width > self._rack_params.rack_width - 2 * self._rack_params.beam_width:
                 # broad tray
                 left = self._inner_width / 2
                 right = plate_width / 2
@@ -240,7 +233,7 @@ class ShelfBuilder:
         if have_walls:
             walls = cad.make_extrude("XY", wall_sketch, wall_height)
             if sides == "w-pattern":
-                cut_w_pattern(walls, ">X", dim_sides.tuple_y, (0, wall_height), padding_side, padding_top_w, cut_depth=self._width + 1)
+                cut_w_pattern(walls, ">X", dim_sides.tuple_y, (0, wall_height), padding_side, padding_top_w, cut_depth=self._rack_params.rack_width + 1)
             if sides == "slots" and not no_slots:
                 cut_slots(walls, ">X", dim_sides.tuple_y, (0, wall_height), padding_side, padding_top)
             if back == "w-pattern":
@@ -393,7 +386,7 @@ class ShelfBuilder:
         self._shelf.add(channel_guide)
 
         sketch_channels = cad.make_sketch()
-        sketch_channels.add_rect(self._width, channel_width,
+        sketch_channels.add_rect(self._rack_params.rack_width, channel_width,
                                  pos=[(0, ziptie_pos_y1), (0, ziptie_pos_y2)])
         self._shelf.cut(cad.make_extrude_z(sketch_channels, 999))
 
@@ -419,9 +412,16 @@ class ShelfBuilder:
         return self._shelf
 
 
-# for development and debugging
-if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
-    shelf = ShelfBuilder(vertical_hole_count=3, width="10inch")
+def example():
+    """
+    An example of this module in use for dev and debugging
+    """
+    rack_params = nimble_builder.RackParameters(nominal_rack_width="10inch")
+    shelf = ShelfBuilder(height_in_u=3, rack_params=rack_params)
     shelf.make_front(front_type="slots", bottom_type="closed")
     shelf.make_tray(width="standard", depth=80, sides="ramp", back="open")
     cad.show(shelf.get_body())
+
+# for development and debugging
+if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
+    example()

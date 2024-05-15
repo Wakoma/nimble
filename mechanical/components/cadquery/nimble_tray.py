@@ -6,7 +6,7 @@
 import cadquery as cq
 import math
 
-height_in_hole_unites = 2
+height_in_u = 2
 tray_width = 115
 tray_depth = 115
 
@@ -17,7 +17,7 @@ class Params:
         self.tray_width = 115
         self.tray_depth = 115
         self.leg_width = 20
-        self.height_in_hole_unites = 2
+        self.height_in_u = 2
         self.wall_thickness = 4
         self.hole_distance = 14  # Distance between the holes
         self.hole_diameter = 3.6
@@ -32,7 +32,7 @@ class Params:
 
     @property
     def tray_height(self):
-        return self.height_in_hole_unites * self.hole_distance
+        return self.height_in_u * self.hole_distance
 
     @property
     def inner_height(self):
@@ -46,7 +46,7 @@ class Params:
         # Convert hole into number of holes.
         nh = math.ceil(height / p.hole_distance)
         # The number of holes must be at least two
-        p.height_in_hole_unites = max(nh, 2)
+        p.height_in_u = max(nh, 2)
         return p
 
 
@@ -81,14 +81,14 @@ def _create_part(params):
     return result
 
 
-def create(number_of_units, tray_width, tray_depth):
+def create(height_in_u, tray_width, tray_depth):
     params = Params()
-    params.height_in_hole_unites = number_of_units
+    params.height_in_u = height_in_u
     params.tray_width = tray_width
     params.tray_depth = tray_depth
     return _create_part(params)
 
 
 # CQGI should execute this whenever called
-obj = create(height_in_hole_unites, tray_width, tray_depth)
+obj = create(height_in_u, tray_width, tray_depth)
 show_object(obj)

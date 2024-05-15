@@ -15,9 +15,6 @@ assembly:
     assembly-step: '2'
 
 """
-# parameters
-# can be set in exsource-def.yaml file
-assembly_definition_file = "assembly-def.yaml"
 
 import os
 from pathlib import Path
@@ -71,7 +68,12 @@ class AssemblyRederer:
             cq_part = cq.importers.importStep(part.step_file)
             for tag in part.tags:
                 cq_part = cq_part.tag(tag)
-            assembly.add(cq_part, name=part.name, loc=cq.Location(part.position))
+            #Pylint appears to be confused by the multimethod __init__ used by cq.Location
+            assembly.add(
+                cq_part,
+                name=part.name,
+                loc=cq.Location(part.position) #pylint: disable=no-value-for-parameter
+            )
 
         return assembly
 
@@ -79,6 +81,7 @@ class AssemblyRederer:
 # Handle different execution environments, including ExSource-Tools
 if "show_object" in globals() or __name__ == "__cqgi__":
     # CQGI should execute this whenever called
+    assembly_definition_file = "assembly-def.yaml"
     assembly = AssemblyRederer(assembly_definition_file).generate()
     show_object(assembly)
 
