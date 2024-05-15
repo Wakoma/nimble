@@ -20,6 +20,6 @@ def create(width, depth, height):
     return plate
 
 
-if __name__ == "__cqgi__":
+if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
     result = create(width, depth, height)
     cad.show(result)  # when run in cq-cli, will return result

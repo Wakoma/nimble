@@ -13,6 +13,7 @@ tray_depth = 115
 
 class Params:
     def __init__(self):
+
         # Default length unit is mm.
         self.tray_width = 115
         self.tray_depth = 115
@@ -88,7 +89,7 @@ def create(height_in_u, tray_width, tray_depth):
     params.tray_depth = tray_depth
     return _create_part(params)
 
-
-# CQGI should execute this whenever called
-obj = create(height_in_u, tray_width, tray_depth)
-show_object(obj)
+if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
+    # CQGI should execute this whenever called
+    obj = create(height_in_u, tray_width, tray_depth)
+    show_object(obj)

@@ -58,6 +58,6 @@ def create_end_plate(width, depth, height, rack_params=None):
 
 
 # for debugging purposes
-if __name__ == "main":
+if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
     result = create_end_plate(155, 155, 3)
     cad.show(result)

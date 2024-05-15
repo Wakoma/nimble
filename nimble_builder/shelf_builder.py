@@ -33,7 +33,6 @@ class ShelfBuilder:
 
     _shelf: cad.Body
     _height_in_u: int
-    _width: float
     _height: float
     _inner_width: float  # inside walls between the beams
 
@@ -342,10 +341,10 @@ class ShelfBuilder:
             raise ValueError(f"Unknown hole type: {hole_type}")
 
     def add_cage(self,
-                 inner_width: float,
-                 inner_depth: float,
-                 height: float = 0,
-                 back_cutout_width: float = 0,
+                 internal_width: float,
+                 internal_depth: float,
+                 internal_height: float = 0,
+                 rear_cutout_width: float = 0,
                  add_ziptie_channels: bool = True,
                  ):
         wall_thickness = 2.5
@@ -354,19 +353,19 @@ class ShelfBuilder:
         channel_width = 5
         guide_width = 8
         guide_radius = 6
-        ziptie_pos_y1 = inner_depth * 0.25
+        ziptie_pos_y1 = internal_depth * 0.25
         ziptie_pos_y1 = max(ziptie_pos_y1, self._front_depth + channel_width / 2)
-        ziptie_pos_y2 = inner_depth * 0.75
-        if height == 0:
-            height = self._height
-        cage_height = height + self.bottom_thickness - offset_top
+        ziptie_pos_y2 = internal_depth * 0.75
+        if internal_height == 0:
+            internal_height = self._height
+        cage_height = internal_height + self.bottom_thickness - offset_top
 
         # basic cage
         sketch = cad.make_sketch()
-        sketch.add_rect(inner_width + wall_thickness * 2, inner_depth + wall_thickness, center="X")
-        sketch.cut_rect(inner_width, inner_depth, center="X")
-        if back_cutout_width > 0:
-            sketch.cut_rect(back_cutout_width, inner_depth + wall_thickness + 1, center="X")
+        sketch.add_rect(internal_width + wall_thickness * 2, internal_depth + wall_thickness, center="X")
+        sketch.cut_rect(internal_width, internal_depth, center="X")
+        if rear_cutout_width > 0:
+            sketch.cut_rect(rear_cutout_width, internal_depth + wall_thickness + 1, center="X")
         cage = cad.make_extrude("XY", sketch, cage_height)
         self._shelf.add(cage)
 
@@ -377,9 +376,9 @@ class ShelfBuilder:
             return
 
         sketch_channel_guide = cad.make_sketch()
-        sketch_channel_guide.add_rect(inner_width + guide_radius * 2, guide_width,
+        sketch_channel_guide.add_rect(internal_width + guide_radius * 2, guide_width,
                                       pos=[(0, ziptie_pos_y1), (0, ziptie_pos_y2)])
-        sketch_channel_guide.cut_rect(inner_width, 999)
+        sketch_channel_guide.cut_rect(internal_width, 999)
         channel_guide = cad.make_extrude_z(sketch_channel_guide, cage_height)
         channel_guide.fillet(">Z and >X and |Y", guide_radius / 2)
         channel_guide.fillet(">Z and <X and |Y", guide_radius / 2)
@@ -397,7 +396,7 @@ class ShelfBuilder:
                                start=(0, self.bottom_thickness + guide_radius + offset_bottom),
                                end=(0, cage_height - guide_radius))
         sketch_guides.cut_rect((-999, 0), (0, 999))
-        sketch_guides.move((inner_width / 2, 0))
+        sketch_guides.move((internal_width / 2, 0))
         sketch_guides.mirror("X")
         self._shelf.add(cad.make_extrude_y(sketch_guides, guide_width, center=True).move((0, ziptie_pos_y1, 0)))
         self._shelf.add(cad.make_extrude_y(sketch_guides, guide_width, center=True).move((0, ziptie_pos_y2, 0)))

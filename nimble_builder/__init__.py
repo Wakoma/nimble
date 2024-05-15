@@ -10,17 +10,51 @@ class RackParameters:
 
     beam_width: float = 20.0
     nominal_rack_width: Literal["6inch", "10inch", "10inch_reduced"] = "6inch"
+    mounting_screws: Literal["M4", "M6"] = "M4"
     tray_depth: float = 115
     mounting_hole_spacing: float = 14
     base_plate_thickness: float = 3
     top_plate_thickness: float = 3
     base_clearance: float = 4
     bottom_tray_offet: float = 5
+    corner_fillet: float = 2
     end_plate_hole_dia: float = 4.7
     end_plate_hole_countersink_dia: float = 10
     end_plate_rail_width: float = 5
     end_plate_rail_height: float = 3
     end_plate_star_width: float = 9
+    
+
+    @property
+    def mounting_hole_clearance_diameter(self):
+        """
+        Return the diameter for a clearance hole for the front mounting screws.
+        This is determined by the `mounting_screws` parameter.
+        Clearance holes should be used in tray fronts.
+        See also: mounting_hole_tap_diameter
+        """
+        if self.mounting_screws == "M4":
+            return 4.3
+        if self.mounting_screws == "M6":
+            return 6.5
+        raise ValueError(f"Unknown screw size {self.mounting_screws}")
+
+    @property
+    def mounting_hole_tap_diameter(self):
+        """
+        Return the diameter for a tapped hole for the front mounting screws.
+        This is determined by the `mounting_screws` parameter.
+        Clearance holes should be in the legs where the screw will tap.
+        As 3D printers tend to over extrude ad the fact that the machine screws
+        are tapping directly into plastic the holes are larger than standard
+        metric tap holes.
+        See also: mounting_hole_tap_diameter
+        """
+        if self.mounting_screws == "M4":
+            return 3.6
+        if self.mounting_screws == "M6":
+            return 5.5
+        raise ValueError(f"Unknown screw size {self.mounting_screws}")
 
     @property
     def rack_width(self):
@@ -37,7 +71,7 @@ class RackParameters:
             return 254
         if self.nominal_rack_width == "10inch_reduced":
             return 250
-        raise ValueError(f"Unknown rack witdth {self.nominal_rack_width}")
+        raise ValueError(f"Unknown rack width {self.nominal_rack_width}")
 
     @property
     def tray_width(self):
@@ -53,3 +87,8 @@ class RackParameters:
         """
         return self.base_clearance + total_height_in_u * self.mounting_hole_spacing
 
+    def tray_height(self, height_in_u):
+        """
+        Return derived parameter for the height of a tray specified in units.
+        """
+        return height_in_u * self.mounting_hole_spacing
