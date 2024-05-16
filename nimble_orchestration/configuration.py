@@ -198,7 +198,7 @@ class NimbleConfiguration:
         long and messy!
         """
 
-        source = os.path.join(REL_MECH_DIR, "components/cadquery/nimble_tray.py")
+        source = os.path.join(REL_MECH_DIR, "components/cadquery/tray_6in.py")
         source = posixpath.normpath(source)
         trays = []
         z_offset = self._rack_params.bottom_tray_offet
@@ -220,8 +220,7 @@ class NimbleConfiguration:
                 source_files=[source],
                 parameters={
                     "height_in_u": device.height_in_u,
-                    "tray_width": self._rack_params.tray_width,
-                    "tray_depth": self._rack_params.tray_depth,
+                    "shelf_type": "generic",
                 },
                 application="cadquery"
             )
