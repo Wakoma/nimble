@@ -1,13 +1,20 @@
 # SPDX-FileCopyrightText: 2023 Andreas Kahler <mail@andreaskahler.com>
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
-
+"""
+A generic function for the end plates of the rack (top and bottom plates.
+This currently only generates the flat plates, not ones that can hold and 
+instrument on top.
+"""
 
 import cadscript as cad
 import nimble_builder
 
 
 def create_end_plate(width, depth, height, rack_params=None):
+    """
+    Create the top and bottom of the rack
+    """
 
     if not rack_params:
         rack_params = nimble_builder.RackParameters()

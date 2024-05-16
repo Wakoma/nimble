@@ -1,4 +1,6 @@
-
+"""
+On loading nimble_builder the RackParameters dataclass will be available
+"""
 from dataclasses import dataclass
 from typing import Literal
 
