@@ -2,10 +2,14 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-import typing
+"""
+This module provides many different nimble shelves created using
+the nimble_builder ShelfBuilder.
+"""
+
 import cadscript as cad
 import nimble_builder
-from nimble_builder import shelf_builder
+from nimble_builder.shelf_builder import ShelfBuilder, ziptie_shelf
 
 # parameters to be set in exsource-def.yaml file
 
@@ -23,157 +27,243 @@ from nimble_builder import shelf_builder
 # "dual-ssd"                - for 2x 2.5" SSD
 # "raspi"                   - for Raspberry Pi
 
-shelf_type = "generic"
+shelf_type = "stuff-thin"
 height_in_u = 2
 
 
-
 def create_6in_shelf(shelf_type, height_in_u) -> cad.Body:
-    if shelf_type == "generic":
-        return create_ziptie_shelf(height_in_u)
-    if shelf_type == "stuff":
-        b = shelf_builder.ShelfBuilder(height_in_u, width="broad", depth="standard", front_type="w-pattern")
-        b.make_tray(sides="w-pattern", back="open")
-        return b.get_body()
-    if shelf_type == "stuff-thin":
-        b = shelf_builder.ShelfBuilder(height_in_u, width="standard", depth="standard", front_type="w-pattern")
+    """
+    This is the tip level function called when the script
+    is called. It used the shelf-type string to decide
+    which of the defined shelf functions to call.
+    """
 
-        b.make_tray(sides="w-pattern", back="open")
-        return b.get_body()
-    if shelf_type == "nuc":
-        b = shelf_builder.ShelfBuilder(height_in_u, width="broad", depth="standard", front_type="full")
-        b.cut_opening("<Y", b.inner_width, 4)
-        b.make_tray(sides="w-pattern", back="open")
-        b.add_mounting_hole_to_bottom(x_pos=0, y_pos=35, base_thickness=4, hole_type="M3cs")
-        b.add_mounting_hole_to_bottom(x_pos=0, y_pos=120, base_thickness=4, hole_type="M3cs")
-        return b.get_body()
-    if shelf_type == "usw-flex":
-        b = shelf_builder.ShelfBuilder(height_in_u, width="standard", depth=119.5, front_type="full")
-        b.cut_opening("<Y", b.inner_width, 4)
-        b.make_tray(sides="w-pattern", back="open")
-        # add 2 mounting bars on the bottom plate
-        sketch = cad.make_sketch()
-        sketch.add_rect(8, 60, center="X", pos=[(-17.5, 42), (+17.5, 42)])
-        base = cad.make_extrude("XY", sketch, b.rack_params.tray_bottom_thickness)
-        sketch.cut_circle(d=3.8, pos=[(-17.5, 30 + 42), (+17.5, 30 + 42)])
-        base2 = cad.make_extrude("XY", sketch, 5)
-        b.get_body().add(base).add(base2)
-        return b.get_body()
-    if shelf_type == "usw-flex-mini":
-        rack_params = nimble_builder.RackParameters(tray_side_wall_thickness = 3.8)
-        b = shelf_builder.ShelfBuilder(height_in_u, width="standard", depth=73.4, front_type="full", rack_params=rack_params)
-        b.cut_opening("<Y", 85, offset_y=5, size_y=19)
-        b.make_tray(sides="slots", back="slots")
-        b.cut_opening(">Y", 30, offset_y=b.rack_params.tray_bottom_thickness, depth=10)
-        b.add_mounting_hole_to_side(y_pos=59, z_pos=b.height / 2, hole_type="M3-tightfit", side="both")
-        b.add_mounting_hole_to_back(x_pos=-75 / 2, z_pos=b.height / 2, hole_type="M3-tightfit")
-        b.add_mounting_hole_to_back(x_pos=+75 / 2, z_pos=b.height / 2, hole_type="M3-tightfit")
-        return b.get_body()
-    if shelf_type == "anker-powerport5":
-        return create_ziptie_shelf(height_in_u,
-                                   internal_width=56,
-                                   internal_depth=90.8,
-                                   internal_height=25,
-                                   front_cutout_width=53)
+    # Dictionary of with key as shelf type and value as tuple
+    # of (function, keyword-arguments)
+    shelf_functions = {
+        "generic": (generic_shelf, {}),
+        "stuff": (stuff_shelf, {}),
+        "stuff-thin": (stuff_shelf, {"thin":True}),
+        "nuc": (nuc_shelf, {}),
+        "usw-flex": (usw_flex_shelf, {}),
+        "usw-flex-mini": (usw_flex_mini_shelf, {}),
+        "anker-powerport5": (anker_shelf, {
+            "internal_width": 56,
+            "internal_depth": 90.8,
+            "internal_height": 25,
+            "front_cutout_width": 53
+        }),
+        "anker-a2123": (anker_shelf, {
+            "internal_width": 86.5,
+            "internal_depth": 90,
+            "internal_height": 20,
+            "front_cutout_width": 71
+        }),
+        "anker-atom3slim": (anker_shelf, {
+            "internal_width": 70,
+            "internal_depth": 99,
+            #should be 26 high but this height create interference of the shelf
+            "internal_height": 25,
+            "front_cutout_width": 65
+        }),
+        "hdd35": (hdd35_shelf, {}),
+        "dual-ssd": (dual_ssd_shelf, {}),
+        "raspi": (raspi_shelf, {})
+    }
 
-    if shelf_type == "anker-atom3slim":
-        return create_ziptie_shelf(height_in_u,
-                                   internal_width=86.5,
-                                   internal_depth=90,
-                                   internal_height=20,
-                                   front_cutout_width=71)
-    if shelf_type == "anker-a2123":
-        # 99 x 70 x 26 mm
-        # use height = 25, max for cage on 2 hole shelf
-        return create_ziptie_shelf(height_in_u,
-                                   internal_width=70,
-                                   internal_depth=99,
-                                   internal_height=25,
-                                   front_cutout_width=65)
-    if shelf_type == "hdd35":
-        width = 102.8  # 101.6 + 1.2 clearance
-        screw_pos1 = 77.3  # distance from front
-        screw_pos2 = screw_pos1 + 41.61
-        screw_y = 7  # distance from bottom plane
-        b = shelf_builder.ShelfBuilder(height_in_u, width="standard", depth="standard", front_type="w-pattern")
-        b.make_tray(sides="slots", back="open")
-        mount_sketch = cad.make_sketch()
-        mount_sketch.add_rect((width / 2, b.inner_width / 2 + b.rack_params.tray_side_wall_thickness), 21,
-                              pos=[(0, screw_pos1), (0, screw_pos2)])
-        mount_sketch.chamfer("<X", (b.inner_width - width) / 2)
-        mount_sketch.mirror("X")
-        b.get_body().add(cad.make_extrude("XY", mount_sketch, 14))
-        b.add_mounting_hole_to_side(y_pos=screw_pos1, z_pos=screw_y + b.rack_params.tray_bottom_thickness, hole_type="HDD", side="both")
-        b.add_mounting_hole_to_side(y_pos=screw_pos2, z_pos=screw_y + b.rack_params.tray_bottom_thickness, hole_type="HDD", side="both")
-        return b.get_body()
-    if shelf_type == "dual-ssd":
-        rack_params = nimble_builder.RackParameters()
-        width = 70
-        screw_pos1 = 12.5  # distance from front
-        screw_pos2 = screw_pos1 + 76
-        screw_y1 = 6.6  # distance from bottom plane
-        screw_y2 = screw_y1 + 11.1
-        b = shelf_builder.ShelfBuilder(height_in_u, width=width + 2 * rack_params.tray_side_wall_thickness, depth=111, front_type="w-pattern", base_between_beam_walls="none", beam_wall_type="none")
-        b.make_tray(sides="slots", back="open")
-        for (x, y) in [(screw_pos1, screw_y2),
-                       (screw_pos2, screw_y2),
-                       (screw_pos1, screw_y1),
-                       (screw_pos2, screw_y1)]:
-            b.add_mounting_hole_to_side(y_pos=x, z_pos=y + rack_params.tray_bottom_thickness,
-                                        hole_type="M3-tightfit", side="both", base_diameter=11)
-        return b.get_body()
-    if shelf_type == "raspi":
-        screw_dist_x = 49
-        screw_dist_y = 58
-        dist_to_front = 23.5
-        offset_x = -13
-        b = shelf_builder.ShelfBuilder(height_in_u, width="standard", depth=111, front_type="full")
-        b.cut_opening("<Y", (-15, 39.5), size_y=(6, 25))
-        b.cut_opening("<Y", (-41.5, -25.5), size_y=(6, 22))
-        b.make_tray(sides="ramp", back="open")
-        for (x, y) in [(offset_x, dist_to_front),
-                       (offset_x + screw_dist_x, dist_to_front),
-                       (offset_x, dist_to_front + screw_dist_y),
-                       (offset_x + screw_dist_x, dist_to_front + screw_dist_y)]:
-            b.add_mounting_hole_to_bottom(x_pos=x, y_pos=y, hole_type="base-only",
-                                          base_thickness=b.rack_params.tray_bottom_thickness, base_diameter=20)
-            b.add_mounting_hole_to_bottom(x_pos=x, y_pos=y, hole_type="M3-tightfit",
-                                          base_thickness=5.5, base_diameter=7)
-        return b.get_body()
-
+    if shelf_type in shelf_functions:
+        shelf_func = shelf_functions[shelf_type][0]
+        kwargs = shelf_functions[shelf_type][1]
+        return shelf_func(height_in_u, **kwargs)
     raise ValueError(f"Unknown shelf type: {shelf_type}")
 
+def generic_shelf(height_in_u) -> cad.Body:
+    """
+    A generic cable tie shelf
+    """
+    return ziptie_shelf(height_in_u)
 
-def create_ziptie_shelf(
-        height_in_u: int,
-        internal_width: typing.Optional[float]=None,
-        internal_depth: typing.Optional[float]=None,
-        internal_height: typing.Optional[float]=None,
-        front_cutout_width: typing.Optional[float]=None,
-        rear_cutout_width: typing.Optional[float]=None,
-        rack_params: nimble_builder.RackParameters = None
-):
+def stuff_shelf(height_in_u, thin=False) -> cad.Body:
+    """
+    A shelf for general stuff such as wires. No access to the front
+    """
+    width = "broad" if not thin else "standard"
+    builder = ShelfBuilder(
+        height_in_u, width=width, depth="standard", front_type="w-pattern"
+    )
+    builder.make_tray(sides="w-pattern", back="open")
+    return builder.get_body()
 
-    if not rack_params:
-        rack_params = nimble_builder.RackParameters()
-    if not internal_width:
-        internal_width = rack_params.tray_width - 12
-    if not internal_depth:
-        internal_depth = 115
-    if not internal_height:
-        internal_height = rack_params.tray_height(height_in_u) - 3
-    if not rear_cutout_width:
-        front_cutout_width = internal_width - 10
-    if not rear_cutout_width:
-        rear_cutout_width = internal_width - 20
+def nuc_shelf(height_in_u) -> cad.Body:
+    """
+    A shelf for an Intel NUC
+    """
+    builder = ShelfBuilder(
+        height_in_u, width="broad", depth="standard", front_type="full"
+    )
+    builder.cut_opening("<Y", builder.inner_width, 4)
+    builder.make_tray(sides="w-pattern", back="open")
+    builder.add_mounting_hole_to_bottom(x_pos=0, y_pos=35, base_thickness=4, hole_type="M3cs")
+    builder.add_mounting_hole_to_bottom(x_pos=0, y_pos=120, base_thickness=4, hole_type="M3cs")
+    return builder.get_body()
 
+def usw_flex_shelf(height_in_u) -> cad.Body:
+    """
+    A shelf for a Ubiquiti USW-Flex
+    """
+    builder = ShelfBuilder(
+        height_in_u, width="standard", depth=119.5, front_type="full"
+    )
+    builder.cut_opening("<Y", builder.inner_width, 4)
+    builder.make_tray(sides="w-pattern", back="open")
+    # add 2 mounting bars on the bottom plate
+    sketch = cad.make_sketch()
+    sketch.add_rect(8, 60, center="X", pos=[(-17.5, 42), (+17.5, 42)])
+    base = cad.make_extrude("XY", sketch, builder.rack_params.tray_bottom_thickness)
+    sketch.cut_circle(d=3.8, pos=[(-17.5, 30 + 42), (+17.5, 30 + 42)])
+    base2 = cad.make_extrude("XY", sketch, 5)
+    builder.get_body().add(base).add(base2)
+    return builder.get_body()
 
-    b = shelf_builder.ShelfBuilder(height_in_u, width=internal_width+10, depth=internal_depth+3, front_type="full", beam_wall_type="ramp")
-    b.cut_opening("<Y", front_cutout_width, offset_y=b.rack_params.tray_bottom_thickness)
-    b.make_tray(sides="open", back="open", bottom_type="full")
-    b.add_cage(internal_width, internal_depth, internal_height, rear_cutout_width=internal_width-20)
+def usw_flex_mini_shelf(height_in_u) -> cad.Body:
+    """
+    A shelf for a for Ubiquiti Flex Mini
+    """
+    rack_params = nimble_builder.RackParameters(tray_side_wall_thickness=3.8)
+    builder = ShelfBuilder(
+        height_in_u, width="standard", depth=73.4, front_type="full", rack_params=rack_params
+    )
+    builder.cut_opening("<Y", 85, offset_y=5, size_y=19)
+    builder.make_tray(sides="slots", back="slots")
+    builder.cut_opening(">Y", 30, offset_y=builder.rack_params.tray_bottom_thickness, depth=10)
+    builder.add_mounting_hole_to_side(
+        y_pos=59, z_pos=builder.height / 2, hole_type="M3-tightfit", side="both"
+    )
+    builder.add_mounting_hole_to_back(
+        x_pos=-75 / 2, z_pos=builder.height / 2, hole_type="M3-tightfit"
+    )
+    builder.add_mounting_hole_to_back(
+        x_pos=+75 / 2, z_pos=builder.height / 2, hole_type="M3-tightfit"
+    )
+    return builder.get_body()
 
-    return b.get_body()
+def anker_shelf(
+    height_in_u,
+    internal_width,
+    internal_depth,
+    internal_height,
+    front_cutout_width
+    ) -> cad.Body:
+    """
+    A shelf for an Anker PowerPort 5, Anker 360 Charger 60W (a2123),  or Anker PowerPort Atom
+    III Slim (AK-194644090180)
+    """
+    return ziptie_shelf(
+        height_in_u,
+        internal_width=internal_width,
+        internal_depth=internal_depth,
+        internal_height=internal_height,
+        front_cutout_width=front_cutout_width
+    )
+
+def hdd35_shelf(height_in_u) -> cad.Body:
+    """
+    A shelf for an 3.5" HDD
+    """
+    width = 102.8  # 101.6 + 1.2 clearance
+    screw_pos1 = 77.3  # distance from front
+    screw_pos2 = screw_pos1 + 41.61
+    screw_y = 7  # distance from bottom plane
+    builder = ShelfBuilder(
+        height_in_u, width="standard", depth="standard", front_type="w-pattern"
+    )
+    builder.make_tray(sides="slots", back="open")
+    mount_sketch = cad.make_sketch()
+    mount_sketch.add_rect(
+        (width / 2, builder.inner_width / 2 + builder.rack_params.tray_side_wall_thickness),
+        21,
+        pos=[(0, screw_pos1), (0, screw_pos2)],
+    )
+    mount_sketch.chamfer("<X", (builder.inner_width - width) / 2)
+    mount_sketch.mirror("X")
+    builder.get_body().add(cad.make_extrude("XY", mount_sketch, 14))
+    builder.add_mounting_hole_to_side(
+        y_pos=screw_pos1,
+        z_pos=screw_y + builder.rack_params.tray_bottom_thickness,
+        hole_type="HDD",
+        side="both",
+    )
+    builder.add_mounting_hole_to_side(
+        y_pos=screw_pos2,
+        z_pos=screw_y + builder.rack_params.tray_bottom_thickness,
+        hole_type="HDD",
+        side="both",
+    )
+    return builder.get_body()
+
+def dual_ssd_shelf(height_in_u) -> cad.Body:
+    """
+    A shelf for atwo 2.5" SSDs
+    """
+    rack_params = nimble_builder.RackParameters()
+    width = 70
+    screw_pos1 = 12.5  # distance from front
+    screw_pos2 = screw_pos1 + 76
+    screw_y1 = 6.6  # distance from bottom plane
+    screw_y2 = screw_y1 + 11.1
+    builder = ShelfBuilder(
+        height_in_u,
+        width=width + 2 * rack_params.tray_side_wall_thickness,
+        depth=111,
+        front_type="w-pattern",
+        base_between_beam_walls="none",
+        beam_wall_type="none",
+    )
+    builder.make_tray(sides="slots", back="open")
+    for x, y in [
+        (screw_pos1, screw_y2),
+        (screw_pos2, screw_y2),
+        (screw_pos1, screw_y1),
+        (screw_pos2, screw_y1),
+    ]:
+        builder.add_mounting_hole_to_side(
+            y_pos=x,
+            z_pos=y + rack_params.tray_bottom_thickness,
+            hole_type="M3-tightfit",
+            side="both",
+            base_diameter=11,
+        )
+    return builder.get_body()
+
+def raspi_shelf(height_in_u) -> cad.Body:
+    """
+    A shelf for a Raspberry Pi
+    """
+    screw_dist_x = 49
+    screw_dist_y = 58
+    dist_to_front = 23.5
+    offset_x = -13
+    builder = ShelfBuilder(height_in_u, width="standard", depth=111, front_type="full")
+    builder.cut_opening("<Y", (-15, 39.5), size_y=(6, 25))
+    builder.cut_opening("<Y", (-41.5, -25.5), size_y=(6, 22))
+    builder.make_tray(sides="ramp", back="open")
+    for x, y in [
+        (offset_x, dist_to_front),
+        (offset_x + screw_dist_x, dist_to_front),
+        (offset_x, dist_to_front + screw_dist_y),
+        (offset_x + screw_dist_x, dist_to_front + screw_dist_y),
+    ]:
+        builder.add_mounting_hole_to_bottom(
+            x_pos=x,
+            y_pos=y,
+            hole_type="base-only",
+            base_thickness=builder.rack_params.tray_bottom_thickness,
+            base_diameter=20,
+        )
+        builder.add_mounting_hole_to_bottom(
+            x_pos=x, y_pos=y, hole_type="M3-tightfit", base_thickness=5.5, base_diameter=7
+        )
+    return builder.get_body()
 
 
 if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():

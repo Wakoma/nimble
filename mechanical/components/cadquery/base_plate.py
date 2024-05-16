@@ -2,9 +2,12 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+"""
+cq-cli script using cadscript to generate the baseplate of a nimble rack
+"""
 import cadscript as cad
 from nimble_builder.nimble_end_plate import create_end_plate
-    
+
 
 # parameters to be set in exsource-def.yaml file
 width = 100
@@ -13,7 +16,9 @@ height = 3
 
 
 def create(width, depth, height):
-    # create end plate, turn it over and move it to the correct position
+    """
+    create end plate, turn it over and move it to the correct position
+    """
     plate = create_end_plate(width, depth, height)
     plate = plate.rotate("X", 180)
     plate = plate.move((0, 0, height))

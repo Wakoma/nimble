@@ -1,7 +1,8 @@
 """
 cadquery module that takes an assembly-def.yaml file and generate an assembly from it.
 
-The assembly-def.yaml file is a yaml file that contains a list of parts and their positions in the assembly.
+The assembly-def.yaml file is a yaml file that contains a list of parts and their
+positions in the assembly.
 Example file:
 assembly:
   parts:
@@ -52,7 +53,7 @@ class AssemblyRederer:
 
     def __init__(self, assembly_def_file: str):
 
-        with open(assembly_def_file, "r") as f:
+        with open(assembly_def_file, "r", encoding="utf-8") as f:
             assembly_def = yaml.load(f, Loader=yaml.FullLoader)
             for part_def in assembly_def["assembly"]["parts"]:
                 self._parts.append(PartDefinition(part_def))
@@ -87,7 +88,7 @@ if "show_object" in globals() or __name__ == "__cqgi__":
 
 if __name__ == "__main__":
     # for debugging
-    folder = (Path(__file__).resolve().parent.parent)
+    folder = Path(__file__).resolve().parent.parent
     os.chdir(folder)
     assembly = AssemblyRederer("assembly-def.yaml").generate()
     assembly.save("assembly.stl", "STL")

@@ -1,3 +1,7 @@
+"""
+cq-cli script using cadscript to generate the rack legs of a nimble rack
+"""
+
 from math import floor
 import cadscript as cad
 
@@ -16,6 +20,9 @@ def make_rack_leg(
     mounting_holes_dia,
     rack_params=None
     ) -> cad.Body:
+    """
+    Create the rack legs of given length
+    """
 
     if not rack_params:
         rack_params = nimble_builder.RackParameters()

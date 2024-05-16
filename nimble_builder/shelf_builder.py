@@ -586,3 +586,47 @@ class ShelfBuilder:
         Return the shelf body
         """
         return self._shelf
+
+def ziptie_shelf(
+    height_in_u: int,
+    internal_width: Optional[float] = None,
+    internal_depth: Optional[float] = None,
+    internal_height: Optional[float] = None,
+    front_cutout_width: Optional[float] = None,
+    rear_cutout_width: Optional[float] = None,
+    rack_params: nimble_builder.RackParameters = None,
+):
+    """
+    Return a ziptie shelf. The height in units must be set.
+    The other sizes are deterined from the internal tray dimentsions to
+    make it simple to create a shelf dor a device of known size
+    """
+    if not rack_params:
+        rack_params = nimble_builder.RackParameters()
+    if not internal_width:
+        internal_width = rack_params.tray_width - 12
+    if not internal_depth:
+        internal_depth = 115
+    if not internal_height:
+        internal_height = rack_params.tray_height(height_in_u) - 3
+    if not rear_cutout_width:
+        front_cutout_width = internal_width - 10
+    if not rear_cutout_width:
+        rear_cutout_width = internal_width - 20
+
+    builder = ShelfBuilder(
+        height_in_u,
+        width=internal_width + 10,
+        depth=internal_depth + 3,
+        front_type="full",
+        beam_wall_type="ramp",
+    )
+    builder.cut_opening(
+        "<Y",front_cutout_width, offset_y=builder.rack_params.tray_bottom_thickness
+    )
+    builder.make_tray(sides="open", back="open", bottom_type="full")
+    builder.add_cage(
+        internal_width, internal_depth, internal_height, rear_cutout_width=internal_width - 20
+    )
+
+    return builder.get_body()

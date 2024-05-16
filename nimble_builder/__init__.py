@@ -28,11 +28,10 @@ class RackParameters:
     top_plate_thickness: float = 3
     base_clearance: float = 4
     bottom_tray_offet: float = 5
-    end_plate_hole_dia: float = 4.7
-    end_plate_hole_countersink_dia: float = 10
     end_plate_rail_width: float = 5
     end_plate_rail_height: float = 3
     end_plate_star_width: float = 9
+    end_plate_screws: Literal["M5", "M6"] = "M5"
 
 
     @property
@@ -54,7 +53,7 @@ class RackParameters:
         """
         Return the diameter for a tapped hole for the front mounting screws.
         This is determined by the `mounting_screws` parameter.
-        Clearance holes should be in the legs where the screw will tap.
+        Tap holes should be in the legs where the screw will tap.
         As 3D printers tend to over extrude ad the fact that the machine screws
         are tapping directly into plastic the holes are larger than standard
         metric tap holes.
@@ -65,6 +64,56 @@ class RackParameters:
         if self.mounting_screws == "M6":
             return 5.5
         raise ValueError(f"Unknown screw size {self.mounting_screws}")
+
+    @property
+    def end_plate_hole_clearance_diameter(self):
+        """
+        Return the diameter for a clearance hole for the countersunk screws
+        that attach the top and bottom plates.
+        This is determined by the `end_plate_screws` parameter.
+        Clearance holes should be used in end_plates.
+        See also: mounting_hole_tap_diameter
+        """
+        if self.end_plate_screws == "M5":
+            return 5.4
+        if self.end_plate_screws == "M6":
+            return 6.5
+        raise ValueError(f"Unknown screw size {self.end_plate_screws}")
+
+    @property
+    def end_plate_hole_countersink_dia(self):
+        """
+        Return the countersink diameter for a clearance hole for the countersunk screws
+        that attach the top and bottom plates.
+        This is determined by the `end_plate_screws` parameter.
+        See also: mounting_hole_tap_diameter
+        """
+        if self.end_plate_screws == "M5":
+            return 11.5
+        if self.end_plate_screws == "M6":
+            return 13.7
+        raise ValueError(f"Unknown screw size {self.end_plate_screws}")
+
+    @property
+    def end_plate_hole_tap_diameter(self):
+        """
+        Return the diameter for a tapped hole for the countersunk screws
+        that attach the top and bottom plates.
+        This is determined by the `end_plate_screws` parameter.
+        Tap holes should be in the top and bottom of the legs where the screw will tap.
+        As 3D printers tend to over extrude ad the fact that the machine screws
+        are tapping directly into plastic the holes are larger than standard
+        metric tap holes.
+        See also: mounting_hole_tap_diameter
+        """
+        if self.end_plate_screws == "M5":
+            return 4.5
+        if self.end_plate_screws == "M6":
+            return 5.5
+        raise ValueError(f"Unknown screw size {self.end_plate_screws}")
+
+    end_plate_hole_dia: float = 4.7
+    end_plate_hole_countersink_dia: float = 11
 
     @property
     def rack_width(self):
