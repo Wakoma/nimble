@@ -11,19 +11,27 @@ class RackParameters:
     beam_width: float = 20.0
     nominal_rack_width: Literal["6inch", "10inch", "10inch_reduced"] = "6inch"
     mounting_screws: Literal["M4", "M6"] = "M4"
+
+    tray_front_panel_thickness: float = 4
+    tray_bottom_thickness: float = 2
+    tray_side_wall_thickness: float = 2.5
+    tray_back_wall_thickness: float = 2.5
+    # distance between side walls of broad trays to the bounding box of the rack
+    broad_tray_clearance: float = 16
+
     tray_depth: float = 115
+    corner_fillet: float = 2
     mounting_hole_spacing: float = 14
     base_plate_thickness: float = 3
     top_plate_thickness: float = 3
     base_clearance: float = 4
     bottom_tray_offet: float = 5
-    corner_fillet: float = 2
     end_plate_hole_dia: float = 4.7
     end_plate_hole_countersink_dia: float = 10
     end_plate_rail_width: float = 5
     end_plate_rail_height: float = 3
     end_plate_star_width: float = 9
-    
+
 
     @property
     def mounting_hole_clearance_diameter(self):

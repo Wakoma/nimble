@@ -11,7 +11,7 @@ from nimble_builder.helpers import cut_slots, cut_w_pattern
 import nimble_builder
 
 
-no_slots = False  # speedup for debugging
+NO_SLOTS = False  # speedup for debugging
 
 
 class ShelfBuilder:
@@ -24,197 +24,249 @@ class ShelfBuilder:
         z: bottom of shelf
 
     """
-    hole_diameter = 3.8         # diameter of the holes in the front panels for rack mounting
-    panel_thickness = 4         # thickness of the front panels
-    bottom_thickness = 2        # thickness of the lower plate of the shelf
-    side_wall_thickness = 2.5   # thickness of the side walls of the shelf
-    back_wall_thickness = 2.5   # thickness of the back wall of the shelf
-    side_wall_offset = 16       # distance between side walls to the bouding box of the rack
 
+    _rack_params: nimble_builder.RackParameters
     _shelf: cad.Body
     _height_in_u: int
-    _height: float
-    _inner_width: float  # inside walls between the beams
-
-    _hole_dist_x: float
-    _hole_offset_y: float
-
-
 
     def __init__(self,
                  height_in_u: int,
+                 width: Union[Literal["standard", "broad"], float],
+                 depth: Union[Literal["standard"], float],
+                 front_type: Literal["full", "open", "w-pattern", "slots"],
+                 base_between_beam_walls: Literal["none", "front-open", "closed"] = "closed",
+                 beam_wall_type: Literal["none", "standard", "ramp"] = "standard",
                  rack_params=None
                  ) -> None:
         """
-        Initialize the shelf builder
+        Initialize the shelf builder this makes the front of the shelf
         """
+        self._height_in_u = height_in_u
+        self._width = width
+        self._depth = depth
+        self._front_type= front_type
+        self._front_type= front_type
 
+        self._beam_wall_type = beam_wall_type
+        self._base_between_beam_walls = base_between_beam_walls
         if not rack_params:
             rack_params = nimble_builder.RackParameters()
         self._rack_params = rack_params
+        self._make_front()
 
-        self._height_in_u = height_in_u
-        self._height = self._height_in_u * self._rack_params.mounting_hole_spacing
-        self._hole_dist_x = self._rack_params.rack_width - self._rack_params.beam_width
-        self._hole_offset_y = self._rack_params.mounting_hole_spacing / 2
-        self._inner_width = self._rack_params.rack_width - 2 * self._rack_params.beam_width - 2 * self.side_wall_thickness
-        self._front_depth = self._rack_params.beam_width + 2.75  # the size of the front panel part in y direction
-        self._padding_front = self._front_depth  # the space between the front panel and where slots etc can start at the try bottom
+    @property
+    def plate_width(self):
+        # basic size
 
-    def make_front(self,
-                   front_type: Literal["full", "open", "w-pattern", "slots"],
-                   bottom_type: Literal["none", "front-open", "closed"],
-                   beam_wall_type: Literal["none", "standard", "ramp"] = "standard"
-                   ) -> None:
+        if self._width == "standard":
+            if self._rack_params.nominal_rack_width == "6inch":
+                 # could be a bit larger, use this for backwards compatibility
+                return 115
+            return self.inner_width + 2 * self.rack_params.tray_side_wall_thickness
+
+        if self._width == "broad":
+            return self._rack_params.rack_width - 2 * self.rack_params.broad_tray_clearance
+
+        if isinstance(self._width, (float, int)) and self._width>0:
+            return self._width
+
+        raise ValueError(f"The value {self._width} is not a valid shelf width")
+
+    @property
+    def plate_depth(self):
+        if self._depth == "standard":
+            return 136
+
+        if isinstance(self._depth, (float, int)) and self._depth>0:
+            return self._depth
+
+
+    @property
+    def rack_params(self):
+        return self._rack_params
+
+    @property
+    def height(self):
+        return self._height_in_u * self._rack_params.mounting_hole_spacing
+
+    @property
+    def hole_dist_x(self):
+        return self._rack_params.rack_width - self._rack_params.beam_width
+
+    @property
+    def hole_offset_y(self):
+        return self._rack_params.mounting_hole_spacing / 2
+
+    @property
+    def inner_width(self):
+        return (self._rack_params.rack_width
+                - 2 * self._rack_params.beam_width
+                - 2 * self._rack_params.tray_side_wall_thickness)
+
+    @property
+    def front_depth(self):
         """
-        Make the front panel of the shelf
+        the length of the beam walls that sit behind front pannel
+        """
+        return self._rack_params.beam_width + 2.75
+
+    @property
+    def front_of_tray(self):
+        """
+        Front poistion of tray.
+        """
+        if self._base_between_beam_walls == "none":
+            return 0
+        return self.front_depth
+
+    @property
+    def padding_front(self):
+        """
+        the space between the front panel and where slots etc can start at the try bottom
+        """
+        if self._base_between_beam_walls != "front-open":
+            return self.front_depth/4
+        return self.front_depth
+
+    def _make_front(self) -> None:
+        """
+        Make the front panel of the shelf. This happens on initalisation
         """
         # sketch as viewed from top
 
         sketch = cad.make_sketch()
         # front panel
-        sketch.add_rect(self._rack_params.rack_width, (-self.panel_thickness, 0), center="X")
+        sketch.add_rect(self._rack_params.rack_width, (-self._rack_params.tray_front_panel_thickness, 0), center="X")
         # wall next to the beam
-        if beam_wall_type != "none":
-            sketch.add_rect((self._inner_width / 2, self._rack_params.rack_width / 2 - self._rack_params.beam_width),
-                            self._front_depth, center=False)
+        if self._beam_wall_type != "none":
+            sketch.add_rect((self.inner_width / 2, self._rack_params.rack_width / 2 - self._rack_params.beam_width),
+                            self.front_depth, center=False)
         sketch.mirror("X")
 
         # front panel with holes
-        front = cad.make_extrude("XY", sketch, self._height)
-        pattern_holes = cad.pattern_rect(self._hole_dist_x, (self._hole_offset_y, self._height - self._hole_offset_y), center="X")
-        front.cut_hole("<Y", d=self.hole_diameter, pos=pattern_holes)
+        front = cad.make_extrude("XY", sketch, self.height)
+        pattern_holes = cad.pattern_rect(self.hole_dist_x, (self.hole_offset_y, self.height - self.hole_offset_y), center="X")
+        front.cut_hole("<Y", d=self._rack_params.mounting_hole_clearance_diameter, pos=pattern_holes)
 
-        if beam_wall_type == "ramp":
-            front.chamfer(">Y and >Z and |X", min(self._height, self._rack_params.beam_width))
+        if self._beam_wall_type == "ramp":
+            front.chamfer(">Y and >Z and |X", min(self.height, self._rack_params.beam_width))
 
+        # We now have a solid front panel with short walls behind
         self._shelf = front
 
-        # front types
+        self._pattern_front()
+        self._add_base_between_beam_walls()
 
-        if front_type == "open":
-            self.cut_opening("<Y", self._inner_width, offset_y=0)
+    def _pattern_front(self) -> None:
+        """
+        Depending on the "front_type" made cuts to pattern the front
+        """
 
-        if front_type == "w-pattern":
+        if self._front_type == "open":
+            self.cut_opening("<Y", self.inner_width, offset_y=0)
+
+        if self._front_type == "w-pattern":
             padding_x = 0
             padding_y = 6
-            cut_w_pattern(self._shelf, "<Y", self._inner_width, (0, self._height), padding_x, padding_y)
+            cut_w_pattern(self._shelf, "<Y", self.inner_width, (0, self.height), padding_x, padding_y)
 
-        if front_type == "slots":
+        if self._front_type == "slots":
             padding_x = 1
             padding_y = 5
-            if not no_slots:
-                cut_slots(self._shelf, "<Y", self._inner_width, (0, self._height), padding_x, padding_y)
+            if not NO_SLOTS:
+                cut_slots(self._shelf, "<Y", self.inner_width, (0, self.height), padding_x, padding_y)
 
-        # bottom types: how the lower, horizontal part of the front panel looks like
-        if bottom_type == "none":
-            # do nothing
-            self._front_depth = 0
-            self._padding_front *= 0.25  # can be smaller in this case
-
-        if bottom_type == "closed":
+    def _add_base_between_beam_walls(self) -> None:
+        if self._base_between_beam_walls == "closed":
             # a full-material base between the 2 rack legs
             bottom_sketch = cad.make_sketch()
-            bottom_sketch.add_rect(self._inner_width, (-0.1, self._front_depth), center="X")
-            bottom = cad.make_extrude("XY", bottom_sketch, self.bottom_thickness)
+            bottom_sketch.add_rect(self.inner_width, (-0.1, self.front_depth), center="X")
+            bottom = cad.make_extrude("XY", bottom_sketch, self._rack_params.tray_bottom_thickness)
             self._shelf.add(bottom)
-            self._padding_front *= 0.25  # can be smaller in this case
 
-        if bottom_type == "front-open":
+        if self._base_between_beam_walls == "front-open":
             # a base with a cutout on the front side for e.g. cable handling
             bottom_sketch = cad.make_sketch()
-            bottom_sketch.add_rect(self._inner_width, (self._front_depth - 2, self._front_depth), center="X")
-            bottom_sketch.add_polygon([(self._inner_width / 2, 0),
-                                       (self._inner_width / 2, self._front_depth),
-                                       (self._inner_width / 2 - 5, self._front_depth),
+            bottom_sketch.add_rect(self.inner_width, (self.front_depth - 2, self.front_depth), center="X")
+            bottom_sketch.add_polygon([(self.inner_width / 2, 0),
+                                       (self.inner_width / 2, self.front_depth),
+                                       (self.inner_width / 2 - 5, self.front_depth),
                                        ])
             bottom_sketch.mirror("X")
-            bottom = cad.make_extrude("XY", bottom_sketch, self.bottom_thickness)
+            bottom = cad.make_extrude("XY", bottom_sketch, self._rack_params.tray_bottom_thickness)
             self._shelf.add(bottom)
 
     def make_tray(self,
-                  width: Union[Literal["standard", "broad"], float],
-                  depth: Union[Literal["standard"], float],
                   sides: Literal["full", "open", "w-pattern", "slots", "ramp"],
                   back: Literal["full", "open", "w-pattern", "slots"],
                   bottom_type: Literal["full", "slots", "slots-large"] = "slots-large",
-                  wall_height: Optional[float] = None,
-                  padding_front: Optional[float] = None,
+                  wall_height: Optional[float] = None
                   ) -> None:
         """
         Make the tray of the shelf
         """
-        # basic size
-        plate_width = 0 if not isinstance(width, (float, int)) else width
-        if width == "standard":
-            if self._rack_params.nominal_rack_width == "6inch":
-                 # could be a bit larger, use this for backwards compatibility
-                plate_width = 115 
-            else:
-                plate_width = self._inner_width + 2 * self.side_wall_thickness
-        elif width == "broad":
-            plate_width = self._rack_params.rack_width - 2 * self.side_wall_offset
-        if not isinstance(plate_width, (float, int)) and plate_width <= 0:
-            raise ValueError("Invalid width")
-        self.plate_width = plate_width
 
-        plate_depth = 0 if not isinstance(depth, (float, int)) else depth
-        if depth == "standard":
-            plate_depth = 136
-        if not isinstance(plate_depth, float) and plate_depth <= 0:
-            raise ValueError("Invalid depth")
-        self.plate_depth = plate_depth
+        if not wall_height:
+            wall_height = self.height
 
-        # base plate
+        # create the base plate
 
         plate_sketch = cad.make_sketch()
-        plate_sketch.add_rect(plate_width, (self._front_depth, plate_depth), center="X")
-        plate = cad.make_extrude("XY", plate_sketch, self.bottom_thickness)
+        plate_sketch.add_rect(self.plate_width, (self.front_of_tray, self.plate_depth), center="X")
+        plate = cad.make_extrude("XY", plate_sketch, self._rack_params.tray_bottom_thickness)
 
         if sides in ["open", "ramp"] and back == "open":
             plate.fillet(">Y and |Z", 3)
 
         self._shelf.add(plate)
+        self._make_joining_walls(sides)
+        self._pattern_tray_base(bottom_type)
+        self._tray_walls(sides, back, wall_height)
 
-        # for broad trays, add walls behind beams
-        # for thin trays connect the walls
+    def _make_joining_walls(self, sides: Literal["full", "open", "w-pattern", "slots", "ramp"]):
+        """
+        Make the walls between the front walls and the tral walls. For broad trays,
+        these are walls behind beams. For thin trays this connects the walls
+        """
 
-        if sides != "open" and self._front_depth > 0:
-            if plate_width > self._rack_params.rack_width - 2 * self._rack_params.beam_width:
+        if sides != "open" and self._base_between_beam_walls != "none":
+            if self.plate_width > self._rack_params.rack_width - 2 * self._rack_params.beam_width:
                 # broad tray
-                left = self._inner_width / 2
-                right = plate_width / 2
+                left = self.inner_width / 2
+                right = self.plate_width / 2
             else:
                 # thin tray
-                left = plate_width / 2 - self.side_wall_thickness
-                right = self._inner_width / 2
+                left = self.plate_width / 2 - self._rack_params.tray_side_wall_thickness
+                right = self.inner_width / 2
 
             if abs(left - right) > 0.5:
                 extra_sketch = cad.make_sketch()
                 extra_sketch.add_rect((left, right),
-                                      (self._rack_params.beam_width + 0.25, self._front_depth))
+                                      (self._rack_params.beam_width + 0.25, self.front_of_tray))
                 extra_sketch.mirror("X")
-                extra_walls = cad.make_extrude("XY", extra_sketch, self._height)
+                extra_walls = cad.make_extrude("XY", extra_sketch, self.height)
                 self._shelf.add(extra_walls)
 
+    def _pattern_tray_base(self, bottom_type: Literal["full", "slots", "slots-large"]):
         # add slots to base plate
         padding_x = 8
         padding_y = 8
-        space_at_front = self._padding_front if padding_front is None else padding_front
 
-        if not no_slots:
-            if bottom_type in ["slots", "slots-large"]:
-                cut_slots(self._shelf, ">Z",
-                          plate_width, (space_at_front, plate_depth),
-                          padding_x, padding_y,
-                          slot_type="large" if bottom_type == "slots-large" else "standard"
-                          )
+        if bottom_type in ["slots", "slots-large"] and not NO_SLOTS:
+            cut_slots(
+                self._shelf, ">Z",
+                self.plate_width, (self.padding_front, self.plate_depth),
+                padding_x, padding_y,
+                slot_type="large" if bottom_type == "slots-large" else "standard"
+            )
 
-        # add side walls and back wall
+    def _tray_walls(self,
+                    sides: Literal["full", "open", "w-pattern", "slots", "ramp"],
+                    back: Literal["full", "open", "w-pattern", "slots"],
+                    wall_height: float):
 
-        wall_height = self._height if wall_height is None else wall_height
-        dim_sides = Interval2D(plate_width / 2 - self.side_wall_thickness, plate_width / 2, self._front_depth, plate_depth)
-        dim_back = cad.helpers.get_dimensions_2d([plate_width, (plate_depth - self.back_wall_thickness, plate_depth)], center="X")
+        dim_sides = Interval2D(self.plate_width / 2 - self._rack_params.tray_side_wall_thickness, self.plate_width / 2, self.front_of_tray, self.plate_depth)
+        dim_back = cad.helpers.get_dimensions_2d([self.plate_width, (self.plate_depth - self._rack_params.tray_back_wall_thickness, self.plate_depth)], center="X")
         have_walls = False
         wall_sketch = cad.make_sketch()
         if sides not in ["open", "ramp"]:
@@ -233,22 +285,22 @@ class ShelfBuilder:
             walls = cad.make_extrude("XY", wall_sketch, wall_height)
             if sides == "w-pattern":
                 cut_w_pattern(walls, ">X", dim_sides.tuple_y, (0, wall_height), padding_side, padding_top_w, cut_depth=self._rack_params.rack_width + 1)
-            if sides == "slots" and not no_slots:
+            if sides == "slots" and not NO_SLOTS:
                 cut_slots(walls, ">X", dim_sides.tuple_y, (0, wall_height), padding_side, padding_top)
             if back == "w-pattern":
                 cut_w_pattern(walls, ">Y", dim_back.tuple_x, (0, wall_height), padding_side, padding_top_w)
-            if back == "slots" and not no_slots:
+            if back == "slots" and not NO_SLOTS:
                 cut_slots(walls, ">Y", dim_back.tuple_x, (0, wall_height), padding_side, padding_top)
 
             self._shelf.add(walls)
 
         if sides == "ramp":
-            ramp_width = self._height * 1.5
-            ramp_width = min(ramp_width, plate_depth - self._front_depth)
+            ramp_width = self.height * 1.5
+            ramp_width = min(ramp_width, self.plate_depth - self.front_of_tray)
             ramp_sketch = cad.make_sketch()
-            ramp_sketch.add_polygon([(self._front_depth, 0),
-                                     (self._front_depth + ramp_width, 0),
-                                     (self._front_depth, self._height)
+            ramp_sketch.add_polygon([(self.front_of_tray, 0),
+                                     (self.front_of_tray + ramp_width, 0),
+                                     (self.front_of_tray, self.height)
                                      ])
             ramp = cad.make_extrude("YZ", ramp_sketch, dim_sides.tuple_x).mirror("X")
             self._shelf.add(ramp)
@@ -308,7 +360,7 @@ class ShelfBuilder:
         base_sketch = cad.make_sketch()
         base_sketch.add_circle(diameter=base_diameter, pos=(y_pos, z_pos))
         base_sketch.add_rect(base_diameter, (0, z_pos), center="X", pos=(y_pos, 0))
-        base = cad.make_extrude("YZ", base_sketch, (self.plate_width / 2 - self.side_wall_thickness, self.plate_width / 2))
+        base = cad.make_extrude("YZ", base_sketch, (self.plate_width / 2 - self._rack_params.tray_side_wall_thickness, self.plate_width / 2))
         if side == "both":
             base.mirror("X")
         else:
@@ -333,10 +385,10 @@ class ShelfBuilder:
         base_sketch = cad.make_sketch()
         base_sketch.add_circle(diameter=base_diameter, pos=(x_pos, z_pos))
         base_sketch.add_rect(base_diameter, (0, z_pos), center="X", pos=(x_pos, 0))
-        base = cad.make_extrude("XZ", base_sketch, (-self.plate_depth, -(self.plate_depth - self.back_wall_thickness)))
+        base = cad.make_extrude("XZ", base_sketch, (-self.plate_depth, -(self.plate_depth - self._rack_params.tray_back_wall_thickness)))
         self._shelf.add(base)
         if hole_type == "M3-tightfit":
-            self._shelf.cut_hole(">Y", d=2.9, pos=(-x_pos, z_pos), depth=self.back_wall_thickness + 1)
+            self._shelf.cut_hole(">Y", d=2.9, pos=(-x_pos, z_pos), depth=self._rack_params.tray_back_wall_thickness + 1)
         else:
             raise ValueError(f"Unknown hole type: {hole_type}")
 
@@ -354,11 +406,11 @@ class ShelfBuilder:
         guide_width = 8
         guide_radius = 6
         ziptie_pos_y1 = internal_depth * 0.25
-        ziptie_pos_y1 = max(ziptie_pos_y1, self._front_depth + channel_width / 2)
+        ziptie_pos_y1 = max(ziptie_pos_y1, self.front_of_tray + channel_width / 2)
         ziptie_pos_y2 = internal_depth * 0.75
         if internal_height == 0:
-            internal_height = self._height
-        cage_height = internal_height + self.bottom_thickness - offset_top
+            internal_height = self.height
+        cage_height = internal_height + self._rack_params.tray_bottom_thickness - offset_top
 
         # basic cage
         sketch = cad.make_sketch()
@@ -393,7 +445,7 @@ class ShelfBuilder:
         # cable tie guides
         sketch_guides = cad.make_sketch()
         sketch_guides.add_slot(r=guide_radius,
-                               start=(0, self.bottom_thickness + guide_radius + offset_bottom),
+                               start=(0, self._rack_params.tray_bottom_thickness + guide_radius + offset_bottom),
                                end=(0, cage_height - guide_radius))
         sketch_guides.cut_rect((-999, 0), (0, 999))
         sketch_guides.move((internal_width / 2, 0))
@@ -401,26 +453,8 @@ class ShelfBuilder:
         self._shelf.add(cad.make_extrude_y(sketch_guides, guide_width, center=True).move((0, ziptie_pos_y1, 0)))
         self._shelf.add(cad.make_extrude_y(sketch_guides, guide_width, center=True).move((0, ziptie_pos_y2, 0)))
 
-
-
-
     def get_body(self) -> cad.Body:
         """
         Return the shelf body
         """
         return self._shelf
-
-
-def example():
-    """
-    An example of this module in use for dev and debugging
-    """
-    rack_params = nimble_builder.RackParameters(nominal_rack_width="10inch")
-    shelf = ShelfBuilder(height_in_u=3, rack_params=rack_params)
-    shelf.make_front(front_type="slots", bottom_type="closed")
-    shelf.make_tray(width="standard", depth=80, sides="ramp", back="open")
-    cad.show(shelf.get_body())
-
-# for development and debugging
-if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
-    example()
