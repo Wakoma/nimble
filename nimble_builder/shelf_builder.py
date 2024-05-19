@@ -23,8 +23,8 @@ class ShelfBuilder:
     """
     A class to build a variety of shelf types.
 
-    On initialising the font of the shelf is made. Class methods can be used to
-    add the base the cutouts and mounting
+    On initialising the front of the shelf is made. Class methods can be used to
+    add the base the cutouts and mounting.
 
     origin lies
         x: center of front panel
@@ -48,7 +48,7 @@ class ShelfBuilder:
         rack_params=None,
     ) -> None:
         """
-        Initialize the shelf builder this makes the front of the shelf
+        Initialize the shelf builder this makes the front of the shelf.
         """
         self._height_in_u = height_in_u
         self._width = width
@@ -66,7 +66,7 @@ class ShelfBuilder:
     @property
     def plate_width(self):
         """
-        Derived property which is the width of the main plate (base)
+        Derived property which is the width of the main plate (base).
         """
         # basic size
 
@@ -106,14 +106,14 @@ class ShelfBuilder:
     @property
     def height(self):
         """
-        Derived property which is the height of the shelf
+        Derived property which is the height of the shelf.
         """
         return self._height_in_u * self._rack_params.mounting_hole_spacing
 
     @property
     def hole_dist_x(self):
         """
-        Derived property which is the horizontal separation between the mouning holes
+        Derived property which is the horizontal separation between the mounting holes.
         """
         return self._rack_params.rack_width - self._rack_params.beam_width
 
@@ -139,14 +139,14 @@ class ShelfBuilder:
     @property
     def front_depth(self):
         """
-        the length of the beam walls that sit behind front pannel
+        The length of the beam walls that sit behind front panel.
         """
         return self._rack_params.beam_width + 2.75
 
     @property
     def front_of_tray(self):
         """
-        Front poistion of tray.
+        Front position of the tray.
         """
         if self._base_between_beam_walls == "none":
             return 0
@@ -155,7 +155,7 @@ class ShelfBuilder:
     @property
     def padding_front(self):
         """
-        the space between the front panel and where slots etc can start at the try bottom
+        The space between the front panel and where slots etc can start at the tray bottom.
         """
         if self._base_between_beam_walls != "front-open":
             return self.front_depth / 4
@@ -163,7 +163,7 @@ class ShelfBuilder:
 
     def _make_front(self) -> None:
         """
-        Make the front panel of the shelf. This happens on initalisation
+        Make the front panel of the shelf. This happens on initialization.
         """
         # sketch as viewed from top
 
@@ -262,7 +262,7 @@ class ShelfBuilder:
     ) -> None:
         """
         Make the tray part of the shelf. This is most of the base (except the area between
-        the beam walls). and the walls at the sides and back of the shelf.
+        the beam walls) and the walls at the sides and back of the shelf.
         """
 
         if not wall_height:
@@ -284,8 +284,8 @@ class ShelfBuilder:
 
     def _make_joining_walls(self, sides: Literal["full", "open", "w-pattern", "slots", "ramp"]):
         """
-        Make the walls between the front walls and the tral walls. For broad trays,
-        these are walls behind beams. For thin trays this connects the walls
+        Make the walls between the front walls and the tray walls. For broad trays,
+        these are walls behind beams. For thin trays this connects the walls.
         """
 
         if sides != "open" and self._base_between_beam_walls != "none":
@@ -598,8 +598,8 @@ def ziptie_shelf(
 ):
     """
     Return a ziptie shelf. The height in units must be set.
-    The other sizes are deterined from the internal tray dimentsions to
-    make it simple to create a shelf dor a device of known size
+    The other sizes are determined from the internal tray dimensions to
+    make it simple to create a shelf for a device of known size.
     """
     if not rack_params:
         rack_params = nimble_builder.RackParameters()

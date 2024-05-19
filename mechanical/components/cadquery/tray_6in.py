@@ -33,8 +33,8 @@ height_in_u = 2
 
 def create_6in_shelf(shelf_type, height_in_u) -> cad.Body:
     """
-    This is the tip level function called when the script
-    is called. It used the shelf-type string to decide
+    This is the top level function called when the script
+    is called. It uses the `shelf_type` string to decide
     which of the defined shelf functions to call.
     """
 
