@@ -203,8 +203,8 @@ class NimbleConfiguration:
         z_offset = self._rack_params.bottom_tray_offet
         height_in_u = 0
         for i, device in enumerate(self._devices):
-            x_pos = -self._rack_params.tray_width / 2.0
-            y_pos = -self._rack_params.rack_width / 2.0 - 4
+            x_pos = 0
+            y_pos = -self._rack_params.rack_width / 2.0
             z_pos = z_offset + height_in_u * self._rack_params.mounting_hole_spacing
             tray_id = device.tray_id
 
