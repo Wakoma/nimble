@@ -13,7 +13,7 @@ import nimble_builder
 
 def create_end_plate(width, depth, height, rack_params=None):
     """
-    Create the top and bottom of the rack
+    Create the top and bottom of the rack.
     """
 
     if not rack_params:

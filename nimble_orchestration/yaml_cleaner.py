@@ -10,7 +10,7 @@ def clean(data: dict) -> dict:
     Clean the input dictionary (recursively). Removing any keys where the value is
     none, changing pathlib.Path to strings and converting tuples to strings.
 
-    The input is a single dictionary, the output is a cleaned dictionary
+    The input is a single dictionary, the output is a cleaned dictionary.
     """
     # iterate over entries
     keys_to_delete = []

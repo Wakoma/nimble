@@ -6,7 +6,7 @@ in a nimble rack.
     that have no source code
 `GeneratedMechanicalComponent` is a child class of `MechanicalComponent`, it contains
     all the information for exsource to generate the CAD models for this component
-`AssembledComponent` Is a class that holds very basic assmbly information for a given
+`AssembledComponent` is a class that holds very basic assembly information for a given
    `MechanicalComponent` 
 """
 from copy import copy, deepcopy

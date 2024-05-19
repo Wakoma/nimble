@@ -1,5 +1,5 @@
 """
-cq-cli script using cadscript to generate the rack legs of a nimble rack
+cq-cli script using cadscript to generate the rack legs of a nimble rack.
 """
 
 from math import floor
@@ -21,7 +21,7 @@ def make_rack_leg(
     rack_params=None
     ) -> cad.Body:
     """
-    Create the rack legs of given length
+    Create the rack legs of given length.
     """
 
     if not rack_params:

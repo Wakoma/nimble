@@ -1,5 +1,5 @@
 """
-On loading nimble_builder the RackParameters dataclass will be available
+On loading nimble_builder the RackParameters dataclass will be available.
 """
 from dataclasses import dataclass
 from typing import Literal
@@ -7,7 +7,7 @@ from typing import Literal
 @dataclass
 class RackParameters:
     """
-    A class to hold the RackParameters, both fixed and derived
+    A class to hold the RackParameters, both fixed and derived.
     """
 
     beam_width: float = 20.0
@@ -40,7 +40,7 @@ class RackParameters:
         Return the diameter for a clearance hole for the front mounting screws.
         This is determined by the `mounting_screws` parameter.
         Clearance holes should be used in tray fronts.
-        See also: mounting_hole_tap_diameter
+        See also: `mounting_hole_tap_diameter`
         """
         if self.mounting_screws == "M4":
             return 4.3
@@ -54,10 +54,10 @@ class RackParameters:
         Return the diameter for a tapped hole for the front mounting screws.
         This is determined by the `mounting_screws` parameter.
         Tap holes should be in the legs where the screw will tap.
-        As 3D printers tend to over extrude ad the fact that the machine screws
-        are tapping directly into plastic the holes are larger than standard
+        As 3D printers tend to over extrude and the fact that the machine screws
+        are tapping directly into plastic, the holes are larger than standard
         metric tap holes.
-        See also: mounting_hole_tap_diameter
+        See also: `mounting_hole_tap_diameter`
         """
         if self.mounting_screws == "M4":
             return 3.6
@@ -71,8 +71,8 @@ class RackParameters:
         Return the diameter for a clearance hole for the countersunk screws
         that attach the top and bottom plates.
         This is determined by the `end_plate_screws` parameter.
-        Clearance holes should be used in end_plates.
-        See also: mounting_hole_tap_diameter
+        Clearance holes should be used in `end_plates`.
+        See also: `mounting_hole_tap_diameter`
         """
         if self.end_plate_screws == "M5":
             return 5.4
@@ -86,7 +86,7 @@ class RackParameters:
         Return the countersink diameter for a clearance hole for the countersunk screws
         that attach the top and bottom plates.
         This is determined by the `end_plate_screws` parameter.
-        See also: mounting_hole_tap_diameter
+        See also: `mounting_hole_tap_diameter`
         """
         if self.end_plate_screws == "M5":
             return 11.5
@@ -101,10 +101,10 @@ class RackParameters:
         that attach the top and bottom plates.
         This is determined by the `end_plate_screws` parameter.
         Tap holes should be in the top and bottom of the legs where the screw will tap.
-        As 3D printers tend to over extrude ad the fact that the machine screws
+        As 3D printers tend to over extrude and the fact that the machine screws
         are tapping directly into plastic the holes are larger than standard
         metric tap holes.
-        See also: mounting_hole_tap_diameter
+        See also: `mounting_hole_tap_diameter`
         """
         if self.end_plate_screws == "M5":
             return 4.5
@@ -118,11 +118,11 @@ class RackParameters:
     @property
     def rack_width(self):
         """
-        Return the rack width in mm as determined by the nominal_rack_width.
+        Return the rack width in mm as determined by the `nominal_rack_width`.
         Options are:
-            "6inch"  - 155mm - full width (front panel) of the 6 inch nimble rack
-            "10inch" - 254mm - full width (front panel) of the 10 inch rack
-            "10inch_reduced - 250mm - as above bu reduced to fit into a 250mm wide printer
+            `6inch`  - 155mm - full width (front panel) of the 6 inch nimble rack
+            `10inch` - 254mm - full width (front panel) of the 10 inch rack
+            `10inch_reduced` - 250mm - as above but reduced to fit into a 250mm wide printer
         """
         if self.nominal_rack_width == "6inch":
             return 155
@@ -135,7 +135,7 @@ class RackParameters:
     @property
     def tray_width(self):
         """
-        Return derived parameter for the width of a standard tray
+        Return derived parameter for the width of a standard tray.
         """
         return self.rack_width - 2 * self.beam_width
 

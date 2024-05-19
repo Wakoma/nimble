@@ -54,6 +54,6 @@ class Device:
     @property
     def tray_id(self):
         """
-        Return and identification for the shelf.
+        Return an identification for the shelf.
         """
         return f"tray_h{self.height_in_u}_t{self.shelf_type.lower().replace(' ', '_')}"

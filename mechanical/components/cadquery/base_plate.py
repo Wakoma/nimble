@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 """
-cq-cli script using cadscript to generate the baseplate of a nimble rack
+cq-cli script using cadscript to generate the baseplate of a nimble rack.
 """
 import cadscript as cad
 from nimble_builder.nimble_end_plate import create_end_plate
