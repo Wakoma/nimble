@@ -109,8 +109,7 @@ class NimbleConfiguration:
             ],
             source_files=[source],
             parameters={
-                "length": beam_height,
-                "hole_spacing": self._rack_params.mounting_hole_spacing,
+                "length": beam_height
             },
             application="cadquery"
         )

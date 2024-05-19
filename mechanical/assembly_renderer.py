@@ -22,6 +22,7 @@ from pathlib import Path
 import cadquery as cq
 import yaml
 
+assembly_definition_file = "assembly-def.yaml"
 
 class PartDefinition:
     """
@@ -80,9 +81,8 @@ class AssemblyRederer:
 
 
 # Handle different execution environments, including ExSource-Tools
-if "show_object" in globals() or __name__ == "__cqgi__":
+if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
     # CQGI should execute this whenever called
-    assembly_definition_file = "assembly-def.yaml"
     assembly = AssemblyRederer(assembly_definition_file).generate()
     show_object(assembly)
 
@@ -90,5 +90,5 @@ if __name__ == "__main__":
     # for debugging
     folder = Path(__file__).resolve().parent.parent
     os.chdir(folder)
-    assembly = AssemblyRederer("assembly-def.yaml").generate()
+    assembly = AssemblyRederer(assembly_definition_file).generate()
     assembly.save("assembly.stl", "STL")
