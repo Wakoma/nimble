@@ -35,7 +35,8 @@ def main():
             'generate.py',
             'generate_static.py',
             'nimble_orchestration',
-            'nimble_builder'
+            'nimble_builder',
+            '--rcfile=py.pylintrc'
         ])
     elif args.file_type == "cadquery":
         lint(['mechanical', '--rcfile=cq.pylintrc'])
