@@ -1,0 +1,15 @@
+<div class=header-text>
+{% if title is not none %}
+    <a class="wakoma-logo-link" href="https://wakoma.co/nimble//"><img class="wakoma-logo" src="{{root}}assets/wakoma-logo.png"></a>
+    <h1 class="site-title">{{title}}</h1>
+{%endif %}
+{% if subtitle is not none %}
+    <p class="site-subtitle">{{subtitle}}</p>
+{%endif %}
+{% if authors is not none %}   
+    <p class="author">by {{authors}}</p>
+{%endif %}
+{% if affiliation is not none %}
+    <p class="affiliation">{{affiliation}}</p>
+{%endif %}
+</div>

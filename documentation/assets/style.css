@@ -1,0 +1,19 @@
+
+
+.wakoma-logo{
+    width:60%;
+}
+
+.wakoma-logo-link{
+  line-height: 0.5;
+}
+
+.site-title {
+	color: #424242;
+	font-size: 32px;
+	font-weight: 400;
+	line-height: 54px;
+	letter-spacing: -1px;
+	margin-bottom: 0;
+	display: flex;
+}
