@@ -1,6 +1,4 @@
-# SPDX-FileCopyrightText: 2023 Andreas Kahler <mail@andreaskahler.com>
-#
-# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """
 A generic function for the end plates of the rack (top and bottom plates.
 This currently only generates the flat plates, not ones that can hold and 

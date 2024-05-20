@@ -1,6 +1,4 @@
-# SPDX-FileCopyrightText: 2023 Andreas Kahler <mail@andreaskahler.com>
-#
-# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """
 cq-cli script using cadscript to generate the topplate of a nimble rack.
 As of yet this cannot hold an instrument.

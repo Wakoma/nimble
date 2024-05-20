@@ -1,6 +1,4 @@
-# SPDX-FileCopyrightText: 2023 Andreas Kahler <mail@andreaskahler.com>
-#
-# SPDX-License-Identifier: AGPL-3.0-or-later
+
 
 """
 Shelf_builder provides classes and methods for creating any numble shelf, with
