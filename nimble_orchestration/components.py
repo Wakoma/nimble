@@ -11,6 +11,7 @@ in a nimble rack.
 """
 from copy import copy, deepcopy
 
+
 class MechanicalComponent:
     """
     This is a generic class for any mechanical component. If it is a generic
@@ -123,11 +124,13 @@ class AssembledComponent:
                  key: str,
                  component: MechanicalComponent,
                  position: tuple,
-                 step: int):
+                 step: int,
+                 color: tuple | str = None):
         self._key = key
         self._component = component
         self._position = position
         self._step = step
+        self._color = color
 
     @property
     def key(self):
@@ -158,3 +161,10 @@ class AssembledComponent:
         The assembly step in which this component is assembled.
         """
         return self._step
+
+    @property
+    def color(self):
+        """
+        The color of this component.
+        """
+        return self._color

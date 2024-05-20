@@ -215,7 +215,7 @@ def read_item(number_of_units: float = 2, tray_width: float = 115, tray_depth: f
 
     ## NOTE that tray_width and tray_depth are no longer used after moving to tray_6in.py
     # Run the script with customized parameters
-    tray = cqgi_model_script("tray_6in.py", {"height_in_u": number_of_units, "shelf_type" = "generic"})
+    tray = cqgi_model_script("tray_6in.py", {"height_in_u": number_of_units, "shelf_type": "generic"})
 
     # In case there was an error
     if (type(tray).__name__ == "HTMLResponse"):

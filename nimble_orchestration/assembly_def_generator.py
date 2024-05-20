@@ -16,7 +16,13 @@ class AssemblyDefGenerator:
         self._parts = []
 
 
-    def add_part(self, name: str, step_file: str, position, assembly_step: str | None = None):
+    def add_part(
+        self,
+        name: str,
+        step_file: str,
+        position, assembly_step: str | None = None,
+        color: str | tuple | None = None
+    ):
         """
         Add a part to the assembly definition file.
         """
@@ -24,7 +30,8 @@ class AssemblyDefGenerator:
             "name": name,
             "step-file": step_file,
             "position": position,
-            "assembly-step": assembly_step
+            "assembly-step": assembly_step,
+            "color": color
         }
         self._parts.append(part)
 

@@ -129,7 +129,8 @@ class NimbleConfiguration:
                     key=key,
                     component=component,
                     position = (x_pos, y_pos, self._rack_params.base_plate_thickness),
-                    step=2
+                    step=2,
+                    color="gray82"
             )
         )
         return assembled_legs
@@ -207,7 +208,7 @@ class NimbleConfiguration:
             y_pos = -self._rack_params.rack_width / 2.0
             z_pos = z_offset + height_in_u * self._rack_params.mounting_hole_spacing
             tray_id = device.tray_id
-
+            color = 'dodgerblue1' if i%2 == 0 else 'deepskyblue1'
             component = GeneratedMechanicalComponent(
                 key=tray_id,
                 name=f"{device.name} tray",
@@ -229,7 +230,8 @@ class NimbleConfiguration:
                     key=f"tray_{i}",
                     component=component,
                     position = (x_pos, y_pos, z_pos),
-                    step=4
+                    step=4,
+                    color=color
                 )
             )
 
@@ -252,7 +254,8 @@ class NimbleConfiguration:
                 name=assembled_component.key,
                 step_file=assembled_component.component.step_representation,
                 position=assembled_component.position,
-                assembly_step=str(assembled_component.step)
+                assembly_step=str(assembled_component.step),
+                color=assembled_component.color
             )
 
         return assembly
