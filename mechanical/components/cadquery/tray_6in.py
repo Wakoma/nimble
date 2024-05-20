@@ -1,6 +1,4 @@
-# SPDX-FileCopyrightText: 2024 Andreas Kahler <mail@andreaskahler.com>
-#
-# SPDX-License-Identifier: AGPL-3.0-or-later
+
 
 """
 This module provides many different nimble shelves created using
