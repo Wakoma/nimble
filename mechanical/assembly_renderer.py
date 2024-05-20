@@ -42,6 +42,7 @@ class PartDefinition:
         self.position = tuple(map(float, definition["position"].strip("()").split(",")))
         self.assembly_step = definition["assembly-step"]
         self.tags = definition.get("tags", [])
+        self.color = definition.get("color", "gray95")
 
 
 class AssemblyRederer:
@@ -71,10 +72,12 @@ class AssemblyRederer:
             for tag in part.tags:
                 cq_part = cq_part.tag(tag)
             #Pylint appears to be confused by the multimethod __init__ used by cq.Location
+
             assembly.add(
                 cq_part,
                 name=part.name,
-                loc=cq.Location(part.position) #pylint: disable=no-value-for-parameter
+                loc=cq.Location(part.position), #pylint: disable=no-value-for-parameter
+                color=cq.Color(part.color)
             )
 
         return assembly
