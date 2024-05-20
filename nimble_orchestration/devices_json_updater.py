@@ -20,7 +20,8 @@ def usage():
 
 def main():
     """
-    Main script to turn a CSV file into a JSON file. It does not do pretty formatting, it is a JSON file with no newlines.
+    Main script to turn a CSV file into a JSON file. It does not do pretty formatting,
+    it is a JSON file with no newlines.
     """
 
     # Check to make sure the user passed a CSV path
