@@ -5,45 +5,16 @@ the a class for generating a full cofiguration for a nimble rack `NimbleConfigur
 
 
 import os
-from dataclasses import dataclass
 from copy import deepcopy
 import posixpath
 import json
+
+from nimble_builder import RackParameters
 
 from nimble_orchestration.assembly_def_generator import AssemblyDefGenerator
 from nimble_orchestration.components import GeneratedMechanicalComponent, AssembledComponent
 from nimble_orchestration.device import Device
 from nimble_orchestration.paths import MODULE_PATH, REL_MECH_DIR
-
-
-@dataclass
-class RackParameters:
-    """
-    A class to hold the RackParameters, both fixed and derived
-    """
-
-    beam_width: float = 20.0
-    single_width: float = 155
-    tray_depth: float = 115
-    mounting_hole_spacing: float = 14
-    base_plate_thickness: float = 3
-    top_plate_thickness: float = 3
-    base_clearance: float = 4
-    bottom_tray_offet: float = 5
-
-    @property
-    def tray_width(self):
-        """
-        Return derived parameter for the width of a standard tray
-        """
-        return self.single_width - 2 * self.beam_width
-
-    def beam_height(self, total_height_in_units):
-        """
-        Return derived parameter for the height of a beam for a rack with a given
-        total height specified in units.
-        """
-        return self.base_clearance + total_height_in_units * self.mounting_hole_spacing
 
 class NimbleConfiguration:
     """
@@ -108,11 +79,11 @@ class NimbleConfiguration:
         return deepcopy(self._assembled_components)
 
     @property
-    def total_height_in_units(self):
+    def total_height_in_u(self):
         """
         Return the total height of the needed rack in units
         """
-        return sum([device.height_in_units for device in self._devices])
+        return sum(device.height_in_u for device in self._devices)
 
     def _generate_assembled_components_list(self):
 
@@ -125,8 +96,8 @@ class NimbleConfiguration:
     def _legs(self):
         source = os.path.join(REL_MECH_DIR, "components/cadquery/rack_leg.py")
         source = posixpath.normpath(source)
-        beam_height = self._rack_params.beam_height(self.total_height_in_units)
-        hole_pos = (self._rack_params.single_width - self._rack_params.beam_width) / 2.0
+        beam_height = self._rack_params.beam_height(self.total_height_in_u)
+        hole_pos = (self._rack_params.rack_width - self._rack_params.beam_width) / 2.0
 
         component =  GeneratedMechanicalComponent(
             key="rack_leg",
@@ -138,8 +109,7 @@ class NimbleConfiguration:
             ],
             source_files=[source],
             parameters={
-                "length": beam_height,
-                "hole_spacing": self._rack_params.mounting_hole_spacing,
+                "length": beam_height
             },
             application="cadquery"
         )
@@ -178,8 +148,8 @@ class NimbleConfiguration:
             ],
             source_files=[source],
             parameters={
-                "width": self._rack_params.single_width,
-                "depth": self._rack_params.single_width,
+                "width": self._rack_params.rack_width,
+                "depth": self._rack_params.rack_width,
             },
             application="cadquery"
         )
@@ -195,7 +165,7 @@ class NimbleConfiguration:
     def _topplate(self):
         source = os.path.join(REL_MECH_DIR, "components/cadquery/top_plate.py")
         source = posixpath.normpath(source)
-        beam_height = self._rack_params.beam_height(self.total_height_in_units)
+        beam_height = self._rack_params.beam_height(self.total_height_in_u)
         top_pos = beam_height + self._rack_params.base_plate_thickness
         component =  GeneratedMechanicalComponent(
             key="topplate",
@@ -207,8 +177,8 @@ class NimbleConfiguration:
             ],
             source_files=[source],
             parameters={
-                "width": self._rack_params.single_width,
-                "depth": self._rack_params.single_width,
+                "width": self._rack_params.rack_width,
+                "depth": self._rack_params.rack_width,
             },
             application="cadquery"
         )
@@ -227,16 +197,16 @@ class NimbleConfiguration:
         long and messy!
         """
 
-        source = os.path.join(REL_MECH_DIR, "components/cadquery/nimble_tray.py")
+        source = os.path.join(REL_MECH_DIR, "components/cadquery/tray_6in.py")
         source = posixpath.normpath(source)
         trays = []
         z_offset = self._rack_params.bottom_tray_offet
         height_in_u = 0
         for i, device in enumerate(self._devices):
-            x_pos = -self._rack_params.tray_width / 2.0
-            y_pos = -self._rack_params.single_width / 2.0 - 4
+            x_pos = 0
+            y_pos = -self._rack_params.rack_width / 2.0
             z_pos = z_offset + height_in_u * self._rack_params.mounting_hole_spacing
-            tray_id = device.get_tray_id()
+            tray_id = device.tray_id
 
             component = GeneratedMechanicalComponent(
                 key=tray_id,
@@ -248,9 +218,8 @@ class NimbleConfiguration:
                 ],
                 source_files=[source],
                 parameters={
-                    "height_in_hole_unites": device.height_in_units,
-                    "tray_width": self._rack_params.tray_width,
-                    "tray_depth": self._rack_params.tray_depth,
+                    "height_in_u": device.height_in_u,
+                    "shelf_type": "generic",
                 },
                 application="cadquery"
             )
@@ -264,7 +233,7 @@ class NimbleConfiguration:
                 )
             )
 
-            height_in_u += device.height_in_units
+            height_in_u += device.height_in_u
         return trays
 
     @property

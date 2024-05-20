@@ -2,11 +2,12 @@
 This components module contains classes for holding the information for components
 in a nimble rack.
 
-`MechanicalComponent` is a base class and can also be used for generic components that have no
-    source code
-`GeneratedMechanicalComponent` is a child class of `MechanicalComponent`, it contains all the information
-    for exsource to generate the CAD models for this component
-`AssembledComponent` Is a class that holds very basic assmbly information for a given `MechanicalComponent` 
+`MechanicalComponent` is a base class and can also be used for generic components 
+    that have no source code
+`GeneratedMechanicalComponent` is a child class of `MechanicalComponent`, it contains
+    all the information for exsource to generate the CAD models for this component
+`AssembledComponent` is a class that holds very basic assembly information for a given
+   `MechanicalComponent` 
 """
 from copy import copy, deepcopy
 

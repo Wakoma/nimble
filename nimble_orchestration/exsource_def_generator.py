@@ -40,7 +40,7 @@ exports:
 import pathlib
 import yaml
 
-from nimble_orchestration.yaml_cleaner import YamlCleaner
+from nimble_orchestration import yaml_cleaner
 
 
 class ExsourceDefGenerator:
@@ -86,4 +86,4 @@ class ExsourceDefGenerator:
             "exports": self._parts
         }
         with open(output_file, "w", encoding="utf-8") as f:
-            yaml.dump(YamlCleaner.clean(data), f, sort_keys=False)
+            yaml.dump(yaml_cleaner.clean(data), f, sort_keys=False)

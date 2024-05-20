@@ -8,7 +8,7 @@ SPDX-License-Identifier: CERN-OHL-S-2.0
 
 ## Overview
 
-Nimble hardware models are generated using Python. For CAD we used [CadQuery](https://cadquery.readthedocs.io/en/latest/intro.html). CadQuery scripts can be found in the `mechanical` directory, with individual components in the `mechanical/components/cadquery` directory. Our CadQuery scripts also our `nimble-builder` module of helper functions.
+Nimble hardware models are generated using Python. For CAD we used [CadQuery](https://cadquery.readthedocs.io/en/latest/intro.html). CadQuery scripts can be found in the `mechanical` directory, with individual components in the `mechanical/components/cadquery` directory. Our CadQuery scripts also use the `nimble-builder` module of helper functions.
 
 Our preferred way to generate the models needed for a nimble configuration is via our orchestration module `nimble-orchestration`. This can be used to generate trays for networking components, nimble-rack components, and a final CAD assembly. The orchestration system uses [cq-cli](https://github.com/CadQuery/cq-cli) to execute CadQuery scripts, and [ExSource Tools](https://gitlab.com/gitbuilding/exsource-tools) to manage the process of turning scripts into useable models. The orchestration script will eventually use [GitBuilding](https://gitbuilding.io) to generate assembly manuals.
 
@@ -32,7 +32,7 @@ Run:
 
 ## Running the code
 
-As the code is very much a work in progress we do not have detailed documentation of how to it for custom configurations.
+As the code is very much a work in progress we do not have detailed documentation of how to run it for custom configurations.
 
 For now the best way to run the code is with the two scripts in this repository.
 
@@ -42,7 +42,7 @@ The script `generate-static.py` is used to create a number of example components
 
 To run this script, run the following command:
 
-    python generate-static.py
+    python generate_static.py
 
 This should create the `build` directory. Inside this the `printed_components` directory should contain a number of `stl` files that can be 3D printed.
 
@@ -53,7 +53,7 @@ It also creates a number of files that are used by the orchestration script.
 If you don't want to run this locally you can see a [hosted version of the output](https://wakoma.github.io/nimble/).
 
 
-### Generate static
+### Generate configuration
 
 The script `generate.py` is our test-bed script for generating a complete set of information for a nimble configuration.
 

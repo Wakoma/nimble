@@ -66,7 +66,7 @@ def get_component_list():
         )
     )
 
-    for (shelf_type, hole_count) in [
+    for (shelf_type, height_in_u) in [
             ("stuff", 3),
             ("stuff-thin", 3),
             ("nuc", 3),
@@ -80,7 +80,7 @@ def get_component_list():
             ("dual-ssd", 2),
             ("raspi", 2)]:
 
-        components.append(generate_shelf(shelf_type, hole_count))
+        components.append(generate_shelf(shelf_type, height_in_u))
 
     return components
 
@@ -106,21 +106,21 @@ def generate_leg(length, mounting_holes_dia, name, out_file):
     )
 
 
-def generate_shelf(shelf_type, hole_count):
+def generate_shelf(shelf_type, height_in_u):
     """
     Helper function to generate a shelf/tray. Returns a GeneratedMechanicalComponent
     object which contains the data for the shelf.
     """
-    out_file = f"./printed_components/shelf_6in_{shelf_type}u_{hole_count}.stl"
+    out_file = f"./printed_components/shelf_6in_{shelf_type}u_{height_in_u}.stl"
     source = os.path.join(REL_MECH_DIR, "components/cadquery/tray_6in.py")
     device_name = shelf_type.replace('-', ' ')
     return GeneratedMechanicalComponent(
-        key=f"{shelf_type}_{hole_count}u",
+        key=f"{shelf_type}_{height_in_u}u",
         name=f"Tray for {device_name}",
-        description=f"Tray for {device_name}, height = {hole_count}u",
+        description=f"Tray for {device_name}, height = {height_in_u}u",
         output_files=[out_file],
         source_files=[source],
-        parameters={'shelf_type': shelf_type, 'hole_count': hole_count},
+        parameters={'shelf_type': shelf_type, 'height_in_u': height_in_u},
         application="cadquery"
     )
 

@@ -1,4 +1,7 @@
-
+"""
+A number of helper functions for CadQuery used to simplify the creation of nimble
+rack components.
+"""
 from typing import Literal
 import cadscript as cad
 
@@ -42,7 +45,11 @@ def cut_slots(body: cad.Body,
 
     slot_line = cad.make_sketch()
     slot_height = pos_list_vertical[0].size_y - slot_width
-    slot_line.add_slot(width=slot_height, height=slot_width, angle=90, pos=[p.center for p in pos_list_vertical])
+    slot_line.add_slot(
+        width=slot_height,
+        height=slot_width,
+        angle=90,
+        pos=[p.center for p in pos_list_vertical])
 
     # copy that sketch to cover the whole plate width
 

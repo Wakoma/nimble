@@ -1,3 +1,153 @@
+"""
+On loading nimble_builder the RackParameters dataclass will be available.
+"""
+from dataclasses import dataclass
+from typing import Literal
 
-beam_width = 20
-corner_fillet = 2
+@dataclass
+class RackParameters:
+    """
+    A class to hold the RackParameters, both fixed and derived.
+    """
+
+    beam_width: float = 20.0
+    nominal_rack_width: Literal["6inch", "10inch", "10inch_reduced"] = "6inch"
+    mounting_screws: Literal["M4", "M6"] = "M4"
+
+    tray_front_panel_thickness: float = 4
+    tray_bottom_thickness: float = 2
+    tray_side_wall_thickness: float = 2.5
+    tray_back_wall_thickness: float = 2.5
+    # distance between side walls of broad trays to the bounding box of the rack
+    broad_tray_clearance: float = 16
+
+    tray_depth: float = 115
+    corner_fillet: float = 2
+    mounting_hole_spacing: float = 14
+    base_plate_thickness: float = 3
+    top_plate_thickness: float = 3
+    base_clearance: float = 4
+    bottom_tray_offet: float = 5
+    end_plate_rail_width: float = 5
+    end_plate_rail_height: float = 3
+    end_plate_star_width: float = 9
+    end_plate_screws: Literal["M5", "M6"] = "M5"
+
+
+    @property
+    def mounting_hole_clearance_diameter(self):
+        """
+        Return the diameter for a clearance hole for the front mounting screws.
+        This is determined by the `mounting_screws` parameter.
+        Clearance holes should be used in tray fronts.
+        See also: `mounting_hole_tap_diameter`
+        """
+        if self.mounting_screws == "M4":
+            return 4.3
+        if self.mounting_screws == "M6":
+            return 6.5
+        raise ValueError(f"Unknown screw size {self.mounting_screws}")
+
+    @property
+    def mounting_hole_tap_diameter(self):
+        """
+        Return the diameter for a tapped hole for the front mounting screws.
+        This is determined by the `mounting_screws` parameter.
+        Tap holes should be in the legs where the screw will tap.
+        As 3D printers tend to over extrude and the fact that the machine screws
+        are tapping directly into plastic, the holes are larger than standard
+        metric tap holes.
+        See also: `mounting_hole_tap_diameter`
+        """
+        if self.mounting_screws == "M4":
+            return 3.6
+        if self.mounting_screws == "M6":
+            return 5.5
+        raise ValueError(f"Unknown screw size {self.mounting_screws}")
+
+    @property
+    def end_plate_hole_clearance_diameter(self):
+        """
+        Return the diameter for a clearance hole for the countersunk screws
+        that attach the top and bottom plates.
+        This is determined by the `end_plate_screws` parameter.
+        Clearance holes should be used in `end_plates`.
+        See also: `mounting_hole_tap_diameter`
+        """
+        if self.end_plate_screws == "M5":
+            return 5.4
+        if self.end_plate_screws == "M6":
+            return 6.5
+        raise ValueError(f"Unknown screw size {self.end_plate_screws}")
+
+    @property
+    def end_plate_hole_countersink_dia(self):
+        """
+        Return the countersink diameter for a clearance hole for the countersunk screws
+        that attach the top and bottom plates.
+        This is determined by the `end_plate_screws` parameter.
+        See also: `mounting_hole_tap_diameter`
+        """
+        if self.end_plate_screws == "M5":
+            return 11.5
+        if self.end_plate_screws == "M6":
+            return 13.7
+        raise ValueError(f"Unknown screw size {self.end_plate_screws}")
+
+    @property
+    def end_plate_hole_tap_diameter(self):
+        """
+        Return the diameter for a tapped hole for the countersunk screws
+        that attach the top and bottom plates.
+        This is determined by the `end_plate_screws` parameter.
+        Tap holes should be in the top and bottom of the legs where the screw will tap.
+        As 3D printers tend to over extrude and the fact that the machine screws
+        are tapping directly into plastic the holes are larger than standard
+        metric tap holes.
+        See also: `mounting_hole_tap_diameter`
+        """
+        if self.end_plate_screws == "M5":
+            return 4.5
+        if self.end_plate_screws == "M6":
+            return 5.5
+        raise ValueError(f"Unknown screw size {self.end_plate_screws}")
+
+    end_plate_hole_dia: float = 4.7
+    end_plate_hole_countersink_dia: float = 11
+
+    @property
+    def rack_width(self):
+        """
+        Return the rack width in mm as determined by the `nominal_rack_width`.
+        Options are:
+            `6inch`  - 155mm - full width (front panel) of the 6 inch nimble rack
+            `10inch` - 254mm - full width (front panel) of the 10 inch rack
+            `10inch_reduced` - 250mm - as above but reduced to fit into a 250mm wide printer
+        """
+        if self.nominal_rack_width == "6inch":
+            return 155
+        if self.nominal_rack_width == "10inch":
+            return 254
+        if self.nominal_rack_width == "10inch_reduced":
+            return 250
+        raise ValueError(f"Unknown rack width {self.nominal_rack_width}")
+
+    @property
+    def tray_width(self):
+        """
+        Return derived parameter for the width of a standard tray.
+        """
+        return self.rack_width - 2 * self.beam_width
+
+    def beam_height(self, total_height_in_u):
+        """
+        Return derived parameter for the height of a beam for a rack with a given
+        total height specified in units.
+        """
+        return self.base_clearance + total_height_in_u * self.mounting_hole_spacing
+
+    def tray_height(self, height_in_u):
+        """
+        Return derived parameter for the height of a tray specified in units.
+        """
+        return height_in_u * self.mounting_hole_spacing
