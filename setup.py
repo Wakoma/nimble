@@ -13,7 +13,7 @@ setup(
         'cadscript>=0.5.2',
         'exsource-tools',
         'cq-cli @ git+https://github.com/CadQuery/cq-cli.git',
-        'gitbuilding'
+        'gitbuilding==0.15.0a2'
     ],
     extras_require={
         'dev': [
