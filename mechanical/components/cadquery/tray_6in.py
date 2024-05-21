@@ -29,16 +29,11 @@ shelf_type = "stuff-thin"
 height_in_u = 2
 
 
-def create_6in_shelf(shelf_type, height_in_u) -> cad.Body:
-    """
-    This is the top level function called when the script
-    is called. It uses the `shelf_type` string to decide
-    which of the defined shelf functions to call.
-    """
+def _shelf_functions():
 
     # Dictionary of with key as shelf type and value as tuple
     # of (function, keyword-arguments)
-    shelf_functions = {
+    return {
         "generic": (generic_shelf, {}),
         "stuff": (stuff_shelf, {}),
         "stuff-thin": (stuff_shelf, {"thin":True}),
@@ -69,11 +64,29 @@ def create_6in_shelf(shelf_type, height_in_u) -> cad.Body:
         "raspi": (raspi_shelf, {})
     }
 
-    if shelf_type in shelf_functions:
-        shelf_func = shelf_functions[shelf_type][0]
-        kwargs = shelf_functions[shelf_type][1]
-        return shelf_func(height_in_u, **kwargs)
-    raise ValueError(f"Unknown shelf type: {shelf_type}")
+def available_shelves():
+    """
+    Return a list of suported shelf-types.
+    """
+    return list(_shelf_functions().keys)
+
+def create_6in_shelf(shelf_type, height_in_u) -> cad.Body:
+    """
+    This is the top level function called when the script
+    is called. It uses the `shelf_type` string to decide
+    which of the defined shelf functions to call.
+    """
+
+    shelf_functions = _shelf_functions()
+
+    if shelf_type not in shelf_functions:
+        print(f"Unknown shelf type: {shelf_type}, creating generic shelf")
+        shelf_type = "generic"
+
+    shelf_func = shelf_functions[shelf_type][0]
+    kwargs = shelf_functions[shelf_type][1]
+    return shelf_func(height_in_u, **kwargs)
+
 
 def generic_shelf(height_in_u) -> cad.Body:
     """

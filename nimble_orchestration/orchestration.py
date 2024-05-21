@@ -7,14 +7,14 @@ To generate from a list of components see the `components` module
 """
 
 import os
-
+import shutil
 
 import exsource_tools
 import exsource_tools.cli
 import exsource_tools.tools
 
 from nimble_orchestration.exsource_def_generator import ExsourceDefGenerator
-from nimble_orchestration.paths import BUILD_DIR, REL_MECH_DIR
+from nimble_orchestration.paths import BUILD_DIR, REL_MECH_DIR, DOCS_DIR, DOCS_TMP_DIR
 
 class OrchestrationRunner:
     """
@@ -81,6 +81,18 @@ class OrchestrationRunner:
         exsource.save(exsource_path)
         self._run_exsource(exsource_path)
 
+    def generate_docs(self, configuration):
+        """
+        Run GitBuilding to generate documentation
+        """
+        if os.path.exists(DOCS_TMP_DIR):
+            shutil.rmtree(DOCS_TMP_DIR)
+        shutil.copytree(DOCS_DIR, DOCS_TMP_DIR)
+
+        for shelf in configuration.shelves:
+            filename = os.path.join(DOCS_TMP_DIR, f"{shelf.device.id}_shelf.md")
+            with open(filename, 'w', encoding="utf-8") as gb_file:
+                gb_file.write(shelf.md)
 
     def _run_exsource(self, exsource_path):
 

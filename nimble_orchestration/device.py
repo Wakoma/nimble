@@ -2,6 +2,8 @@
 Contains an object that represents the information of a device in the devices.json file.
 """
 
+import re
+
 class Device:
     """
     Represents a subset of the information for a device from the devices.json file
@@ -48,12 +50,25 @@ class Device:
         self.width = json_node['LengthMm']
         self.depth = json_node['Depth']
         self.shelf_id = json_node['ShelfId']
-        # self.tray_type = json_node['TrayType']
         self.shelf_type = json_node['Shelf']
 
     @property
-    def tray_id(self):
+    def shelf_key(self):
         """
-        Return an identification for the shelf.
+        Return an key to identify the shelf.
         """
-        return f"tray_h{self.height_in_u}_t{self.shelf_type.lower().replace(' ', '_')}"
+        return f"shelf_h{self.height_in_u}_t{self.shelf_type.lower().replace(' ', '_')}"
+
+    @property
+    def shelf_builder_id(self):
+        """
+        shelf_builder and devices.json don't key use the same ids. devices.json seems
+        to use similar terms but appends -6 as the shelf is 6 inch, and optionally -s
+        and -t for tall and short versions.
+        These should be unified later
+        """
+        if self.shelf_id:
+            if match := re.match(r'^(.*)-6(?:-[st])?$', self.shelf_id):
+                #strip of -6 and optionally -s or -t
+                return match.group(1)
+        return "generic"

@@ -26,6 +26,8 @@ def generate(selected_devices_ids):
 
     runner.generate_assembly(config.assembly_definition)
 
+    runner.generate_docs(config)
+
 
 def generate_example_configuration():
     """
