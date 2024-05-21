@@ -172,7 +172,7 @@ class AssembledComponent:
 
 class Shelf:
     """
-    A class for all the orchestraion information relating to a shelf
+    A class for all the orchestration information relating to a shelf
     """
     def __init__(self,
                  assembled_shelf: AssembledComponent,
@@ -199,7 +199,7 @@ class Shelf:
     @property
     def md(self):
         """
-        Return the gitbuilding markdown for assembling this shelf
+        Return the GitBuilding markdown for assembling this shelf
         """
 
         return f"# {self._device.name}\n\n This is a shelf for a {self._device.name}"

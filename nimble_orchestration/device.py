@@ -62,7 +62,7 @@ class Device:
     @property
     def shelf_builder_id(self):
         """
-        shelf_builder and devices.json don't key use the same ids. devices.json seems
+        shelf_builder and devices.json don't use the same ids. devices.json seems
         to use similar terms but appends -6 as the shelf is 6 inch, and optionally -s
         and -t for tall and short versions.
         These should be unified later

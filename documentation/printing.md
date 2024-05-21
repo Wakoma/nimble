@@ -7,7 +7,7 @@
 ## Print the custom components {pagestep}
 
 
-Using the slicer that comes with your [3d printer](parts/3dprinter.md){qty:1, cat: tool}, slice thent the following parts, and then print them.
+Using the slicer that comes with your [3d printer](parts/3dprinter.md){qty:1, cat: tool}, slice the following parts, and then print them.
 
 Some parts require support. A brim is advised for all parts.
 

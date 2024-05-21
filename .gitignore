@@ -3,7 +3,6 @@ _site/
 _gb_temp_/
 build/
 
-
 .vscode/*
 .venv/
 __pycache__/

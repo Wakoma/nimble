@@ -1,4 +1,4 @@
-# Set Up your Nimble
+# Set up your Nimble
 
 >!! **TODO**
 >!!
@@ -8,9 +8,9 @@
 {{BOM}}
 
 
-## Mount the rack and access points{pagestep}
+## Mount the rack and access points {pagestep}
 
-* Take your wired Nimble rack and insert into your Peli Case.
+* Take your wired Nimble rack and insert it into your Peli Case.
 
 
 >!! **TODO**  

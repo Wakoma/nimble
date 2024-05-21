@@ -33,10 +33,10 @@ Make:
 [M4x10mm countersunk screws]: parts/Hardware.yaml#CskScrew_M4x10mm_SS
 [M4x10mm cap screws]: parts/Hardware.yaml#CapScrew_M4x10mm_SS
 
-## Attach the legs to the base plate{pagestep}
+## Attach the legs to the base plate {pagestep}
 
 * Get the [base plate]{make, qty:1, cat:printed} and the four [rack legs]{make, qty:4, cat:printed} that you printed earlier.
-* Get an [3mm Allen key](parts/metric_allen_keys.md){qty:1, cat:tool} ready
+* Get a [3mm Allen key](parts/metric_allen_keys.md){qty:1, cat:tool} ready
 * Use four [M4x10mm countersunk screws]{qty:4} to attach a leg to each corner of the bottom.
 
 >!! **TODO**  

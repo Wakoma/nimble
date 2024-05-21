@@ -2,7 +2,7 @@
 Tags: info
 ---
 
-# Power over Ethernet
+# Power over Ethernet (PoE)
 
 Many of the devices in your Nimble are powered directly through the Ethernet cable.
 

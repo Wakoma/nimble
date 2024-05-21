@@ -31,7 +31,7 @@ Make:
 ## Attach to case{pagestep}
 
 * Get your [Peli Case][Peli Case 1430](PeliCalse1430.md){qty:1} and open the lid.
-* Locate the mounting lugs on the peli case lid and align the lid insert with these lugs
+* Locate the mounting lugs on the Peli Case lid and align the lid insert with these lugs
 * Use [M4x10mm cap screws]{qty: 2,cat: mech} to attach the inset into the Peli Case.
 
 >!! **TODO**  

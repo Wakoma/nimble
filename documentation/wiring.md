@@ -8,7 +8,7 @@ Make:
     weight-qty: 60g
 ---
 
-# Wiring The Nimble
+# Wiring the Nimble
 
 >!! **TODO**
 >!!
