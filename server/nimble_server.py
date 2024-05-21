@@ -1,10 +1,9 @@
 import os, sys
 import re
 import json
-import hashlib
 import tempfile
-import urllib.parse
 from pathlib import Path
+import shutil
 
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, HTMLResponse, ORJSONResponse
@@ -19,7 +18,7 @@ generated_docs_urls = {}
 # Allow imports from the parent directory (potential security issue)
 sys.path.append(os.path.dirname(__file__) + "/..")
 
-from generate import generate_docs
+from generate import generate
 
 app = FastAPI()
 
@@ -37,6 +36,25 @@ async def read_index():
     return FileResponse('test_page.html')
 
 
+def get_unique_name(config):
+    """
+    Allows the caller to get a unique name for a configuration.
+    """
+    unique_name = ""
+
+    # Concatenate all the item names together
+    for item in config:
+        unique_name += item
+
+    # Replace spaces with underscores
+    unique_name = unique_name.replace(" ", "_")
+
+    # Delete all non-alphanumeric characters (other than _)
+    unique_name = re.sub(r'[^a-zA-Z0-9_]', '', unique_name)
+
+    return unique_name
+
+
 # http://127.0.0.1:8000/wakoma/nimble
 @app.post("/wakoma/nimble")
 async def get_body(request: Request):
@@ -49,33 +67,40 @@ async def get_body(request: Request):
     req = await request.json()
     config = req['config']
 
+    # Make sure that a config was passed
+    if (len(config) == 0):
+        print("Nothing to build")
+        return ORJSONResponse([{"error": "Configuration must have components in it."}], status_code=500)
+
     print("Starting build for config:")
     print(config)
 
-    # Generate a hash of the configuration here to identify it
-    # sort config by key, get "key=value" strings, concatenate
-    config_hash = "+".join([f"{key}={config[key]}" for key in sorted(config.keys())])
-    # delete all non-alphanumeric characters (other than _+=)
-    config_hash = re.sub(r'[^a-zA-Z0-9_+=]', '', config_hash)
-    
-    print("config_hash is: " + config_hash)
+    # Create a clean, unique name for this build
+    unique_name = get_unique_name(config)
 
-    # If the build has been performed before, send the cached file to speed the system up
+    # Trigger the generation of all materials, but only if they do not already exist
     module_path = Path(__file__).resolve().parent.parent
-    build_path = module_path  / "build" / config_hash
-    if not os.path.exists(str(build_path) + ".zip"):
-        # Trigger the orchestration script
-        generate_docs(config, config_hash)
+    if not os.path.exists(module_path / "_cache_" / f"{unique_name}.zip"):
+        generate(config)
 
-    # Make sure that there is a valid config before passing it on to the orchestration script
-    if config is not None and "server_1" in config.keys():
-        # Save this generated config so that it can be polled
-        generated_docs_urls[config_hash] = server_base_url + "/wakoma/nimble/auto-doc?config_hash=" + urllib.parse.quote(config_hash)
+    # Check to make sure we have the _cache_ directory that holds the distribution files
+    if not os.path.isdir(str(module_path / "_cache_")):
+        os.makedirs(str(module_path / "_cache_"))
 
-        return ORJSONResponse([{"redirect": generated_docs_urls[config_hash], "description": "Poll this URL until your documentation package is ready."}])
-    else:
-        return ORJSONResponse([{"error": "Configuration must be a valid JSON object."}])
+    # Save the fact that this has been generated before
+    config_url = server_base_url + "/wakoma/nimble/auto-doc?config=" + unique_name
 
+    # Generate the zip file
+    shutil.make_archive(str(module_path / "_cache_" / unique_name), 'zip', os.path.join(module_path, "build"))
+
+    # Make a copy of the glTF preview file to cache it
+    shutil.copyfile(str(module_path / "build" / "assembly" / "assembly.glb"), str(module_path / "_cache_" / f"{unique_name}.glb"))
+
+    # Let the client know where they can download the file
+    return ORJSONResponse([{"redirect": config_url, "description": "Poll this URL until your documentation package is ready."}])
+
+    # If there was an error, this code should return an error condition rather than a success
+    # return ORJSONResponse([{"error": "Configuration must be a valid JSON object."}], status_code=500)
 
 
 def check_model_format(model_format):
@@ -109,6 +134,16 @@ def cqgi_model_script(file_name, params):
         return HTMLResponse(f'ERROR: There was an error executing the script: {build_result.exception}')
 
     return res
+
+
+# http://127.0.0.1:8000/wakoma/nimble/components
+@app.get("/wakoma/nimble/components")
+async def get_body(request: Request):
+    # Load the devices.json file
+    with open('../devices.json', 'r') as component_file:
+        component_data = json.load(component_file)
+
+    return ORJSONResponse([component_data])
 
 
 # http://127.0.0.1:8000/wakoma/nimble/rack_leg?length=50.0&model_format=stl
@@ -268,17 +303,35 @@ def read_item(width: float = 100, depth: float = 100, height: float = 3, model_f
 
 
 @app.get("/wakoma/nimble/auto-doc")
-def get_files(config_hash):
+def get_files(config):
     """
     Loads any auto-generated documentation files.
     """
 
     # Figure out what the build path is
     module_path = Path(__file__).resolve().parent.parent
-    build_path = module_path  / "build" / config_hash
+    build_path = module_path  / "_cache_" / config
 
     # Once the build exists we can send it to the user, but before that we give them a temporary redirect
     if os.path.exists(str(build_path) + ".zip"):
-        return FileResponse(str(build_path) + ".zip", headers={'Content-Disposition': 'attachment; filename=' + config_hash + ".zip"})
+        return FileResponse(str(build_path) + ".zip", headers={'Content-Disposition': 'attachment; filename=' + config + ".zip"})
     else:
         return HTMLResponse(content="<p>The File is Still Processing</p>", status_code=307)
+
+
+@app.get("/wakoma/nimble/preview")
+def get_preview(config):
+    """
+    Sends a 3D preview (glTF) file to the client.
+    """
+
+    # Figure out what the build and glb path is
+    module_path = Path(__file__).resolve().parent.parent
+    glb_file_name = f"{config}.glb"
+    glb_path = module_path  / "_cache_" / glb_file_name
+
+    # If the glb file exists, send it to the client
+    if os.path.exists(glb_path):
+        return FileResponse(str(glb_path), headers={'Content-Disposition': 'attachment; filename=' + glb_file_name})
+    else:
+        return HTMLResponse(content="<p>Preview is not available.</p>", status_code=500)

@@ -12,10 +12,10 @@ pip install -r requirements.txt
 
 ## Local Usage
 
-Run the following to run the server locally.
+Run the following to run the server locally. Notice that the `PYTHONPATH` variable needs to be set so that imports will work correctly.
 
 ```
-uvicorn nimble_server:app --reload
+PYTHONPATH=/path/to/nimble/root/directory uvicorn nimble_server:app --reload
 ```
 
 The server will spin up a local web page used for testing of the data flow.

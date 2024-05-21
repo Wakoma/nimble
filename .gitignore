@@ -2,6 +2,7 @@
 _site/
 _gb_temp_/
 build/
+_cache_/
 
 .vscode/*
 .venv/

@@ -16,42 +16,45 @@
 <body>
     <div class="container">
         <div class="row">
-            <div class="three-quarters column" style="margin-top: 5%">
+            <div class="six columns" style="margin-top: 5%">
                 <!--Header for the user-->
-                <h2>Wakoma Nimble</h2>
-                <h3>Select Components for Your Rack Below</h3>
+                <img src="/static/images/wakoma-logo.png" alt="Wakoma Logo" />
+                <h2>Wakoma Nimble Configurator</h2>
+                <h3>Select Components for Your Nimble:</h3>
 
-                <!--Server selection-->
-                <label for="server_1">Server</label>
-                <select name="server_1" id="server_1">
+                <!--Access point selection-->
+                <label for="ap_1">Access Point</label>
+                <select name="ap_1" id="ap_1">
                     <option value="none">None</option>
-                    <option value="Hardware_1">Lenovo ThinkCenter M700</option>
-                    <option value="Hardware_8">NUC10i5FNH</option>
-                    <option value="Hardware_17">NUC10i5FNH-B</option>
-                    <option value="Hardware_5">Raspberry Pi 4 Model B</option>
                 </select>
 
                 <!--Router selection-->
                 <label for="router_1">Router</label>
                 <select name="router_1" id="router_1">
                     <option value="none">None</option>
-                    <option value="Hardware_2">LibreRouter v.1 India version</option>
-                    <option value="Hardware_18">UniFi AC Mesh</option>
+                </select>
+
+                <!--Server selection-->
+                <label for="server_1">Server</label>
+                <select name="server_1" id="server_1">
+                    <option value="none">None</option>
                 </select>
 
                 <!--Switch selection-->
                 <label for="switch_1">Switch</label>
                 <select name="switch_1" id="switch_1">
                     <option value="none">None</option>
-                    <option value="Hardware_9">Unifi Switch Flex | USW-Flex</option>
                 </select>
 
                 <!--Charge controller selection-->
-                <label for="charge_controller_1">Charge Controller</label>
+                <!-- <label for="charge_controller_1">Charge Controller</label>
                 <select name="charge_controller_1" id="charge_controller_1">
                     <option value="none">None</option>
                     <option value="Hardware_4">OpenMPPT-HP 400W</option>
-                </select>
+                </select> -->
+            </div>
+            <div class="six columns" style="margin-top: 5%">
+                <model-viewer id="model-viewer" style="width: 800px;height: 600px;" alt="Current Nimble Configuration" shadow-intensity="1" camera-controls orientation="90deg 90deg -45deg"></model-viewer>
             </div>
         </div>
         <div class="row">
@@ -61,6 +64,7 @@
             <div id="spinner"></div>
         </div>
     </div>
-    <script src="/static/js/index.js"></script>
+    <script src="/static/js/index.js">load_ui();</script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
 </body>
 </html>
