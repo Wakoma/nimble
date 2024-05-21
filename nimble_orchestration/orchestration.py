@@ -90,10 +90,26 @@ class OrchestrationRunner:
             shutil.rmtree(DOCS_TMP_DIR)
         shutil.copytree(DOCS_DIR, DOCS_TMP_DIR)
 
+        sehlves_md = "* Insert the shelves into the rack in the following order "
+        sehlves_md += "(from top to bottom)\n"
+
         for shelf in configuration.shelves:
-            filename = os.path.join(DOCS_TMP_DIR, f"{shelf.device.id}_shelf.md")
+            md_file = f"{shelf.device.id}_shelf.md"
+            filename = os.path.join(DOCS_TMP_DIR, md_file)
             with open(filename, 'w', encoding="utf-8") as gb_file:
                 gb_file.write(shelf.md)
+            sehlves_md += "[Assembled "+shelf.name+"]("+md_file+"){make, qty:1, cat: prev}\n"
+
+        sehlves_md += "* Secure each in place with four [M4x10mm cap screws]{qty:"
+        sehlves_md += str(2*len(configuration.shelves))+", cat:mech}\n\n"
+
+        filename = os.path.join(DOCS_TMP_DIR, "insert_shelves.md")
+        with open(filename, 'w', encoding="utf-8") as gb_file:
+            gb_file.write(sehlves_md)
+
+
+        # Here we really need to be listhing the assembly stepes differently if the
+        # shelves are broad.
 
         self._run_gitbuilding()
 

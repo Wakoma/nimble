@@ -59,8 +59,7 @@ Make:
 
 ## Insert the remaining shelves {pagestep}
 
->!! **TODO**  
->!! Explain what order the assembled shelves are used.
+{{include: insert_shelves.md}}
 
 
-
+![](../build/assembly/assembly.glb)

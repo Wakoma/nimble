@@ -9,7 +9,9 @@ in a nimble rack.
 `AssembledComponent` is a class that holds very basic assembly information for a given
    `MechanicalComponent` 
 """
+import os
 from copy import copy, deepcopy
+import yaml
 from nimble_orchestration.device import Device
 
 class MechanicalComponent:
@@ -53,6 +55,17 @@ class MechanicalComponent:
         """
         for output_file in self.output_files:
             if output_file.lower().endswith(('stp','step')):
+                return output_file
+        return None
+
+    @property
+    def stl_representation(self):
+        """
+        Return the path to the STL file that represents this part. Return None
+        if not defined
+        """
+        for output_file in self.output_files:
+            if output_file.lower().endswith('stl'):
                 return output_file
         return None
 
@@ -133,6 +146,23 @@ class AssembledComponent:
         self._color = color
 
     @property
+    def name(self):
+        """
+        Return the name of the assembled component. This is the same name as the
+        component that is to be assembled.
+        """
+        return self._component.name
+
+    @property
+    def stl_representation(self):
+        """
+        Return the path to the STL file that represents this part. Return None
+        if not defined.
+        Note this is the STL in the original poisition not in the assembled position.
+        """
+        return self._component.stl_representation
+
+    @property
     def key(self):
         """
         A unique key to identify the assembled component.
@@ -181,6 +211,23 @@ class Shelf:
         self._device = device
 
     @property
+    def name(self):
+        """
+        Return the name of the shelf. This is the same name as the
+        component.
+        """
+        return self.assembled_shelf.name
+
+    @property
+    def stl_representation(self):
+        """
+        Return the path to the STL file that represents this shelf. Return None
+        if not defined.
+        Note this is the STL in the original poisition not in the assembled position.
+        """
+        return self.assembled_shelf.stl_representation
+
+    @property
     def assembled_shelf(self):
         """
         Return the Object describing the assembled shelf (currently this in an empty
@@ -201,5 +248,25 @@ class Shelf:
         """
         Return the markdown (BuildUp) for the GitBuilding page for assembling this shelf
         """
+        meta_data = {
+            "Tag": "shelf",
+            "Make": {
+                self.name: {
+                    "template": "printing.md",
+                    "stl-file": "../build/"+self.stl_representation,
+                    "stlname": os.path.split(self.stl_representation)[1],
+                    "material": "PLA",
+                    "weight-qty": "50g",
+                }
+            }
+        }
+        md = f"---\n{yaml.dump(meta_data)}\n---\n\n"
+        md += f"# Assembling the {self.name}\n\n"
+        md += "{{BOM}}\n\n"
+        md += "## Position the "+self._device.name+" {pagestep}\n\n"
+        md += "* Take the ["+self.name+"]{make, qty:1, cat:printed} you printed earlier\n"
+        md += "* Position the ["+self._device.name+"]{qty:1, cat:net} on the shelf\n\n"
+        md += "## Secure the "+self._device.name+" {pagestep}\n\n"
+        md += ">!! **TODO**  \n>!! Need information on how the item is secured to the shelf."
 
-        return f"# {self._device.name}\n\n This is a shelf for a {self._device.name}"
+        return  md
