@@ -26,7 +26,7 @@ Make:
     weight-qty: 50g
 ---
 
-# Construct the and populate the rack
+# Construct and populate the rack
 
 {{BOM}}
 

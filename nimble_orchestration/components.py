@@ -199,7 +199,7 @@ class Shelf:
     @property
     def md(self):
         """
-        Return the GitBuilding markdown for assembling this shelf
+        Return the markdown (BuildUp) for the GitBuilding page for assembling this shelf
         """
 
         return f"# {self._device.name}\n\n This is a shelf for a {self._device.name}"
