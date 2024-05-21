@@ -1,31 +1,32 @@
-
-Title: 'Nimble Rack'
-
-Authors:
-    - The Nimble team
-
-Affiliation: Wakoma
-
+AutoCompleteSubNav: true
+CustomCategories:
+  consumable:
+    DisplayName: Comsumables
+    Reuse: false
+  mech:
+    DisplayName: Mechanical Components
+    Reuse: false
+  net:
+    DisplayName: Networking Compontents
+    Reuse: false
+  prev:
+    DisplayName: Previously Assembled
+    Reuse: false
+  printed:
+    DisplayName: 3D printed parts
+    Reuse: false
+DefaultCategory: mech
+HoverColor: '#555555'
 License: CERN-OHL-S-2.0
-
-Email: info@wakoma.co
-
-
-#Uncomment below to add custom categories
-#CustomCategories:
-#    printedtool:
-#        Reuse: False
-#        DisplayName: Printed tools
-
-#Uncomment below to set a custom default category
-#DefaultCategory: printedtool
-
-#Uncomment below to set the title for the bill of material on a page
-#PageBOMTitle: '##For this step you will need'
-
-
-#Uncomment below to set a custom Website root for static HTML builds
-# WebsiteRoot: index.html
-
-#Uncomment below to disable fussy warnings
-#Fussy: False
+Navigation:
+  - Link: config.md
+    Title: Your Nimble Configuration
+  - Link: troubleshooting.md
+    Title: Troubleshooting
+  - Link: knowledgebase.md
+    Title: Knowledge Base
+PageBOMTitle: '## For this page you will need'
+PrimaryColor: '#2d3b46'
+SecondaryColor: '#cccccc'
+ExternalDirs:
+  project: ".."

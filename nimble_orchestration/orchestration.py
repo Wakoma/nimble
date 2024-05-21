@@ -7,14 +7,15 @@ To generate from a list of components see the `components` module
 """
 
 import os
-
+import shutil
+import subprocess
 
 import exsource_tools
 import exsource_tools.cli
 import exsource_tools.tools
 
 from nimble_orchestration.exsource_def_generator import ExsourceDefGenerator
-from nimble_orchestration.paths import BUILD_DIR, REL_MECH_DIR
+from nimble_orchestration.paths import BUILD_DIR, REL_MECH_DIR, DOCS_DIR, DOCS_TMP_DIR
 
 class OrchestrationRunner:
     """
@@ -81,6 +82,35 @@ class OrchestrationRunner:
         exsource.save(exsource_path)
         self._run_exsource(exsource_path)
 
+    def generate_docs(self, configuration):
+        """
+        Run GitBuilding to generate documentation
+        """
+        if os.path.exists(DOCS_TMP_DIR):
+            shutil.rmtree(DOCS_TMP_DIR)
+        shutil.copytree(DOCS_DIR, DOCS_TMP_DIR)
+
+        for shelf in configuration.shelves:
+            filename = os.path.join(DOCS_TMP_DIR, f"{shelf.device.id}_shelf.md")
+            with open(filename, 'w', encoding="utf-8") as gb_file:
+                gb_file.write(shelf.md)
+
+        self._run_gitbuilding()
+
+    def _run_gitbuilding(self):
+        cur_dir = os.getcwd()
+        os.chdir(DOCS_TMP_DIR)
+        subprocess.run(
+            ['gitbuilding', 'build-html'],
+            check=True,
+            capture_output=True
+        )
+        os.chdir(cur_dir)
+        tmp_built_docs = os.path.join(DOCS_TMP_DIR, "_site")
+        built_docs = os.path.join(BUILD_DIR, "assembly-docs")
+        if os.path.exists(built_docs):
+            shutil.rmtree(built_docs)
+        shutil.copytree(tmp_built_docs, built_docs)
 
     def _run_exsource(self, exsource_path):
 

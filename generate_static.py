@@ -150,7 +150,6 @@ def output_static_site(components):
                 for hardware configuration. We call this "Smart Doc". For more details on Nimble see
                 <a href="https://github.com/Wakoma/nimble">https://github.com/Wakoma/nimble</a>
                 </p>
-                </p>
 
                 <p>
                 Smart Doc" is not yet finished, but the code already generates a number of nimble components
@@ -164,6 +163,15 @@ def output_static_site(components):
         for component in components:
             f.write(f"<li><a href='{component.output_files[0]}'>{component.name}</a></li>")
         f.write("</ul>")
+        f.write(
+            """
+            <h3>Example documentation:</h3>
+            <p>
+            Partially complete automatically generated documentation
+            <a href="assembly-docs">is also available</a>.
+            </p>
+            """)
+
         f.write("</body></html>")
 
 if __name__ == "__main__":

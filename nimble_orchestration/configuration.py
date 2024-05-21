@@ -12,7 +12,9 @@ import json
 from nimble_builder import RackParameters
 
 from nimble_orchestration.assembly_def_generator import AssemblyDefGenerator
-from nimble_orchestration.components import GeneratedMechanicalComponent, AssembledComponent
+from nimble_orchestration.components import (GeneratedMechanicalComponent,
+                                             AssembledComponent,
+                                             Shelf)
 from nimble_orchestration.device import Device
 from nimble_orchestration.paths import MODULE_PATH, REL_MECH_DIR
 
@@ -22,6 +24,7 @@ class NimbleConfiguration:
     """
     _rack_params: RackParameters
     _devices: list
+    _shelves: list
     _components: list
     _assembled_components: list
 
@@ -40,6 +43,7 @@ class NimbleConfiguration:
             selected_devices = [Device(find_device(x)) for x in selected_devices_ids]
 
         self._devices = deepcopy(selected_devices)
+        self._shelves = self._generate_shelf_list
         self._assembled_components = self._generate_assembled_components_list()
         self._components = []
         for assembled_component in self._assembled_components:
@@ -79,6 +83,16 @@ class NimbleConfiguration:
         return deepcopy(self._assembled_components)
 
     @property
+    def shelves(self):
+        """
+        Return a list of the shelves assembled in this nimble rack.
+
+        Each object in the list is an instance of the Shelf object, this holds both the information on
+        the assembled shelf, and on the Device the shelf is for.
+        """
+        return deepcopy(self._shelves)
+
+    @property
     def total_height_in_u(self):
         """
         Return the total height of the needed rack in units
@@ -90,7 +104,7 @@ class NimbleConfiguration:
         # collect all needed parts and their parameters
 
         rack_components = self._legs +  [self._baseplate, self._topplate]
-        return rack_components + self._trays
+        return rack_components + [i.assembled_shelf for i in self._shelves]
 
     @property
     def _legs(self):
@@ -192,51 +206,51 @@ class NimbleConfiguration:
         )
 
     @property
-    def _trays(self):
+    def _generate_shelf_list(self):
         """
-        Generate aseembled components for each tray. This function is a bit
+        Generate aseembled components for each shelf. This function is a bit
         long and messy!
         """
 
         source = os.path.join(REL_MECH_DIR, "components/cadquery/tray_6in.py")
         source = posixpath.normpath(source)
-        trays = []
+        shelves = []
         z_offset = self._rack_params.bottom_tray_offet
         height_in_u = 0
         for i, device in enumerate(self._devices):
             x_pos = 0
             y_pos = -self._rack_params.rack_width / 2.0
             z_pos = z_offset + height_in_u * self._rack_params.mounting_hole_spacing
-            tray_id = device.tray_id
+            shelf_key = device.shelf_key
             color = 'dodgerblue1' if i%2 == 0 else 'deepskyblue1'
             component = GeneratedMechanicalComponent(
-                key=tray_id,
-                name=f"{device.name} tray",
-                description="A tray for " + device.name,
+                key=shelf_key,
+                name=f"{device.name} shelf",
+                description="A shelf for " + device.name,
                 output_files=[
-                    f"./printed_components/{tray_id}.step",
-                    f"./printed_components/{tray_id}.stl",
+                    f"./printed_components/{shelf_key}.step",
+                    f"./printed_components/{shelf_key}.stl",
                 ],
                 source_files=[source],
                 parameters={
                     "height_in_u": device.height_in_u,
-                    "shelf_type": "generic",
+                    "shelf_type": device.shelf_builder_id,
                 },
                 application="cadquery"
             )
 
-            trays.append(
-                AssembledComponent(
-                    key=f"tray_{i}",
-                    component=component,
-                    position = (x_pos, y_pos, z_pos),
-                    step=4,
-                    color=color
-                )
+            assm_component = AssembledComponent(
+                key=f"shelf_{i}",
+                component=component,
+                position = (x_pos, y_pos, z_pos),
+                step=4,
+                color=color
             )
 
+            shelves.append(Shelf(assm_component, device))
+
             height_in_u += device.height_in_u
-        return trays
+        return shelves
 
     @property
     def assembly_definition(self):
