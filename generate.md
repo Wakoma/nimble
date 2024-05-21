@@ -46,7 +46,7 @@ To run this script, run the following command:
 
 This should create the `build` directory. Inside this the `printed_components` directory should contain a number of `stl` files that can be 3D printed.
 
-The script also creates a simple web-page with an index of all of the files.
+The script also creates a simple web-page with an index of all of the files. The final link to the "Partially complete automatically generated documentation" will be broken unless you also run `generate.py` (see below).
 
 It also creates a number of files that are used by the orchestration script.
 

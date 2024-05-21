@@ -100,7 +100,7 @@ class OrchestrationRunner:
     def _run_gitbuilding(self):
         cur_dir = os.getcwd()
         os.chdir(DOCS_TMP_DIR)
-        ret = subprocess.run(
+        subprocess.run(
             ['gitbuilding', 'build-html'],
             check=True,
             capture_output=True
