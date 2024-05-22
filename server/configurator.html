@@ -17,41 +17,33 @@
     <div class="container">
         <div class="row">
             <div class="six columns" style="margin-top: 5%">
-                <!--Header for the user-->
-                <img src="/static/images/wakoma-logo.png" alt="Wakoma Logo" />
-                <h2>Wakoma Nimble Configurator</h2>
-                <h3>Select Components for Your Nimble:</h3>
+                <div class="row">
+                    <!--Header for the user-->
+                    <img src="/static/images/wakoma-logo.png" alt="Wakoma Logo" />
+                    <h2>Wakoma Nimble Configurator</h2>
+                    <h3>Select Components for Your Nimble:</h3>
 
-                <!--Access point selection-->
-                <label for="ap_1">Access Point</label>
-                <select name="ap_1" id="ap_1">
-                    <option value="none">None</option>
-                </select>
-
-                <!--Router selection-->
-                <label for="router_1">Router</label>
-                <select name="router_1" id="router_1">
-                    <option value="none">None</option>
-                </select>
-
-                <!--Server selection-->
-                <label for="server_1">Server</label>
-                <select name="server_1" id="server_1">
-                    <option value="none">None</option>
-                </select>
-
-                <!--Switch selection-->
-                <label for="switch_1">Switch</label>
-                <select name="switch_1" id="switch_1">
-                    <option value="none">None</option>
-                </select>
-
-                <!--Charge controller selection-->
-                <!-- <label for="charge_controller_1">Charge Controller</label>
-                <select name="charge_controller_1" id="charge_controller_1">
-                    <option value="none">None</option>
-                    <option value="Hardware_4">OpenMPPT-HP 400W</option>
-                </select> -->
+                    <div id="components">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="six columns">
+                        <div class="row">
+                            <button id="add-access-point" class="button" onclick="add_access_point();">Add Access Point</button>
+                        </div>
+                        <div class="row">
+                            <button id="add-router" class="button" onclick="add_router();">Add Router</button>
+                        </div>
+                    </div>
+                    <div class="six columns">
+                        <div class="row">
+                            <button id="add-server" class="button" onclick="add_server();">Add Server</button>
+                        </div>
+                        <div class="row">
+                            <button id="add-switch" class="button" onclick="add_switch();">Add Switch</button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="six columns" style="margin-top: 5%">
                 <div class="row">

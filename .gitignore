@@ -3,6 +3,7 @@ _site/
 _gb_temp_/
 build/
 _cache_/
+server/static/builds/*
 
 .vscode/*
 .venv/
