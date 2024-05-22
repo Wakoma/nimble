@@ -108,7 +108,7 @@ class OrchestrationRunner:
             gb_file.write(sehlves_md)
 
 
-        # Here we really need to be listhing the assembly stepes differently if the
+        # Here we really need to be listing the assembly steps differently if the
         # shelves are broad.
 
         self._run_gitbuilding()

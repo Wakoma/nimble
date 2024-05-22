@@ -62,7 +62,7 @@ class MechanicalComponent:
     def stl_representation(self):
         """
         Return the path to the STL file that represents this part. Return None
-        if not defined
+        if not defined.
         """
         for output_file in self.output_files:
             if output_file.lower().endswith('stl'):
