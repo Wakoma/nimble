@@ -83,18 +83,18 @@ async def get_body(request: Request):
     if not os.path.exists(module_path / "_cache_" / f"{unique_name}.zip"):
         generate(config)
 
+        # Create the zip file
+        shutil.make_archive(str(module_path / "_cache_" / unique_name), 'zip', os.path.join(module_path, "build"))
+
+        # Make a copy of the glTF preview file to cache it
+        shutil.copyfile(str(module_path / "build" / "assembly" / "assembly.glb"), str(module_path / "_cache_" / f"{unique_name}.glb"))
+
     # Check to make sure we have the _cache_ directory that holds the distribution files
     if not os.path.isdir(str(module_path / "_cache_")):
         os.makedirs(str(module_path / "_cache_"))
 
     # Save the fact that this has been generated before
     config_url = server_base_url + "/wakoma/nimble/auto-doc?config=" + unique_name
-
-    # Generate the zip file
-    shutil.make_archive(str(module_path / "_cache_" / unique_name), 'zip', os.path.join(module_path, "build"))
-
-    # Make a copy of the glTF preview file to cache it
-    shutil.copyfile(str(module_path / "build" / "assembly" / "assembly.glb"), str(module_path / "_cache_" / f"{unique_name}.glb"))
 
     # Let the client know where they can download the file
     return ORJSONResponse([{"redirect": config_url, "description": "Poll this URL until your documentation package is ready."}])
