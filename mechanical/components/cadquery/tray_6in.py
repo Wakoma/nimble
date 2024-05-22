@@ -214,7 +214,7 @@ def hdd35_shelf(height_in_u) -> cad.Body:
 
 def dual_ssd_shelf(height_in_u) -> cad.Body:
     """
-    A shelf for atwo 2.5" SSDs
+    A shelf for two 2.5" SSDs
     """
     rack_params = nimble_builder.RackParameters()
     width = 70
