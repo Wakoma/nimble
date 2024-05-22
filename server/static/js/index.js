@@ -78,6 +78,13 @@ function poll(response_object) {
             // Update the 3D viewer
             document.getElementById("model-viewer").src = "/wakoma/nimble/preview?config=" + config_hash;
 
+            // Show the Download button
+            document.getElementById("view-docs").style.visibility = "visible";
+            document.getElementById("view-docs").onclick = function() { var link = document.createElement("a")
+                                                                       link.href = "/static/builds/" + config_hash + "_assembly_docs/index.html"
+                                                                       link.target = "_blank"
+                                                                       link.click()};
+
             // Boiler plate to force a download
             const url = window.URL.createObjectURL(xhr.response);
             const a = document.createElement('a');
@@ -172,6 +179,7 @@ function load_ui() {
         }
     };
 }
+
 
 // Triggers a load of the component JSON data into the UI
 window.onload = function() {

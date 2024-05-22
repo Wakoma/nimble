@@ -4,6 +4,7 @@ import json
 import tempfile
 from pathlib import Path
 import shutil
+from distutils.dir_util import copy_tree
 
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, HTMLResponse, ORJSONResponse
@@ -26,14 +27,14 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-# http://127.0.0.1:8000/wakoma/nimble/test_page
-@app.get("/wakoma/nimble/test_page")
+# http://127.0.0.1:8000/wakoma/nimble/configurator
+@app.get("/wakoma/nimble/configurator")
 async def read_index():
     """
     Loads a sample page so that the system can be tested end-to-end.
     """
 
-    return FileResponse('test_page.html')
+    return FileResponse('configurator.html')
 
 
 def get_unique_name(config):
@@ -81,6 +82,7 @@ async def get_body(request: Request):
     # Trigger the generation of all materials, but only if they do not already exist
     module_path = Path(__file__).resolve().parent.parent
     if not os.path.exists(module_path / "_cache_" / f"{unique_name}.zip"):
+        # Call all the underlying Nimble generator code
         generate(config)
 
         # Create the zip file
@@ -88,6 +90,12 @@ async def get_body(request: Request):
 
         # Make a copy of the glTF preview file to cache it
         shutil.copyfile(str(module_path / "build" / "assembly" / "assembly.glb"), str(module_path / "_cache_" / f"{unique_name}.glb"))
+
+        # Make a cached copy of the assembly docs so that they can be served to the user
+        copy_tree(str(module_path / "build" / "assembly-docs"), str(module_path / "server" / "static" / "builds" / f"{unique_name}_assembly_docs"))
+
+        # Make sure the new directory is served as static
+        # app.mount(str(module_path / "_cache_" / f"{unique_name}-assembly-docs"), StaticFiles(directory="static"), name="static")
 
     # Check to make sure we have the _cache_ directory that holds the distribution files
     if not os.path.isdir(str(module_path / "_cache_")):

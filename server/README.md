@@ -20,7 +20,7 @@ PYTHONPATH=/path/to/nimble/root/directory uvicorn nimble_server:app --reload
 
 The server will spin up a local web page used for testing of the data flow.
 
-`http://127.0.0.1:8000/wakoma/nimble/test_page`
+`http://127.0.0.1:8000/wakoma/nimble/configurator`
 
 The server can also be tested with curl, and an example is given below.
 

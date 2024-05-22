@@ -54,7 +54,12 @@
                 </select> -->
             </div>
             <div class="six columns" style="margin-top: 5%">
-                <model-viewer id="model-viewer" style="width: 800px;height: 600px;" alt="Current Nimble Configuration" shadow-intensity="1" camera-controls orientation="-90deg -90deg 45deg"></model-viewer>
+                <div class="row">
+                    <model-viewer id="model-viewer" style="width: 800px;height: 600px;" alt="Current Nimble Configuration" shadow-intensity="1" camera-controls orientation="-90deg -90deg 45deg"></model-viewer>
+                </div>
+                <div class="row">
+                    <button id="view-docs" name="view-docs" class="button-primary" style="visibility: hidden;" onclick="open_assembly_docs_page();">VIEW MY DOCUMENTATION</button>
+                </div>
             </div>
         </div>
         <div class="row">
