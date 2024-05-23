@@ -50,7 +50,7 @@ function trigger_orchestration() {
  */
 function poll(response_object) {
     var poll_url_end = response_object[0]["redirect"];
-    var config_hash = poll_url_end.split("=")[1]
+    var config_name = poll_url_end.split("=")[1]
 
     // Try to load the file location
     const xhr = new XMLHttpRequest();
@@ -65,12 +65,12 @@ function poll(response_object) {
 
             // Update and show the 3D viewer
             document.getElementById("model-viewer").style.visibility = "visible";
-            document.getElementById("model-viewer").src = "/wakoma/nimble/preview?config=" + config_hash;
+            document.getElementById("model-viewer").src = "/wakoma/nimble/preview?config=" + config_name;
 
             // Update and show the Download button
             document.getElementById("view-docs").style.visibility = "visible";
             document.getElementById("view-docs").onclick = function() { var link = document.createElement("a")
-                                                                       link.href = "/static/builds/" + config_hash + "_assembly_docs/index.html"
+                                                                       link.href = "/static/builds/" + config_name + "_assembly_docs/index.html"
                                                                        link.target = "_blank"
                                                                        link.click()};
 
@@ -79,7 +79,7 @@ function poll(response_object) {
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = config_hash + '.zip';
+            a.download = config_name + '.zip';
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
