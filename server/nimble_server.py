@@ -41,17 +41,15 @@ def get_unique_name(config):
     """
     Allows the caller to get a unique name for a configuration.
     """
-    unique_name = ""
 
-    # Concatenate all the item names together
-    for item in config:
-        unique_name += item
+    # Concatenate all the component names together
+    unique_name = "!".join(config)
 
     # Replace spaces with underscores
     unique_name = unique_name.replace(" ", "_")
 
     # Delete all non-alphanumeric characters (other than _)
-    unique_name = re.sub(r'[^a-zA-Z0-9_]', '', unique_name)
+    unique_name = re.sub(r'[^a-zA-Z0-9_!]', '', unique_name)
 
     return unique_name
 
@@ -107,9 +105,6 @@ async def get_body(request: Request):
     # Let the client know where they can download the file
     return ORJSONResponse([{"redirect": config_url, "description": "Poll this URL until your documentation package is ready."}])
 
-    # If there was an error, this code should return an error condition rather than a success
-    # return ORJSONResponse([{"error": "Configuration must be a valid JSON object."}], status_code=500)
-
 
 def check_model_format(model_format):
     """
@@ -148,7 +143,7 @@ def cqgi_model_script(file_name, params):
 @app.get("/wakoma/nimble/components")
 async def get_body(request: Request):
     # Load the devices.json file
-    with open('../devices.json', 'r') as component_file:
+    with open('../devices.json', 'r', encoding='utf-8') as component_file:
         component_data = json.load(component_file)
 
     return ORJSONResponse([component_data])

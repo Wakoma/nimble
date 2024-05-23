@@ -47,6 +47,7 @@
             </div>
             <div class="six columns" style="margin-top: 5%">
                 <div class="row">
+                    <div id="spinner"></div>
                     <model-viewer id="model-viewer" style="width: 800px;height: 600px;" alt="Current Nimble Configuration" shadow-intensity="1" camera-controls orientation="-90deg -90deg 45deg"></model-viewer>
                 </div>
                 <div class="row">
@@ -56,9 +57,6 @@
         </div>
         <div class="row">
             <button id="generate" name="generate" class="button-primary" onclick="trigger_orchestration();">GENERATE</button>
-        </div>
-        <div class="row">
-            <div id="spinner"></div>
         </div>
     </div>
     <script src="/static/js/index.js">load_ui();</script>

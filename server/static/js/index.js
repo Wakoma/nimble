@@ -18,6 +18,10 @@ function trigger_orchestration() {
     });
     main_config["config"] = sub_config;
 
+    // Hide the 3D preview and the download button as those things may be changing
+    document.getElementById("model-viewer").style.visibility = "hidden";
+    document.getElementById("view-docs").style.visibility = "hidden";
+
     // let the user know something is happening
     document.getElementById("spinner").classList.add("loader");
 
@@ -59,10 +63,11 @@ function poll(response_object) {
             // The loading indicator is no longer needed
             document.getElementById("spinner").classList.remove("loader");
 
-            // Update the 3D viewer
+            // Update and show the 3D viewer
+            document.getElementById("model-viewer").style.visibility = "visible";
             document.getElementById("model-viewer").src = "/wakoma/nimble/preview?config=" + config_hash;
 
-            // Show the Download button
+            // Update and show the Download button
             document.getElementById("view-docs").style.visibility = "visible";
             document.getElementById("view-docs").onclick = function() { var link = document.createElement("a")
                                                                        link.href = "/static/builds/" + config_hash + "_assembly_docs/index.html"
