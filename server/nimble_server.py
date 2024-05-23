@@ -92,7 +92,8 @@ async def get_body(request: Request):
         # Make a cached copy of the assembly docs so that they can be served to the user
         copy_tree(str(module_path / "build" / "assembly-docs"), str(module_path / "server" / "static" / "builds" / f"{unique_name}_assembly_docs"))
 
-        # Make sure the new directory is served as static
+        # This commented code is left in as a placeholder for a different way of serving the cached assembly-docs
+        # directories dynamically, instead of copying it wholesale into the server's static directory
         # app.mount(str(module_path / "_cache_" / f"{unique_name}-assembly-docs"), StaticFiles(directory="static"), name="static")
 
     # Check to make sure we have the _cache_ directory that holds the distribution files
