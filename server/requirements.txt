@@ -3,6 +3,7 @@ uvicorn[standard]>=0.23.2,<0.24.0
 gunicorn
 git+https://github.com/cadscriptHQ/cadscript.git@dev
 orjson
+exsource-tools==0.0.6
+gitbuilding==0.15.0a2
 git+https://github.com/jmwright/cq-annotate.git
-git+https://gitlab.com/jmwright/exsource-tools.git
 git+https://github.com/CadQuery/cq-cli.git
