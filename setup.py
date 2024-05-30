@@ -13,7 +13,9 @@ setup(
         'cadscript>=0.5.2',
         'exsource-tools',
         'cq-cli @ git+https://github.com/CadQuery/cq-cli.git',
-        'gitbuilding==0.15.0a2'
+        'gitbuilding==0.15.0a2',
+        'cq-annotate @ git+https://github.com/jmwright/cq-annotate.git',
+        'cq_warehouse @ git+https://github.com/gumyr/cq_warehouse.git',
     ],
     extras_require={
         'dev': [
