@@ -75,14 +75,14 @@ function poll(response_object) {
                                                                        link.click()};
 
             // Boiler plate to force a download
-            const url = window.URL.createObjectURL(xhr.response);
+            /*const url = window.URL.createObjectURL(xhr.response);
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
             a.download = config_name + '.zip';
             document.body.appendChild(a);
             a.click();
-            window.URL.revokeObjectURL(url);
+            window.URL.revokeObjectURL(url);*/
         }
         // Wait and try again later if the file is not ready
         else if (xhr.status == 307) {

@@ -66,8 +66,6 @@ class OrchestrationRunner:
             name="assembly",
             description="assembly",
             output_files=[
-                "./assembly/assembly.stl",
-                "./assembly/assembly.step",
                 "./assembly/assembly.glb",
             ],
             source_files=[os.path.join(REL_MECH_DIR, "assembly_renderer.py")],
