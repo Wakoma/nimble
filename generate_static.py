@@ -8,8 +8,8 @@ direct download without them needing to be commited to the repository
 """
 import os
 
-from nimble_orchestration.orchestration import OrchestrationRunner
-from nimble_orchestration.components import GeneratedMechanicalComponent
+from cadorchestrator.orchestration import OrchestrationRunner
+from cadorchestrator.components import GeneratedMechanicalComponent
 from nimble_orchestration.paths import BUILD_DIR, REL_MECH_DIR
 
 def generate():
