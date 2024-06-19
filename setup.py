@@ -16,6 +16,7 @@ setup(
         'gitbuilding==0.15.0a2',
         'cq-annotate @ git+https://github.com/jmwright/cq-annotate.git',
         'cq_warehouse @ git+https://github.com/gumyr/cq_warehouse.git',
+        'cadorchestrator @ git+https://gitlab.com/gitbuilding/cadorchestrator.git'
     ],
     extras_require={
         'dev': [
