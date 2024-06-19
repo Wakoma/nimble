@@ -1,0 +1,3 @@
+configuration-class:
+    module: nimble_orchestration.configuration
+    class: NimbleConfiguration
