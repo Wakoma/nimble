@@ -4,7 +4,7 @@
 This script generates a number of STL files and also creates
 as simple website to view them. This is designed to be run
 via a github action to provide a list of available STLs for
-direct download without them needing to be commited to the repository
+direct download without them needing to be committed to the repository
 """
 import os
 
