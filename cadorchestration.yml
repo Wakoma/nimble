@@ -1,3 +1,7 @@
 configuration-class:
     module: nimble_orchestration.configuration
     class: NimbleConfiguration
+site-title: Wakoma Nimble Configurator
+site-tagline: Select Components for Your Nimble
+site-logo: assets/wakoma-logo.png
+site-favicon: assets/favicon.png
