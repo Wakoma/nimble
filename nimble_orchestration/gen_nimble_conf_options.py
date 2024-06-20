@@ -37,9 +37,9 @@ def main():
     for device in devices:
         item = {'value': device['ID'],
                 'name': device['Brand']+" "+device['Hardware']}
-        if device['Type'] == "Access Point":
+        if device['Type'] in ["Access Point", "Router + AP"]:
             access_points.append(item)
-        elif device['Type'].startswith("Router"):
+        elif device['Type'] in ["Router", "Router + AP"]:
             routers.append(item)
         elif device['Type'] == "Server":
             servers.append(item)
