@@ -62,8 +62,9 @@ class NimbleConfiguration(Configuration):
         """
         Return a list of the shelves assembled in this nimble rack.
 
-        Each object in the list is an instance of the Shelf object, this holds both the information on
-        the assembled shelf, and on the Device the shelf is for.
+        Each object in the list is an instance of the Shelf object,
+        this holds both the information on the assembled shelf, and
+        on the Device the shelf is for.
         """
         return deepcopy(self._shelves)
 
@@ -226,4 +227,3 @@ class NimbleConfiguration(Configuration):
 
             height_in_u += device.height_in_u
         return shelves
-
