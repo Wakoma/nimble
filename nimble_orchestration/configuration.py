@@ -227,3 +227,14 @@ class NimbleConfiguration(Configuration):
 
             height_in_u += device.height_in_u
         return shelves
+
+    @property
+    def assembly_source_file(self):
+        """
+        This is a bit add hoc until we we work out how best to specify assemblies.
+        Currently we just pass a cad quey file that should pass the assembly def.
+        We should move away from this with classes for assemblies and sub assemblies.
+        """
+        source = os.path.join(REL_MECH_DIR, "assembly_renderer.py")
+        source = posixpath.normpath(source)
+        return source
