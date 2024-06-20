@@ -24,5 +24,6 @@ setup(
             'pylint',
             'colorama'
         ]
-    }
+    },
+    entry_points={'console_scripts': ['gen_nimble_conf_options = nimble_orchestration.gen_nimble_conf_options:main']}
 )

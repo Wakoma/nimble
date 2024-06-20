@@ -1,6 +1,7 @@
 configuration-class:
     module: nimble_orchestration.configuration
     class: NimbleConfiguration
+configuration-options: OrchestratorConfigOptions.json
 site-title: Wakoma Nimble Configurator
 site-tagline: Select Components for Your Nimble
 site-logo: assets/wakoma-logo.png
