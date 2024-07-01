@@ -9,26 +9,27 @@ from copy import deepcopy
 import posixpath
 import json
 
-from nimble_builder import RackParameters
+from cadorchestrator.configuration import Configuration
+from cadorchestrator.components import (GeneratedMechanicalComponent,
+                                        AssembledComponent)
 
-from nimble_orchestration.assembly_def_generator import AssemblyDefGenerator
-from nimble_orchestration.components import (GeneratedMechanicalComponent,
-                                             AssembledComponent,
-                                             Shelf)
+from nimble_builder import RackParameters
+from nimble_orchestration.shelf import Shelf
 from nimble_orchestration.device import Device
 from nimble_orchestration.paths import MODULE_PATH, REL_MECH_DIR
 
-class NimbleConfiguration:
+class NimbleConfiguration(Configuration):
     """
     This class represents a specific nimble configuration
     """
     _rack_params: RackParameters
     _devices: list
     _shelves: list
-    _components: list
-    _assembled_components: list
+
 
     def __init__(self, selected_devices_ids):
+
+        super().__init__()
 
         self._rack_params = RackParameters()
         devices_filename = os.path.join(MODULE_PATH, "devices.json")
@@ -45,11 +46,6 @@ class NimbleConfiguration:
         self._devices = deepcopy(selected_devices)
         self._shelves = self._generate_shelf_list
         self._assembled_components = self._generate_assembled_components_list()
-        self._components = []
-        for assembled_component in self._assembled_components:
-            component = assembled_component.component
-            if component not in self._components:
-                self._components.append(component)
 
 
     @property
@@ -60,35 +56,15 @@ class NimbleConfiguration:
         #Deepcopy to avoid them being edited in place
         return deepcopy(self._devices)
 
-    @property
-    def components(self):
-        """
-        Return a list of the mechanical components used in this nimble configuration.
-        There is only one per each type of object, to see all objects for assembly see
-        `assembled_components()`
-
-        Each object in the list is and instance of GeneratedMechanicalComponent
-        """
-        return deepcopy(self._components)
-
-    @property
-    def assembled_components(self):
-        """
-        Return a list of the components assembled in this nimble rack.
-
-        Each object in the list is and instance of AssembledComponent, giving information
-        such as the position and the assembly step. To just see the list of componet types
-        see `components()`
-        """
-        return deepcopy(self._assembled_components)
 
     @property
     def shelves(self):
         """
         Return a list of the shelves assembled in this nimble rack.
 
-        Each object in the list is an instance of the Shelf object, this holds both the information on
-        the assembled shelf, and on the Device the shelf is for.
+        Each object in the list is an instance of the Shelf object,
+        this holds both the information on the assembled shelf, and
+        on the Device the shelf is for.
         """
         return deepcopy(self._shelves)
 
@@ -253,23 +229,12 @@ class NimbleConfiguration:
         return shelves
 
     @property
-    def assembly_definition(self):
+    def assembly_source_file(self):
         """
-        Create an assembly defition. This is a simple object reprenting a file
-        that is output. The file only contains the name, step-file, position, and
-        assembly step. It is sufficent for creating the final rack, but too
-        simplistic for generating assembly renders
+        This is a bit ad hoc until we we work out how best to specify assemblies.
+        Currently we just pass a Cadquery file that should pass the assembly def.
+        We should move away from this with classes for assemblies and sub assemblies.
         """
-
-        assembly = AssemblyDefGenerator()
-
-        for assembled_component in self.assembled_components:
-            assembly.add_part(
-                name=assembled_component.key,
-                step_file=assembled_component.component.step_representation,
-                position=assembled_component.position,
-                assembly_step=str(assembled_component.step),
-                color=assembled_component.color
-            )
-
-        return assembly
+        source = os.path.join(REL_MECH_DIR, "assembly_renderer.py")
+        source = posixpath.normpath(source)
+        return source

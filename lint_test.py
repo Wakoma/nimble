@@ -32,7 +32,6 @@ def main():
     args = parser.parse_args()
     if args.file_type == "py":
         lint([
-            'generate.py',
             'generate_static.py',
             'nimble_orchestration',
             'nimble_builder',
