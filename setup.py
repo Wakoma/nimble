@@ -8,6 +8,7 @@ setup(
     description = 'Python module for generating any nimble configuration',
     packages=['nimble_orchestration', 'nimble_builder'],
     version = '0.0.1',
+    python_requires='>=3.10',
     install_requires=[
         'numpy~=1.26',
         'cadquery>=2',

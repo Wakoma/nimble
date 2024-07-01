@@ -52,9 +52,9 @@ To generate run the following:
 
     cadorchestrator generate '["NUC10i5FNH", "Raspberry_Pi_4B", "Raspberry_Pi_4B"]'
 
-This should create the `build` directory. Inside this the `printed_components` directory should contain a number of `step` files that can be 3D printed (you may need to convert them to `stl` files first).
+This should create the `build` directory. Inside this the `printed_components` directory should contain a number of `stl` files that can be 3D printed. It will also contain `step` files for each of these components.
 
-The script also creates an `stl` and a `gltf` of the final assembled rack. **Don't print this, it is not going to print properly as one piece!**
+The script also creates an `stl` and a `gltf` of the final assembled rack. **Don't print this, it is not going to print properly as a single piece!**
 
 It also creates a number of files that are used by the orchestration script.
 
