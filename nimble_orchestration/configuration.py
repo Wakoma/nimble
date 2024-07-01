@@ -231,8 +231,8 @@ class NimbleConfiguration(Configuration):
     @property
     def assembly_source_file(self):
         """
-        This is a bit add hoc until we we work out how best to specify assemblies.
-        Currently we just pass a cad quey file that should pass the assembly def.
+        This is a bit ad hoc until we we work out how best to specify assemblies.
+        Currently we just pass a Cadquery file that should pass the assembly def.
         We should move away from this with classes for assemblies and sub assemblies.
         """
         source = os.path.join(REL_MECH_DIR, "assembly_renderer.py")

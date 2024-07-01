@@ -5,7 +5,7 @@ from nimble_orchestration.device import Device
 
 class Shelf:
     """
-    A class for all the orchestration information relating to a shelf
+    A class for all the orchestration information relating to a shelf.
     """
     def __init__(self,
                  assembled_shelf: AssembledComponent,
@@ -35,21 +35,21 @@ class Shelf:
         """
         Return the Object describing the assembled shelf (currently this in an empty
         shelf in the correct location on the rack).
-        This is an AssembledComponent
+        This is an AssembledComponent.
         """
         return self._assembled_shelf
 
     @property
     def device(self):
         """
-        Return the Device object for the networking component that sits on this shelf
+        Return the Device object for the networking component that sits on this shelf.
         """
         return self._device
 
     @property
     def md(self):
         """
-        Return the markdown (BuildUp) for the GitBuilding page for assembling this shelf
+        Return the markdown (BuildUp) for the GitBuilding page for assembling this shelf.
         """
         meta_data = {
             "Tag": "shelf",
