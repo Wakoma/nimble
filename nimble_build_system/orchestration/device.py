@@ -3,6 +3,7 @@ Contains an object that represents the information of a device in the devices.js
 """
 
 import re
+from math import ceil
 
 class Device:
     """
@@ -39,16 +40,24 @@ class Device:
       }
     """
 
-    def __init__(self, json_node):
+    def __init__(self, json_node, rack_params):
         self.id = json_node['ID']
         # self.name = json_node['Name']
         self.name = json_node['Hardware']
         # self.category = json_node['Category']
         self.category = json_node['Type']
-        self.height_in_u = int(json_node['HeightUnits'])
-        # self.width = json_node['Width']
-        self.width = json_node['LengthMm']
-        self.depth = json_node['Depth']
+        self.width = get_length_from_str(json_node['LengthMm'])
+        self.depth = get_length_from_str(json_node['Depth'])
+        self.height = get_length_from_str(json_node['Height'])
+
+        try:
+            self.height_in_u = int(json_node['HeightUnits'])
+        except ValueError as exc:
+            if self.height:
+                self.height_in_u = ceil((self.height+4)/rack_params.mounting_hole_spacing)
+            else:
+                raise RuntimeError("Not enough information provided to generate shelf height") from exc
+
         self.shelf_id = json_node['ShelfId']
         self.shelf_type = json_node['Shelf']
 
@@ -72,3 +81,12 @@ class Device:
                 #strip of -6 and optionally -s or -t
                 return match.group(1)
         return "generic"
+
+def get_length_from_str(length):
+    """
+    Return the length in mm for a given string should be formatted as
+    "12.345 mm"
+    """
+    if match := re.match(r'^([0-9]+(?:\.[0-9]+)?) ?mm$', length):
+        return float(match[1])
+    return None

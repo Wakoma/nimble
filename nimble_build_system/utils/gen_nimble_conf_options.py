@@ -7,6 +7,7 @@ This module is used to generate config options for CadOrchestrator using devices
 import os
 import sys
 import json
+import re
 
 def usage():
     """
@@ -35,6 +36,11 @@ def main():
     servers = []
     switches = []
     for device in devices:
+
+        if not shelf_available(device):
+            #If a shelf cannot be made for this item then skip it
+            continue
+
         item = {'value': device['ID'],
                 'name': device['Brand']+" "+device['Hardware']}
         if device['Type'] in ["Access Point", "Router + AP"]:
@@ -76,6 +82,32 @@ def main():
 
     with open('OrchestratorConfigOptions.json', 'w', encoding="utf-8") as conf_file:
         json.dump(conf_dict, conf_file)
+
+
+def shelf_available(device):
+    """
+    Return True if a shelf can be made for this device if not return False.
+    """
+
+    #If the HeightUnit is specified, return True if it is an integer. False if specified
+    # but not understood
+    if device['HeightUnits']:
+        try:
+            int(device['HeightUnits'])
+        except ValueError:
+            print(f"Warning: Invalid data in HeightUnits feild for {device['ID']}")
+            return False
+        return True
+
+    # If HeightUnits is not set then check if Height is set and is a numerical value in mm
+    if device['Height']:
+        if re.match(r'^[0-9]+(?:\.[0-9]+)? ?mm$', device['Height']):
+            return True
+        print(f"Warning: Invalid data in Height feild for {device['ID']}: ({device['Height']})")
+        return False
+
+    #Neither Height or HeightUnits set. No shelf can be made.
+    return False
 
 if __name__ == "__main__":
     main()
