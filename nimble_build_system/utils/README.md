@@ -16,7 +16,7 @@ The `devices.json` file it creates is committed to the repository.
 
 This script used `devices.json` to create the configuration used by CadOrchestrator to set the configuration options that the user can select when generating a nimble.
 
-Assuming that the `nimble_build_system` is installed using setup.py. This script is as an entry point and should be on your PATH.
+Assuming that the `nimble_build_system` is installed using setup.py, this script is as an entry point and should be on your PATH.
 
 Starting in the root directory of this project, run:
 
