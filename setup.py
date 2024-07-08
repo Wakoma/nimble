@@ -1,12 +1,12 @@
 """
 Simple setup script to install the nimble_build_system as a package
 """
-from setuptools import  setup
+from setuptools import setup, find_packages
 
 setup(
     name = 'nimble',
     description = 'Python module for generating any nimble configuration',
-    packages=['nimble_build_system'],
+    packages=find_packages(),
     version = '0.0.1',
     python_requires='>=3.10',
     install_requires=[
