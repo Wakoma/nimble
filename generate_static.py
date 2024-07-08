@@ -10,7 +10,7 @@ import os
 
 from cadorchestrator.orchestration import OrchestrationRunner
 from cadorchestrator.components import GeneratedMechanicalComponent
-from nimble_orchestration.paths import BUILD_DIR, REL_MECH_DIR
+from nimble_build_system.orchestration.paths import BUILD_DIR, REL_MECH_DIR
 
 def generate():
     """

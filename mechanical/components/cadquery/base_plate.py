@@ -3,7 +3,7 @@
 cq-cli script using cadscript to generate the baseplate of a nimble rack.
 """
 import cadscript as cad
-from nimble_builder.nimble_end_plate import create_end_plate
+from nimble_build_system.cad.nimble_end_plate import create_end_plate
 
 
 # parameters to be set in exsource-def.yaml file

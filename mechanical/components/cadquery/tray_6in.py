@@ -2,12 +2,13 @@
 
 """
 This module provides many different nimble shelves created using
-the nimble_builder ShelfBuilder.
+the nimble_build_system.cad ShelfBuilder.
 """
 
 import cadscript as cad
-import nimble_builder
-from nimble_builder.shelf_builder import ShelfBuilder, ziptie_shelf
+from nimble_build_system.cad import RackParameters
+
+from nimble_build_system.cad.shelf_builder import ShelfBuilder, ziptie_shelf
 
 # parameters to be set in exsource-def.yaml file
 
@@ -140,7 +141,7 @@ def usw_flex_mini_shelf(height_in_u) -> cad.Body:
     """
     A shelf for a for Ubiquiti Flex Mini
     """
-    rack_params = nimble_builder.RackParameters(tray_side_wall_thickness=3.8)
+    rack_params = RackParameters(tray_side_wall_thickness=3.8)
     builder = ShelfBuilder(
         height_in_u, width="standard", depth=73.4, front_type="full", rack_params=rack_params
     )
@@ -216,7 +217,7 @@ def dual_ssd_shelf(height_in_u) -> cad.Body:
     """
     A shelf for two 2.5" SSDs
     """
-    rack_params = nimble_builder.RackParameters()
+    rack_params = RackParameters()
     width = 70
     screw_pos1 = 12.5  # distance from front
     screw_pos2 = screw_pos1 + 76

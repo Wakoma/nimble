@@ -1,7 +1,7 @@
 import os
 import yaml
 from cadorchestrator.components import AssembledComponent
-from nimble_orchestration.device import Device
+from nimble_build_system.orchestration.device import Device
 
 class Shelf:
     """

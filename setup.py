@@ -1,12 +1,12 @@
 """
-Simple setup script to install both nimble_orchestration and nimble_builder as packages
+Simple setup script to install the nimble_build_system as a package
 """
-from setuptools import  setup
+from setuptools import setup, find_packages
 
 setup(
     name = 'nimble',
     description = 'Python module for generating any nimble configuration',
-    packages=['nimble_orchestration', 'nimble_builder'],
+    packages=find_packages(),
     version = '0.0.1',
     python_requires='>=3.10',
     install_requires=[
@@ -26,5 +26,5 @@ setup(
             'colorama'
         ]
     },
-    entry_points={'console_scripts': ['gen_nimble_conf_options = nimble_orchestration.gen_nimble_conf_options:main']}
+    entry_points={'console_scripts': ['gen_nimble_conf_options = nimble_build_system.utils.gen_nimble_conf_options:main']}
 )

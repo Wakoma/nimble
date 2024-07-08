@@ -5,7 +5,8 @@ cq-cli script using cadscript to generate the rack legs of a nimble rack.
 from math import floor
 import cadscript as cad
 
-import nimble_builder
+from nimble_build_system.cad import RackParameters
+
 
 
 # parameters to be set in exsource-def.yaml file
@@ -25,7 +26,7 @@ def make_rack_leg(
     """
 
     if not rack_params:
-        rack_params = nimble_builder.RackParameters()
+        rack_params = RackParameters()
 
     # Construct the overall shape
     leg = cad.make_box(rack_params.beam_width, rack_params.beam_width, length)

@@ -33,8 +33,7 @@ def main():
     if args.file_type == "py":
         lint([
             'generate_static.py',
-            'nimble_orchestration',
-            'nimble_builder',
+            'nimble_build_system',
             '--rcfile=py.pylintrc'
         ])
     elif args.file_type == "cadquery":

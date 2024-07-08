@@ -10,8 +10,8 @@ import cadscript as cad
 from cadscript.interval import Interval2D, Interval1D
 
 
-from nimble_builder.helpers import cut_slots, cut_w_pattern
-import nimble_builder
+from nimble_build_system.cad.helpers import cut_slots, cut_w_pattern
+from nimble_build_system.cad import RackParameters
 
 
 NO_SLOTS = False  # speedup for debugging
@@ -31,7 +31,7 @@ class ShelfBuilder:
 
     """
 
-    _rack_params: nimble_builder.RackParameters
+    _rack_params: RackParameters
     _shelf: cad.Body
     _height_in_u: int
 
@@ -57,7 +57,7 @@ class ShelfBuilder:
         self._beam_wall_type = beam_wall_type
         self._base_between_beam_walls = base_between_beam_walls
         if not rack_params:
-            rack_params = nimble_builder.RackParameters()
+            rack_params = RackParameters()
         self._rack_params = rack_params
         self._make_front()
 
@@ -592,7 +592,7 @@ def ziptie_shelf(
     internal_height: Optional[float] = None,
     front_cutout_width: Optional[float] = None,
     rear_cutout_width: Optional[float] = None,
-    rack_params: nimble_builder.RackParameters = None,
+    rack_params: RackParameters = None,
 ):
     """
     Return a ziptie shelf. The height in units must be set.
@@ -600,7 +600,7 @@ def ziptie_shelf(
     make it simple to create a shelf for a device of known size.
     """
     if not rack_params:
-        rack_params = nimble_builder.RackParameters()
+        rack_params = RackParameters()
     if not internal_width:
         internal_width = rack_params.tray_width - 12
     if not internal_depth:
