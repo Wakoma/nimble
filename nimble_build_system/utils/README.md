@@ -24,4 +24,4 @@ Starting in the root directory of this project, run:
 gen_nimble_conf_options
 ```
 
-This willto generate the configuration options, the file it creates is ignored by Git.
+This will generate the configuration options in the file `OrchestratorConfigOptions.json`. This file is ignored by Git.
