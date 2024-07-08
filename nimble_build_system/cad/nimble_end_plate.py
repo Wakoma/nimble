@@ -6,7 +6,8 @@ instrument on top.
 """
 
 import cadscript as cad
-import nimble_builder
+from nimble_build_system.cad import RackParameters
+
 
 
 def create_end_plate(width, depth, height, rack_params=None):
@@ -15,7 +16,7 @@ def create_end_plate(width, depth, height, rack_params=None):
     """
 
     if not rack_params:
-        rack_params = nimble_builder.RackParameters()
+        rack_params = RackParameters()
 
     rail_length = width - rack_params.beam_width - rack_params.end_plate_hole_countersink_dia
     rail_offset = (width - rack_params.beam_width) / 2

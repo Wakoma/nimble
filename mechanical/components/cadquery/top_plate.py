@@ -5,7 +5,7 @@ As of yet this cannot hold an instrument.
 """
 import cadscript as cad
 
-from nimble_builder.nimble_end_plate import create_end_plate
+from nimble_build_system.cad.nimble_end_plate import create_end_plate
 
 # parameters to be set in exsource-def.yaml file
 width = 100

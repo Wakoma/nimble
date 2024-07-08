@@ -1,5 +1,5 @@
 configuration-class:
-    module: nimble_orchestration.configuration
+    module: nimble_build_system.orchestration.configuration
     class: NimbleConfiguration
 configuration-options: OrchestratorConfigOptions.json
 site-title: Wakoma Nimble Configurator

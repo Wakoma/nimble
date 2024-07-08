@@ -13,10 +13,10 @@ from cadorchestrator.configuration import Configuration
 from cadorchestrator.components import (GeneratedMechanicalComponent,
                                         AssembledComponent)
 
-from nimble_builder import RackParameters
-from nimble_orchestration.shelf import Shelf
-from nimble_orchestration.device import Device
-from nimble_orchestration.paths import MODULE_PATH, REL_MECH_DIR
+from nimble_build_system.cad import RackParameters
+from nimble_build_system.orchestration.shelf import Shelf
+from nimble_build_system.orchestration.device import Device
+from nimble_build_system.orchestration.paths import MODULE_PATH, REL_MECH_DIR
 
 class NimbleConfiguration(Configuration):
     """
