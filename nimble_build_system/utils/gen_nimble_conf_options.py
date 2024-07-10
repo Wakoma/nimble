@@ -106,7 +106,7 @@ def shelf_available(device):
         print(f"Warning: Invalid data in Height feild for {device['ID']}: ({device['Height']})")
         return False
 
-    #Neither Height or HeightUnits set. No shelf can be made.
+    # Neither Height or HeightUnits set. No shelf can be made.
     return False
 
 if __name__ == "__main__":
