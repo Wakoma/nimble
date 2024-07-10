@@ -41,7 +41,7 @@ class NimbleConfiguration(Configuration):
             all_devices = json.load(devices_file)
             def find_device(device_id):
                 return next((x for x in all_devices if x['ID'] == device_id), None)
-            selected_devices = [Device(find_device(x)) for x in selected_devices_ids]
+            selected_devices = [Device(find_device(x), self._rack_params) for x in selected_devices_ids]
 
         self._devices = deepcopy(selected_devices)
         self._shelves = self._generate_shelf_list
