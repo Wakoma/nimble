@@ -9,16 +9,20 @@ from copy import deepcopy
 import posixpath
 import json
 
-from cadorchestrator.configuration import Configuration
 from cadorchestrator.components import (GeneratedMechanicalComponent,
-                                        AssembledComponent)
+                                        AssembledComponent,
+                                        Assembly)
 
 from nimble_build_system.cad import RackParameters
 from nimble_build_system.cad.shelf import Shelf
 from nimble_build_system.orchestration.device import Device
 from nimble_build_system.orchestration.paths import MODULE_PATH, REL_MECH_DIR
 
-class NimbleConfiguration(Configuration):
+def create_assembly(selected_devices_ids):
+    config = NimbleConfiguration(selected_devices_ids)
+    return config.main_assembly
+
+class NimbleConfiguration:
     """
     This class represents a specific nimble configuration
     """
@@ -29,7 +33,6 @@ class NimbleConfiguration(Configuration):
 
     def __init__(self, selected_devices_ids):
 
-        super().__init__()
 
         self._rack_params = RackParameters()
         devices_filename = os.path.join(MODULE_PATH, "devices.json")
@@ -45,7 +48,39 @@ class NimbleConfiguration(Configuration):
 
         self._devices = deepcopy(selected_devices)
         self._shelves = self._generate_shelf_list
-        self._assembled_components = self._generate_assembled_components_list()
+
+        source = os.path.join(REL_MECH_DIR, "assembly_renderer.py")
+        source = posixpath.normpath(source)
+
+        self.main_assembly = Assembly(
+            key='nimble_rack',
+            name='Nimble Rack',
+            description='Assembled nimble rack',
+            output_files=[
+                "./assembly/assembly.stl",
+                "./assembly/assembly.step",
+                "./assembly/assembly.glb",
+            ],
+            source_files=[source],
+            parameters={"assembly": {"parts": []}},
+            application="cadquery"
+        )
+
+        self.main_assembly.set_parameter_file(
+            file_id="assembly_definition_file",
+            filename="assembly-def.yaml"
+        )
+
+        for assm_component in self._generate_assembled_components_list():
+            self.main_assembly.add_component(assm_component)
+
+            assembly_pars = {
+                'name': assm_component.key,
+                'step-file': assm_component.component.step_representation,
+                'position': assm_component.position,
+                'color': assm_component.color
+            }
+            self.main_assembly.append_to_parameter('assembly.parts', assembly_pars)
 
 
     @property
@@ -119,7 +154,6 @@ class NimbleConfiguration(Configuration):
                     key=key,
                     component=component,
                     position = (x_pos, y_pos, self._rack_params.base_plate_thickness),
-                    step=2,
                     color="gray82"
             )
         )
@@ -148,7 +182,6 @@ class NimbleConfiguration(Configuration):
             key="baseplate",
             component=component,
             position = (0, 0, 0),
-            step=1
         )
 
 
@@ -178,7 +211,6 @@ class NimbleConfiguration(Configuration):
             key="topplate",
             component=component,
             position = (0, 0, top_pos),
-            step=3
         )
 
     @property
@@ -219,7 +251,6 @@ class NimbleConfiguration(Configuration):
                 key=f"shelf_{i}",
                 component=component,
                 position = (x_pos, y_pos, z_pos),
-                step=4,
                 color=color
             )
 
@@ -227,14 +258,3 @@ class NimbleConfiguration(Configuration):
 
             height_in_u += device.height_in_u
         return shelves
-
-    @property
-    def assembly_source_file(self):
-        """
-        This is a bit ad hoc until we we work out how best to specify assemblies.
-        Currently we just pass a Cadquery file that should pass the assembly def.
-        We should move away from this with classes for assemblies and sub assemblies.
-        """
-        source = os.path.join(REL_MECH_DIR, "assembly_renderer.py")
-        source = posixpath.normpath(source)
-        return source
