@@ -10,6 +10,9 @@ from nimble_build_system.cad import RackParameters
 
 from nimble_build_system.cad.shelf_builder import ShelfBuilder, ziptie_shelf
 
+import cadquery as cq
+from device_placeholder import generate_placeholder
+
 # parameters to be set in exsource-def.yaml file
 
 # shelf types
@@ -278,6 +281,138 @@ def raspi_shelf(height_in_u) -> cad.Body:
     return builder.get_body()
 
 
+def get_device_config(device_id):
+    """
+    Get the device configuration from the devices.json file.
+    """
+    import json
+    with open('devices.json') as json_file:
+        json_string = json_file.read()
+        devices_json = json.loads(json_string)
+
+    # Search for a device matching the device ID
+    for device_json in devices_json:
+        if device_json["ID"] == device_id:
+            return device_json
+
+    return None
+
+
+class Shelf():
+    """
+    Base shelf class that can be interrogated to get all of the renders and docs.
+    """
+
+    variants = {
+        "generic": "A generic cable tie shelf",
+        "stuff": "A shelf for general stuff such as wires. No access to the front",
+        "stuff-thin": "A thin version of the stuff shelf",
+        "nuc": "A shelf for an Intel NUC",
+        "usw-flex": "A shelf for a Ubiquiti USW-Flex",
+        "usw-flex-mini": "A shelf for a Ubiquiti Flex Mini",
+        "anker-powerport5": "A shelf for an Anker PowerPort 5",
+        "anker-a2123": "A shelf for an Anker 360 Charger 60W (a2123)",
+        "anker-atom3slim": "A shelf for an Anker PowerPort Atom III Slim (AK-194644090180)",
+        "hdd35": "A shelf for an 3.5\" HDD",
+        "dual-ssd": "A shelf for 2x 2.5\" SSD",
+        "raspi": "A shelf for a Raspberry Pi",
+    }
+
+
+    def __init__(self) -> None:
+        pass
+
+
+    def generate_shelf_model(self):
+        """
+        Generates the shelf model only.
+        """
+        pass
+
+
+    def generate_assembly_step(self, with_fasteners=True):
+        """
+        Generates an assembly showing the assembly step between a device
+        and a shelf, generated solely based on the device ID.
+        """
+        pass
+
+
+    def get_render(self, assy, camera_pos, format="png"):
+        """
+        Generates a render of the assembly.
+        """
+
+        # TODO - Use the PNG functionality in CadQuery to generate a PNG render
+        # TODO - Maybe also need other formats such as glTF
+
+        pass
+
+
+    def generate_docs(self):
+        """
+        Generates the documentation for the shelf.
+        """
+        pass
+
+
+class RaspberryPiShelf(Shelf):
+    """
+    A shelf for Raspberry Pi models.
+    """
+    variants = {
+        "Raspberry_Pi_4B": {"description": "A shelf for a Raspberry Pi 4B", "step_path": "N/A"},
+        "Raspberry_Pi_5": {"description": "A shelf for a Raspberry Pi 5", "step_path": "N/A"},
+    }
+    variant = "Raspberry_Pi_4B"
+    unit_width = 6  # 6 or 10 inches
+
+
+    def __init__(self, variant) -> None:
+        super().__init__()
+
+        # Save the selected variant
+        self.variant = variant
+
+
+    def generate_shelf_model(self, height_in_units):
+        """
+        Generates the shelf model only.
+        """
+        return raspi_shelf(height_in_units)
+
+
+    def generate_assembly_step(self, with_fasteners=True, exploded=False, annotated=False):
+        """
+        Generates an assembly showing the assembly step between a device
+        and a shelf, optionally with fasteners.
+        """
+
+        # Gather the device dimensions so that we can generate a placeholder
+        device_config = get_device_config("Raspberry_Pi_4B")
+        length = float(device_config["LengthMm"].split(" ")[0])
+        depth = float(device_config["Depth"].split(" ")[0])
+        height = float(device_config["Height"].split(" ")[0])
+        height_in_units = int(device_config["HeightUnits"])
+
+        # Generate the shelf that will hold the device in the rack
+        shelf = self.generate_shelf_model(height_in_units).cq()
+
+        # Generate the placeholder device so that it can be used in the assembly step
+        device = generate_placeholder("Raspberry Pi", length, depth, height)
+
+        # Generate the assembly
+        assy = cq.Assembly()
+        assy.add(shelf, name="shelf", color=cq.Color(0.996, 0.867, 0.0, 1.0))
+        assy.add(device, name="device", color=cq.Color(0.565, 0.698, 0.278, 1.0))
+
+        return assy
+
+
 if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
-    result = create_6in_shelf(shelf_type, height_in_u)
-    cad.show(result)  # when run in cq-cli, will return result
+    from cadquery.vis import show
+    shelf = RaspberryPiShelf("Raspberry_Pi_4B")
+    assy = shelf.generate_assembly_step()
+    show(assy)
+    # result = create_6in_shelf(shelf_type, height_in_u)
+    # cad.show(shelf)  # when run in cq-cli, will return result
