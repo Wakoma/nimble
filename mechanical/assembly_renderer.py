@@ -33,7 +33,7 @@ class PartDefinition:
     tags: list
 
     def __init__(self, definition: dict):
-        self.name = definition["name"]
+        self.name = definition["key"]
         self.step_file = definition["step-file"]
         # convert position from string like "(1,2,3)" to tuple
         self.position = tuple(map(float, definition["position"].strip("()").split(",")))

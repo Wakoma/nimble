@@ -62,8 +62,9 @@ class NimbleConfiguration:
                 "./assembly/assembly.glb",
             ],
             source_files=[source],
-            parameters={"assembly": {"parts": []}},
-            application="cadquery"
+            parameters={},
+            application="cadquery",
+            component_data_parameter='assembly.parts'
         )
 
         self.main_assembly.set_parameter_file(
@@ -73,15 +74,6 @@ class NimbleConfiguration:
 
         for assm_component in self._generate_assembled_components_list():
             self.main_assembly.add_component(assm_component)
-
-            assembly_pars = {
-                'name': assm_component.key,
-                'step-file': assm_component.component.step_representation,
-                'position': assm_component.position,
-                'color': assm_component.color
-            }
-            self.main_assembly.append_to_parameter('assembly.parts', assembly_pars)
-
 
     @property
     def devices(self):
@@ -113,9 +105,42 @@ class NimbleConfiguration:
     def _generate_assembled_components_list(self):
 
         # collect all needed parts and their parameters
+        return [self._rack] + [i.assembled_shelf for i in self._shelves]
+
+    @property
+    def _rack(self):
+        source = os.path.join(REL_MECH_DIR, "assembly_renderer.py")
+        source = posixpath.normpath(source)
+        rack = Assembly(
+            key='empty_rack',
+            name='Empty Nimble Rack',
+            description='An empty rack for a nimble',
+            output_files=[
+                "./assembly/rack.step",
+            ],
+            source_files=[source],
+            parameters={},
+            application="cadquery",
+            component_data_parameter='assembly.parts'
+        )
+
+        rack.set_parameter_file(
+            file_id="assembly_definition_file",
+            filename="empty_rack-pars.yaml"
+        )
 
         rack_components = self._legs +  [self._baseplate, self._topplate]
-        return rack_components + [i.assembled_shelf for i in self._shelves]
+
+        for assm_component in rack_components:
+            rack.add_component(assm_component)
+
+        return AssembledComponent(
+            key="empty rack",
+            component=rack,
+            data={"position": (0,0,0)},
+            include_key=True,
+            include_stepfile=True
+        )
 
     @property
     def _legs(self):
@@ -153,8 +178,12 @@ class NimbleConfiguration:
                 AssembledComponent(
                     key=key,
                     component=component,
-                    position = (x_pos, y_pos, self._rack_params.base_plate_thickness),
-                    color="gray82"
+                    data={
+                        "position": (x_pos, y_pos, self._rack_params.base_plate_thickness),
+                        "color": "gray82"
+                    },
+                include_key=True,
+                include_stepfile=True
             )
         )
         return assembled_legs
@@ -181,7 +210,9 @@ class NimbleConfiguration:
         return AssembledComponent(
             key="baseplate",
             component=component,
-            position = (0, 0, 0),
+            data = {'position': (0, 0, 0)},
+            include_key=True,
+            include_stepfile=True
         )
 
 
@@ -210,7 +241,9 @@ class NimbleConfiguration:
         return AssembledComponent(
             key="topplate",
             component=component,
-            position = (0, 0, top_pos),
+            data = {'position': (0, 0, top_pos)},
+            include_key=True,
+            include_stepfile=True
         )
 
     @property
@@ -250,8 +283,12 @@ class NimbleConfiguration:
             assm_component = AssembledComponent(
                 key=f"shelf_{i}",
                 component=component,
-                position = (x_pos, y_pos, z_pos),
-                color=color
+                data = {
+                    'position': (x_pos, y_pos, z_pos),
+                    'color': color
+                },
+                include_key=True,
+                include_stepfile=True
             )
 
             shelves.append(Shelf(assm_component, device))
