@@ -9,11 +9,9 @@ assembly:
   - name: baseplate
     step-file: ./step/baseplate.step
     position: (0, 0, 0)
-    assembly-step: '1'
   - name: rack_leg1
     step-file: ./step/beam.step
     position: (-67.5, -67.5, 3)
-    assembly-step: '2'
 
 """
 
@@ -32,20 +30,18 @@ class PartDefinition:
     name: str
     step_file: str
     position: tuple
-    assembly_step: str
     tags: list
 
     def __init__(self, definition: dict):
-        self.name = definition["name"]
+        self.name = definition["key"]
         self.step_file = definition["step-file"]
         # convert position from string like "(1,2,3)" to tuple
         self.position = tuple(map(float, definition["position"].strip("()").split(",")))
-        self.assembly_step = definition["assembly-step"]
         self.tags = definition.get("tags", [])
         self.color = definition.get("color", "gray95")
 
 
-class AssemblyRederer:
+class AssemblyRenderer:
     """
     create a cq assembly from an assembly definition file.
     """
@@ -86,12 +82,12 @@ class AssemblyRederer:
 # Handle different execution environments, including ExSource-Tools
 if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
     # CQGI should execute this whenever called
-    assembly = AssemblyRederer(assembly_definition_file).generate()
+    assembly = AssemblyRenderer(assembly_definition_file).generate()
     show_object(assembly)
 
 if __name__ == "__main__":
     # for debugging
     folder = Path(__file__).resolve().parent.parent
     os.chdir(folder)
-    assembly = AssemblyRederer(assembly_definition_file).generate()
+    assembly = AssemblyRenderer(assembly_definition_file).generate()
     assembly.save("assembly.stl", "STL")
