@@ -1,0 +1,148 @@
+import cadquery as cq
+from device_placeholder import generate_placeholder
+from nimble_build_system.orchestration.configuration import NimbleConfiguration
+from shelf_builder import ShelfBuilder
+
+class Shelf():
+    """
+    Base shelf class that can be interrogated to get all of the renders and docs.
+    """
+
+    variants = {
+        "generic": "A generic cable tie shelf",
+        "stuff": "A shelf for general stuff such as wires. No access to the front",
+        "stuff-thin": "A thin version of the stuff shelf",
+        "nuc": "A shelf for an Intel NUC",
+        "usw-flex": "A shelf for a Ubiquiti USW-Flex",
+        "usw-flex-mini": "A shelf for a Ubiquiti Flex Mini",
+        "anker-powerport5": "A shelf for an Anker PowerPort 5",
+        "anker-a2123": "A shelf for an Anker 360 Charger 60W (a2123)",
+        "anker-atom3slim": "A shelf for an Anker PowerPort Atom III Slim (AK-194644090180)",
+        "hdd35": "A shelf for an 3.5\" HDD",
+        "dual-ssd": "A shelf for 2x 2.5\" SSD",
+        "raspi": "A shelf for a Raspberry Pi",
+    }
+    variant = None
+    width = 0.0
+    depth = 0.0
+    height = 0.0
+    height_in_units = 0
+    unit_width = 6  # 6 or 10 inch rack
+
+    def __init__(self, variant) -> None:
+        # Save the selected variant
+        self.variant = variant
+
+        # Gather the device dimensions so that we can generate a placeholder
+        device = NimbleConfiguration([self.variant]).devices[0]
+        self.width = device.width
+        self.depth = device.depth
+        self.height = device.height
+        self.height_in_u = device.height_in_u
+
+
+    def generate_shelf_model(self):
+        """
+        Generates the shelf model only.
+        """
+        pass
+
+
+    def generate_assembly_step(self, with_fasteners=True):
+        """
+        Generates an assembly showing the assembly step between a device
+        and a shelf, generated solely based on the device ID.
+        """
+        pass
+
+
+    def get_render(self, assy, camera_pos, format="png"):
+        """
+        Generates a render of the assembly.
+        """
+
+        # TODO - Use the PNG functionality in CadQuery to generate a PNG render
+        # TODO - Maybe also need other formats such as glTF
+
+        pass
+
+
+    def generate_docs(self):
+        """
+        Generates the documentation for the shelf.
+        """
+        pass
+
+
+class RaspberryPiShelf(Shelf):
+    """
+    A shelf for Raspberry Pi models.
+    """
+    variants = {
+        "Raspberry_Pi_4B": {"description": "A shelf for a Raspberry Pi 4B", "step_path": "N/A"},
+        "Raspberry_Pi_5": {"description": "A shelf for a Raspberry Pi 5", "step_path": "N/A"},
+    }
+    variant = "Raspberry_Pi_4B"
+
+
+    def __init__(self, variant) -> None:
+        super().__init__(variant)
+
+
+    def generate_shelf_model(self):
+        """
+        Generates the shelf model only.
+        """
+        screw_dist_x = 49
+        screw_dist_y = 58
+        dist_to_front = 23.5
+        offset_x = -13
+        builder = ShelfBuilder(self.height_in_u, width="standard", depth=111, front_type="full")
+        builder.cut_opening("<Y", (-15, 39.5), size_y=(6, 25))
+        builder.cut_opening("<Y", (-41.5, -25.5), size_y=(6, 22))
+        builder.make_tray(sides="ramp", back="open")
+        for x, y in [
+            (offset_x, dist_to_front),
+            (offset_x + screw_dist_x, dist_to_front),
+            (offset_x, dist_to_front + screw_dist_y),
+            (offset_x + screw_dist_x, dist_to_front + screw_dist_y),
+        ]:
+            builder.add_mounting_hole_to_bottom(
+                x_pos=x,
+                y_pos=y,
+                hole_type="base-only",
+                base_thickness=builder.rack_params.tray_bottom_thickness,
+                base_diameter=20,
+            )
+            builder.add_mounting_hole_to_bottom(
+                x_pos=x, y_pos=y, hole_type="M3-tightfit", base_thickness=5.5, base_diameter=7
+            )
+
+        return builder.get_body()
+
+
+    def generate_assembly_step(self, with_fasteners=True, exploded=False, annotated=False):
+        """
+        Generates an assembly showing the assembly step between a device
+        and a shelf, optionally with fasteners.
+        """
+
+        # Generate the shelf that will hold the device in the rack
+        shelf = self.generate_shelf_model().cq()
+
+        # Generate the placeholder device so that it can be used in the assembly step
+        device = generate_placeholder(self.variant, self.width, self.depth, self.height)
+
+        # Generate the assembly
+        assy = cq.Assembly()
+        assy.add(shelf, name="shelf", color=cq.Color(0.996, 0.867, 0.0, 1.0))
+        assy.add(device, name="device", color=cq.Color(0.565, 0.698, 0.278, 1.0))
+
+        return assy
+
+
+if __name__ == "__main__":
+    from cadquery.vis import show
+    shelf = RaspberryPiShelf("Raspberry_Pi_4B")
+    assy = shelf.generate_assembly_step()
+    show(assy)
