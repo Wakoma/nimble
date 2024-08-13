@@ -2,6 +2,8 @@ import cadquery as cq
 from device_placeholder import generate_placeholder
 from nimble_build_system.orchestration.configuration import NimbleConfiguration
 from shelf_builder import ShelfBuilder
+import os
+import yaml
 
 class Shelf():
     """
@@ -22,28 +24,46 @@ class Shelf():
         "dual-ssd": "A shelf for 2x 2.5\" SSD",
         "raspi": "A shelf for a Raspberry Pi",
     }
-    variant = None
-    width = 0.0
-    depth = 0.0
-    height = 0.0
-    height_in_units = 0
-    unit_width = 6  # 6 or 10 inch rack
+    _variant = None
+    _device = None
+    _unit_width = 6  # 6 or 10 inch rack
+
 
     def __init__(self, variant) -> None:
         # Save the selected variant
-        self.variant = variant
+        self._variant = variant
 
         # Gather the device dimensions so that we can generate a placeholder
-        device = NimbleConfiguration([self.variant]).devices[0]
-        self.width = device.width
-        self.depth = device.depth
-        self.height = device.height
-        self.height_in_u = device.height_in_u
+        self._device = NimbleConfiguration([self._variant]).devices[0]
+
+
+    @property
+    def name(self):
+        """
+        Return the name of the shelf. This is the same name as the
+        component.
+        """
+        return self.assembled_shelf.name
+
+
+    @property
+    def device(self):
+        """
+        Return the Device object for the networking component that sits on this shelf.
+        """
+        return self._device
 
 
     def generate_shelf_model(self):
         """
         Generates the shelf model only.
+        """
+        pass
+
+
+    def generate_shelf_stl(self):
+        """
+        Generates the STL file for the shelf.
         """
         pass
 
@@ -69,9 +89,30 @@ class Shelf():
 
     def generate_docs(self):
         """
-        Generates the documentation for the shelf.
+        Return the markdown (BuildUp) for the GitBuilding page for assembling this shelf.
         """
-        pass
+        meta_data = {
+            "Tag": "shelf",
+            "Make": {
+                self.name: {
+                    "template": "printing.md",
+                    "stl-file": "../build/"+self.stl_representation,
+                    "stlname": os.path.split(self.stl_representation)[1],
+                    "material": "PLA",
+                    "weight-qty": "50g",
+                }
+            }
+        }
+        md = f"---\n{yaml.dump(meta_data)}\n---\n\n"
+        md += f"# Assembling the {self.name}\n\n"
+        md += "{{BOM}}\n\n"
+        md += "## Position the "+self._device.name+" {pagestep}\n\n"
+        md += "* Take the ["+self.name+"]{make, qty:1, cat:printed} you printed earlier\n"
+        md += "* Position the ["+self._device.name+"]{qty:1, cat:net} on the shelf\n\n"
+        md += "## Secure the "+self._device.name+" {pagestep}\n\n"
+        md += ">!! **TODO**  \n>!! Need information on how the item is secured to the shelf."
+
+        return  md
 
 
 class RaspberryPiShelf(Shelf):
@@ -82,7 +123,6 @@ class RaspberryPiShelf(Shelf):
         "Raspberry_Pi_4B": {"description": "A shelf for a Raspberry Pi 4B", "step_path": "N/A"},
         "Raspberry_Pi_5": {"description": "A shelf for a Raspberry Pi 5", "step_path": "N/A"},
     }
-    variant = "Raspberry_Pi_4B"
 
 
     def __init__(self, variant) -> None:
@@ -97,7 +137,7 @@ class RaspberryPiShelf(Shelf):
         screw_dist_y = 58
         dist_to_front = 23.5
         offset_x = -13
-        builder = ShelfBuilder(self.height_in_u, width="standard", depth=111, front_type="full")
+        builder = ShelfBuilder(self._device.height_in_u, width="standard", depth=111, front_type="full")
         builder.cut_opening("<Y", (-15, 39.5), size_y=(6, 25))
         builder.cut_opening("<Y", (-41.5, -25.5), size_y=(6, 22))
         builder.make_tray(sides="ramp", back="open")
@@ -131,7 +171,7 @@ class RaspberryPiShelf(Shelf):
         shelf = self.generate_shelf_model().cq()
 
         # Generate the placeholder device so that it can be used in the assembly step
-        device = generate_placeholder(self.variant, self.width, self.depth, self.height)
+        device = generate_placeholder(self._variant, self._device.width, self._device.depth, self._device.height)
 
         # Generate the assembly
         assy = cq.Assembly()
