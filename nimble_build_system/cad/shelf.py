@@ -1,7 +1,8 @@
 import cadquery as cq
-from device_placeholder import generate_placeholder
-from nimble_build_system.orchestration.configuration import NimbleConfiguration
-from shelf_builder import ShelfBuilder
+from nimble_build_system.cad.device_placeholder import generate_placeholder
+from nimble_build_system.cad.shelf_builder import ShelfBuilder
+from cadorchestrator.components import AssembledComponent
+from nimble_build_system.orchestration.device import Device
 import os
 import yaml
 
@@ -26,15 +27,15 @@ class Shelf():
     }
     _variant = None
     _device = None
+    _device_model = None
+    _assembled_shelf = None
     _unit_width = 6  # 6 or 10 inch rack
 
-
-    def __init__(self, variant) -> None:
-        # Save the selected variant
-        self._variant = variant
-
-        # Gather the device dimensions so that we can generate a placeholder
-        self._device = NimbleConfiguration([self._variant]).devices[0]
+    def __init__(self,
+                 assembled_shelf: AssembledComponent,
+                 device: Device):
+        self._assembled_shelf = assembled_shelf
+        self._device = device
 
 
     @property
@@ -54,6 +55,25 @@ class Shelf():
         return self._device
 
 
+    @property
+    def assembled_shelf(self):
+        """
+        Return the Object describing the assembled shelf (currently this in an empty
+        shelf in the correct location on the rack).
+        This is an AssembledComponent.
+        """
+        return self._assembled_shelf
+
+
+    def generate_device_model(self):
+        """
+        Generates the device model only.
+        """
+        # Generate the placeholder device so that it can be used in the assembly step
+        device = generate_placeholder(self.name, self._device.width, self._device.depth, self._device.height)
+        return device
+
+
     def generate_shelf_model(self):
         """
         Generates the shelf model only.
@@ -61,14 +81,18 @@ class Shelf():
         pass
 
 
-    def generate_shelf_stl(self):
+    def generate_shelf_stl(self, shelf_model=None):
         """
         Generates the STL file for the shelf.
         """
-        pass
+        stl_path = os.path.join("..", "build", self.name+".stl")
+
+        cq.exporters.export(shelf_model, stl_path)
+
+        return stl_path
 
 
-    def generate_assembly_step(self, with_fasteners=True):
+    def generate_assembly_step(self, shelf_model=None, device_model=None, with_fasteners=True, exploded=False, annotated=False):
         """
         Generates an assembly showing the assembly step between a device
         and a shelf, generated solely based on the device ID.
@@ -91,13 +115,20 @@ class Shelf():
         """
         Return the markdown (BuildUp) for the GitBuilding page for assembling this shelf.
         """
+
+        # Allows us to generate the model only when needed
+        shelf_model = self.generate_shelf_model()
+
+        # Generate the STL file for the shelf and save the path to use it in the docs
+        stl_representation = self.generate_shelf_stl(shelf_model)
+
         meta_data = {
             "Tag": "shelf",
             "Make": {
                 self.name: {
                     "template": "printing.md",
-                    "stl-file": "../build/"+self.stl_representation,
-                    "stlname": os.path.split(self.stl_representation)[1],
+                    "stl-file": "../build/"+stl_representation,
+                    "stlname": os.path.split(stl_representation)[1],
                     "material": "PLA",
                     "weight-qty": "50g",
                 }
@@ -125,8 +156,10 @@ class RaspberryPiShelf(Shelf):
     }
 
 
-    def __init__(self, variant) -> None:
-        super().__init__(variant)
+    def __init__(self,
+                 assembled_shelf: AssembledComponent,
+                 device: Device) -> None:
+        super().__init__(assembled_shelf, device)
 
 
     def generate_shelf_model(self):
@@ -158,31 +191,18 @@ class RaspberryPiShelf(Shelf):
                 x_pos=x, y_pos=y, hole_type="M3-tightfit", base_thickness=5.5, base_diameter=7
             )
 
-        return builder.get_body()
+        return builder.get_body().cq()
 
 
-    def generate_assembly_step(self, with_fasteners=True, exploded=False, annotated=False):
+    def generate_assembly_step(self, shelf_model=None, device_model=None, with_fasteners=True, exploded=False, annotated=False):
         """
         Generates an assembly showing the assembly step between a device
         and a shelf, optionally with fasteners.
         """
 
-        # Generate the shelf that will hold the device in the rack
-        shelf = self.generate_shelf_model().cq()
-
-        # Generate the placeholder device so that it can be used in the assembly step
-        device = generate_placeholder(self._variant, self._device.width, self._device.depth, self._device.height)
-
         # Generate the assembly
         assy = cq.Assembly()
-        assy.add(shelf, name="shelf", color=cq.Color(0.996, 0.867, 0.0, 1.0))
-        assy.add(device, name="device", color=cq.Color(0.565, 0.698, 0.278, 1.0))
+        assy.add(shelf_model, name="shelf", color=cq.Color(0.996, 0.867, 0.0, 1.0))
+        assy.add(device_model, name="device", color=cq.Color(0.565, 0.698, 0.278, 1.0))
 
         return assy
-
-
-if __name__ == "__main__":
-    from cadquery.vis import show
-    shelf = RaspberryPiShelf("Raspberry_Pi_4B")
-    assy = shelf.generate_assembly_step()
-    show(assy)
