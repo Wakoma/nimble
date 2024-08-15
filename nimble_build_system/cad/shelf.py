@@ -10,30 +10,11 @@ from nimble_build_system.cad.shelf_builder import ShelfBuilder
 from nimble_build_system.orchestration.device import Device
 from nimble_build_system.orchestration.paths import REL_MECH_DIR
 
-#TODO: I think here we need a function that picks the class we use?
-#
-# For example something like `create_shelf_for(device)` which then
-# uses the variants list to choose which self class?
 
 class Shelf():
     """
     Base shelf class that can be interrogated to get all of the renders and docs.
     """
-
-    variants = {
-        "generic": "A generic cable tie shelf",
-        "stuff": "A shelf for general stuff such as wires. No access to the front",
-        "stuff-thin": "A thin version of the stuff shelf",
-        "nuc": "A shelf for an Intel NUC",
-        "usw-flex": "A shelf for a Ubiquiti USW-Flex",
-        "usw-flex-mini": "A shelf for a Ubiquiti Flex Mini",
-        "anker-powerport5": "A shelf for an Anker PowerPort 5",
-        "anker-a2123": "A shelf for an Anker 360 Charger 60W (a2123)",
-        "anker-atom3slim": "A shelf for an Anker PowerPort Atom III Slim (AK-194644090180)",
-        "hdd35": "A shelf for an 3.5\" HDD",
-        "dual-ssd": "A shelf for 2x 2.5\" SSD",
-        "raspi": "A shelf for a Raspberry Pi",
-    }
     _variant = None
     _device = None
     _device_model = None
@@ -278,3 +259,33 @@ class RaspberryPiShelf(Shelf):
         assy.add(device_model, name="device", color=cq.Color(0.565, 0.698, 0.278, 1.0))
 
         return assy
+
+
+# Allows information to be tracked about the different types of shelves, including
+# the class that should be used to generate the shelf.
+variants = {
+    "generic": "A generic cable tie shelf",
+    "stuff": "A shelf for general stuff such as wires. No access to the front",
+    "stuff-thin": "A thin version of the stuff shelf",
+    "nuc": "A shelf for an Intel NUC",
+    "usw-flex": "A shelf for a Ubiquiti USW-Flex",
+    "usw-flex-mini": "A shelf for a Ubiquiti Flex Mini",
+    "anker-powerport5": "A shelf for an Anker PowerPort 5",
+    "anker-a2123": "A shelf for an Anker 360 Charger 60W (a2123)",
+    "anker-atom3slim": "A shelf for an Anker PowerPort Atom III Slim (AK-194644090180)",
+    "hdd35": "A shelf for an 3.5\" HDD",
+    "dual-ssd": "A shelf for 2x 2.5\" SSD",
+    "raspi": { "description": "A shelf for a Raspberry Pi", "class": RaspberryPiShelf },
+}
+
+
+def create_shelf_for_device(device: Device, assembly_key: str, position: tuple[float], color: str):
+    """
+    Create a shelf for a given device.
+    """
+
+    # Check to make sure that the variant exists
+    if device.shelf_builder_id not in variants or device.shelf_builder_id == "generic":
+        return Shelf(device)
+    else:
+        return variants[device.shelf_builder_id]["class"](device, assembly_key=assembly_key, position=position, color=color)

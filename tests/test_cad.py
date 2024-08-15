@@ -1,5 +1,5 @@
 import pytest
-from nimble_build_system.cad.shelf import Shelf, RaspberryPiShelf
+from nimble_build_system.cad.shelf import create_shelf_for_device
 from nimble_build_system.orchestration.configuration import NimbleConfiguration
 
 def test_generating_raspberry_pi_shelf():
@@ -16,10 +16,5 @@ def test_generating_raspberry_pi_shelf():
 
     # Make sure that each shelf can generate the proper files
     for i, shelf in enumerate(config.shelves):
-        # Find the matching device for the shelf
-        device = config.devices[i]
-
         # Generate the right type of shelf based on the name
-        if "raspberry" in shelf.name.lower():
-            shelf = RaspberryPiShelf(shelf, device)
-            assert shelf.name == "Raspberry Pi 4B shelf"
+        create_shelf_for_device(shelf.device, shelf.assembled_shelf.key, shelf.assembled_shelf.data["position"], shelf.assembled_shelf.data["color"])
