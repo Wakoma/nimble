@@ -4,7 +4,7 @@ def generate_placeholder(device_name, length, depth, height):
     """
     Generates a generalized placeholder object for a device.
     """
-
+    print(length, depth, height)
     # Save the smallest dimension for things like filleting and text
     smallest_dim = min(length, depth, height)
 

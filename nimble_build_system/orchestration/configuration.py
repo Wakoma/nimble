@@ -14,7 +14,7 @@ from cadorchestrator.components import (GeneratedMechanicalComponent,
                                         AssembledComponent)
 
 from nimble_build_system.cad import RackParameters
-from nimble_build_system.orchestration.shelf import Shelf
+from nimble_build_system.cad.shelf import Shelf
 from nimble_build_system.orchestration.device import Device
 from nimble_build_system.orchestration.paths import MODULE_PATH, REL_MECH_DIR
 

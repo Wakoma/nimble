@@ -5,6 +5,7 @@ This module provides many different nimble shelves created using
 the nimble_build_system.cad ShelfBuilder.
 """
 
+import json
 import cadscript as cad
 from nimble_build_system.cad import RackParameters
 
@@ -276,6 +277,22 @@ def raspi_shelf(height_in_u) -> cad.Body:
             x_pos=x, y_pos=y, hole_type="M3-tightfit", base_thickness=5.5, base_diameter=7
         )
     return builder.get_body()
+
+
+def get_device_config(device_id):
+    """
+    Get the device configuration from the devices.json file.
+    """
+    with open('devices.json', encoding="utf-8") as json_file:
+        json_string = json_file.read()
+        devices_json = json.loads(json_string)
+
+    # Search for a device matching the device ID
+    for device_json in devices_json:
+        if device_json["ID"] == device_id:
+            return device_json
+
+    return None
 
 
 if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
