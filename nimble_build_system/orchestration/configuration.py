@@ -9,16 +9,20 @@ from copy import deepcopy
 import posixpath
 import json
 
-from cadorchestrator.configuration import Configuration
 from cadorchestrator.components import (GeneratedMechanicalComponent,
-                                        AssembledComponent)
+                                        AssembledComponent,
+                                        Assembly)
 
 from nimble_build_system.cad import RackParameters
 from nimble_build_system.cad.shelf import Shelf
 from nimble_build_system.orchestration.device import Device
 from nimble_build_system.orchestration.paths import MODULE_PATH, REL_MECH_DIR
 
-class NimbleConfiguration(Configuration):
+def create_assembly(selected_devices_ids):
+    config = NimbleConfiguration(selected_devices_ids)
+    return config.main_assembly
+
+class NimbleConfiguration:
     """
     This class represents a specific nimble configuration
     """
@@ -29,8 +33,6 @@ class NimbleConfiguration(Configuration):
 
     def __init__(self, selected_devices_ids):
 
-        super().__init__()
-
         self._rack_params = RackParameters()
         devices_filename = os.path.join(MODULE_PATH, "devices.json")
 
@@ -39,14 +41,74 @@ class NimbleConfiguration(Configuration):
         selected_devices = []
         with open(devices_filename, encoding="utf-8") as devices_file:
             all_devices = json.load(devices_file)
-            def find_device(device_id):
-                return next((x for x in all_devices if x['ID'] == device_id), None)
-            selected_devices = [Device(find_device(x), self._rack_params) for x in selected_devices_ids]
+
+        all_device_ids = [x['ID'] for x in all_devices]
+
+        def find_device(this_device_id):
+            if this_device_id in all_device_ids:
+                return all_devices[all_device_ids.index(this_device_id)]
+            else:
+                raise ValueError(f'No device of ID "{this_device_id}" known')
+
+        selected_devices = []
+        for device_id in selected_devices_ids:
+            device_data = find_device(device_id)
+            selected_devices.append(Device(device_data, self._rack_params))
 
         self._devices = deepcopy(selected_devices)
-        self._shelves = self._generate_shelf_list
-        self._assembled_components = self._generate_assembled_components_list()
+        self._shelves = self._generate_shelf_list()
+        self._top_level_components = self._generate_assembled_components_list()
 
+        self.main_assembly = self._generate_main_assembly()
+
+    def _generate_main_assembly(self):
+
+        source = os.path.join(REL_MECH_DIR, "assembly_renderer.py")
+        source = posixpath.normpath(source)
+
+        main_assembly = Assembly(
+            key='nimble_rack',
+            name='Nimble Rack',
+            description='Assembled nimble rack',
+            output_files=[
+                "./assembly/assembly.stl",
+                "./assembly/assembly.step",
+                "./assembly/assembly.glb",
+            ],
+            source_files=[source],
+            parameters={},
+            application="cadquery",
+            component_data_parameter='assembly.parts'
+        )
+
+        main_assembly.set_parameter_file(
+            file_id="assembly_definition_file",
+            filename="assembly-def.yaml"
+        )
+
+        for assm_component in self._top_level_components:
+            main_assembly.add_component(assm_component)
+
+        main_assembly.set_documentation(self._main_assembly_docs())
+        main_assembly.set_documentation_filename("insert_shelves.md")
+        return main_assembly
+
+    def _main_assembly_docs(self):
+        md = "* Insert the shelves into the rack in the following order "
+        md += "(from top to bottom)\n"
+
+        for shelf in self._shelves:
+            #TODO get docs from the assembly rather than the component
+            # once it is set up fully
+            md_file = shelf.shelf_component.documentation_filename
+            shelf_name = shelf.shelf_component.name
+
+            md += "[Assembled "+shelf_name+"]("+md_file+"){make, qty:1, cat: prev}\n"
+        #TODO Here we really need to be listing the assembly steps differently if the
+        # shelves are broad.
+        md += "* Secure each in place with four [M4x10mm cap screws]{qty:"
+        md += str(2*len(self._shelves))+", cat:mech}\n\n"
+        return md
 
     @property
     def devices(self):
@@ -78,9 +140,42 @@ class NimbleConfiguration(Configuration):
     def _generate_assembled_components_list(self):
 
         # collect all needed parts and their parameters
+        return [self._rack] + [i.assembled_shelf for i in self._shelves]
+
+    @property
+    def _rack(self):
+        source = os.path.join(REL_MECH_DIR, "assembly_renderer.py")
+        source = posixpath.normpath(source)
+        rack = Assembly(
+            key='empty_rack',
+            name='Empty Nimble Rack',
+            description='An empty rack for a nimble',
+            output_files=[
+                "./assembly/rack.step",
+            ],
+            source_files=[source],
+            parameters={},
+            application="cadquery",
+            component_data_parameter='assembly.parts'
+        )
+
+        rack.set_parameter_file(
+            file_id="assembly_definition_file",
+            filename="empty_rack-pars.yaml"
+        )
 
         rack_components = self._legs +  [self._baseplate, self._topplate]
-        return rack_components + [i.assembled_shelf for i in self._shelves]
+
+        for assm_component in rack_components:
+            rack.add_component(assm_component)
+
+        return AssembledComponent(
+            key="empty rack",
+            component=rack,
+            data={"position": (0,0,0)},
+            include_key=True,
+            include_stepfile=True
+        )
 
     @property
     def _legs(self):
@@ -118,9 +213,12 @@ class NimbleConfiguration(Configuration):
                 AssembledComponent(
                     key=key,
                     component=component,
-                    position = (x_pos, y_pos, self._rack_params.base_plate_thickness),
-                    step=2,
-                    color="gray82"
+                    data={
+                        "position": (x_pos, y_pos, self._rack_params.base_plate_thickness),
+                        "color": "gray82"
+                    },
+                include_key=True,
+                include_stepfile=True
             )
         )
         return assembled_legs
@@ -147,8 +245,9 @@ class NimbleConfiguration(Configuration):
         return AssembledComponent(
             key="baseplate",
             component=component,
-            position = (0, 0, 0),
-            step=1
+            data = {'position': (0, 0, 0)},
+            include_key=True,
+            include_stepfile=True
         )
 
 
@@ -177,19 +276,16 @@ class NimbleConfiguration(Configuration):
         return AssembledComponent(
             key="topplate",
             component=component,
-            position = (0, 0, top_pos),
-            step=3
+            data = {'position': (0, 0, top_pos)},
+            include_key=True,
+            include_stepfile=True
         )
 
-    @property
     def _generate_shelf_list(self):
         """
-        Generate aseembled components for each shelf. This function is a bit
-        long and messy!
+        Generate aseembled components for each shelf.
         """
 
-        source = os.path.join(REL_MECH_DIR, "components/cadquery/tray_6in.py")
-        source = posixpath.normpath(source)
         shelves = []
         z_offset = self._rack_params.bottom_tray_offet
         height_in_u = 0
@@ -197,44 +293,14 @@ class NimbleConfiguration(Configuration):
             x_pos = 0
             y_pos = -self._rack_params.rack_width / 2.0
             z_pos = z_offset + height_in_u * self._rack_params.mounting_hole_spacing
-            shelf_key = device.shelf_key
             color = 'dodgerblue1' if i%2 == 0 else 'deepskyblue1'
-            component = GeneratedMechanicalComponent(
-                key=shelf_key,
-                name=f"{device.name} shelf",
-                description="A shelf for " + device.name,
-                output_files=[
-                    f"./printed_components/{shelf_key}.step",
-                    f"./printed_components/{shelf_key}.stl",
-                ],
-                source_files=[source],
-                parameters={
-                    "height_in_u": device.height_in_u,
-                    "shelf_type": device.shelf_builder_id,
-                },
-                application="cadquery"
-            )
+            shelf = Shelf(device=device,
+                          assembly_key=f"shelf_{i}",
+                          position=(x_pos, y_pos, z_pos),
+                          color=color)
 
-            assm_component = AssembledComponent(
-                key=f"shelf_{i}",
-                component=component,
-                position = (x_pos, y_pos, z_pos),
-                step=4,
-                color=color
-            )
-
-            shelves.append(Shelf(assm_component, device))
+            shelves.append(shelf)
 
             height_in_u += device.height_in_u
-        return shelves
 
-    @property
-    def assembly_source_file(self):
-        """
-        This is a bit ad hoc until we we work out how best to specify assemblies.
-        Currently we just pass a Cadquery file that should pass the assembly def.
-        We should move away from this with classes for assemblies and sub assemblies.
-        """
-        source = os.path.join(REL_MECH_DIR, "assembly_renderer.py")
-        source = posixpath.normpath(source)
-        return source
+        return shelves

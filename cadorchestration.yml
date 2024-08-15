@@ -1,6 +1,6 @@
-configuration-class:
+configuration-function:
     module: nimble_build_system.orchestration.configuration
-    class: NimbleConfiguration
+    function: create_assembly
 configuration-options: OrchestratorConfigOptions.json
 site-title: Wakoma Nimble Configurator
 site-tagline: Select Components for Your Nimble

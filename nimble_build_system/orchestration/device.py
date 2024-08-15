@@ -66,12 +66,15 @@ class Device:
         """
         Return an key to identify the shelf.
         """
+        #TODO shelf keys are not unique as the the same shelf_type generate different
+        #shelves for some hardware.
         def clean_name(name):
             name = name.lower()
             name = name.replace(' ', '_')
             unsafe_char = re.findall(r'[a-zA-Z0-9-_]', name)
             for char in set(unsafe_char):
                 name.replace(char, '')
+            return name
         return f"shelf_h{self.height_in_u}_--{clean_name(self.shelf_type)}"
 
     @property
