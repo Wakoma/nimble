@@ -8,7 +8,7 @@ direct download without them needing to be committed to the repository
 """
 import os
 
-from cadorchestrator.orchestration import OrchestrationRunner
+from cadorchestrator.generate import generate_components
 from cadorchestrator.components import GeneratedMechanicalComponent
 from nimble_build_system.orchestration.paths import BUILD_DIR, REL_MECH_DIR
 
@@ -19,8 +19,7 @@ def generate():
     """
 
     components = get_component_list()
-    runner = OrchestrationRunner()
-    runner.generate_components(components)
+    generate_components(components)
     output_static_site(components)
 
 def get_component_list():
