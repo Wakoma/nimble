@@ -61,29 +61,33 @@ class Device:
       }
     """
 
-    def __init__(self, device_id, rack_params):
+    def __init__(self, device_id, rack_params, dummy=False, dummy_data:dict|None=None):
 
-        json_node = find_device(device_id)
+        self.dummy = dummy
+        if not dummy:
+            device_dict = find_device(device_id)
+        else:
+            device_dict = generate_dummy_device_dict(device_id, dummy_data)
 
-        self.id = json_node['ID']
-        # self.name = json_node['Name']
-        self.name = json_node['Hardware']
-        # self.category = json_node['Category']
-        self.category = json_node['Type']
-        self.width = get_length_from_str(json_node['LengthMm'])
-        self.depth = get_length_from_str(json_node['Depth'])
-        self.height = get_length_from_str(json_node['Height'])
+        self.id = device_dict['ID']
+        # self.name = device_dict['Name']
+        self.name = device_dict['Hardware']
+        # self.category = device_dict['Category']
+        self.category = device_dict['Type']
+        self.width = get_length_from_str(device_dict['LengthMm'])
+        self.depth = get_length_from_str(device_dict['Depth'])
+        self.height = get_length_from_str(device_dict['Height'])
 
         try:
-            self.height_in_u = int(json_node['HeightUnits'])
+            self.height_in_u = int(device_dict['HeightUnits'])
         except ValueError as exc:
             if self.height:
                 self.height_in_u = ceil((self.height+4)/rack_params.mounting_hole_spacing)
             else:
                 raise RuntimeError("Not enough information provided to generate shelf height") from exc
 
-        self.shelf_id = json_node['ShelfId']
-        self.shelf_type = json_node['Shelf']
+        self.shelf_id = device_dict['ShelfId']
+        self.shelf_type = device_dict['Shelf']
 
     @property
     def shelf_key(self):
@@ -123,3 +127,35 @@ def get_length_from_str(length):
     if match := re.match(r'^([0-9]+(?:\.[0-9]+)?) ?mm$', length):
         return float(match[1])
     return None
+
+def generate_dummy_device_dict(device_id:str, dummy_data:dict|None=None):
+    """
+    Create a dummy database record from a device id. If id is in the pattern
+    `dummy-<type>-<h>u` then the shelf type and height in u are set from this.
+    All device dictionary items that are used in the Device class can be set
+    by entering the desired key and value in the dummy_data parameter
+    """
+    if dummy_data is None:
+        dummy_data = {}
+
+    device_dict = {'ID': device_id}
+
+    if match := re.match(r'^dummy-(.+)-([0-9])+u$', device_id):
+        default_shelf_id = match[1]+'-6'
+        default_height_in_u = match[2]
+    else:
+        print(f"dummy device string `{device_id}` doesn't match pattern "
+              "`dummy-<type>-<h>u` shelf type and height in u may not have "
+              "been set as intended")
+        default_shelf_id = "generic"
+        default_height_in_u = "2"
+
+    device_dict['Hardware'] = dummy_data.get('Hardware', "Dummy")
+    device_dict['Type'] = dummy_data.get('Type', "Dummy")
+    device_dict['LengthMm'] = dummy_data.get('LengthMm', "100mm")
+    device_dict['Depth'] = dummy_data.get('Depth', "100mm")
+    device_dict['Height'] = dummy_data.get('Height', "30mm")
+    device_dict['Shelf'] = dummy_data.get('Shelf', "Dummy")
+    device_dict['HeightUnits'] = dummy_data.get('HeightUnits', default_height_in_u)
+    device_dict['ShelfId'] = dummy_data.get('ShelfId', default_shelf_id )
+    return device_dict

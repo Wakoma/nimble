@@ -27,7 +27,17 @@ from nimble_build_system.cad.shelf import create_shelf_for
 # "dual-ssd"                - for 2x 2.5" SSD
 # "raspi"                   - for Raspberry Pi
 
-device_id = "Raspberry_Pi_4B"
+
+
+# For development purposes if there is not a device in the devices database
+# with the paramters you want set the device id to "dummy-<shelf type>-<h>u"
+# for example "dummy-dual-ssd-4u"
+#
+# You can also pass a dictionary of device data to the `dummy_device_data`
+# keyword argument of `create_shelf_for` if you need other device data to be
+# set.
+
+device_id = "dummy-raspi-2u"
 
 
 def create_6in_shelf(device_id) -> cad.Body:

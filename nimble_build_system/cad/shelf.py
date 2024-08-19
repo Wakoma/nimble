@@ -18,11 +18,18 @@ def create_shelf_for(device_id: str,
                      assembly_key: str='Shelf',
                      position: tuple[float, float, float]=(0,0,0),
                      color: str='dodgerblue1',
-                     rack_params: RackParameters|None = None):
+                     rack_params: RackParameters|None = None,
+                     dummy_device_data:dict|None=None):
+
 
     if not rack_params:
         rack_params = RackParameters()
-    device = Device(device_id, rack_params)
+
+    #Dummy is used for development purposes
+    if device_id.startswith("dummy-"):
+        device = Device(device_id, rack_params, dummy=True, dummy_data=dummy_device_data)
+    else:
+        device = Device(device_id, rack_params)
 
     #TODO. We have shelf_id, shekf_key, shelf_type, and shelf_builder_id,
     # None of which are explained well, and the neither the id or the key
