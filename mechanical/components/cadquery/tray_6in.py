@@ -5,9 +5,8 @@ This module provides many different nimble shelves created using
 the nimble_build_system.cad ShelfBuilder.
 """
 
-import json
-import cadscript as cad
 
+import cadscript as cad
 
 from nimble_build_system.cad.shelf import create_shelf_for
 

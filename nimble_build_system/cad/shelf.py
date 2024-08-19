@@ -1,5 +1,6 @@
 import os
 import posixpath
+import warnings
 
 import yaml
 from cadorchestrator.components import AssembledComponent, GeneratedMechanicalComponent
@@ -39,16 +40,18 @@ def create_shelf_for(device_id: str,
 
     if shelf_type in SHELF_TYPES:
         shelf_class, kwargs = SHELF_TYPES[shelf_type]
-        return shelf_class(
-                device,
-                assembly_key,
-                position,
-                color,
-                rack_params,
-                **kwargs
-        )
-    raise ValueError(f"Unknown shelf type {shelf_type}")
-
+    else:
+        warnings.warn(RuntimeWarning(f"Unknown shelf type {shelf_type}"))
+        shelf_class = Shelf
+        kwargs = {}
+    return shelf_class(
+            device,
+            assembly_key,
+            position,
+            color,
+            rack_params,
+            **kwargs
+    )
 
 class Shelf():
     """
@@ -539,4 +542,3 @@ SHELF_TYPES= {
     "dual-ssd": (DualSSDShelf, {}),
     "raspi": (RaspberryPiShelf, {})
 }
-

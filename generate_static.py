@@ -7,10 +7,13 @@ via a github action to provide a list of available STLs for
 direct download without them needing to be committed to the repository
 """
 import os
+import json
 
 from cadorchestrator.generate import generate_components
-from cadorchestrator.components import GeneratedMechanicalComponent
-from nimble_build_system.orchestration.paths import BUILD_DIR, REL_MECH_DIR
+
+from nimble_build_system.orchestration.paths import BUILD_DIR
+
+from nimble_build_system.cad.shelf import create_shelf_for
 
 def generate():
     """
@@ -28,100 +31,20 @@ def get_component_list():
     shelves
     """
 
-    components = []
+    component_list = []
 
-    components.append(
-        generate_leg(
-            length=294,
-            mounting_holes_dia=3.6,
-            name="Rack leg with 21 holes",
-            out_file="./printed_components/beam-21holes.stl"
-        )
-    )
-    components.append(
-        generate_leg(
-            length=168,
-            mounting_holes_dia=3.6,
-            name="Rack leg with 12 holes",
-            out_file="./printed_components/beam-12holes.stl"
-        )
-    )
+    #Loop through the options dictionary that the web ui uses for config options
+    with open('OrchestratorConfigOptions.json', encoding="utf-8") as config_options_file:
+        conf_options = json.load(config_options_file)
 
-    components.append(
-        generate_leg(
-            length=294,
-            mounting_holes_dia=5.8,
-            name="Rack leg with 21 M6 holes",
-            out_file="./printed_components/beam-M6-21holes.stl"
-        )
-    )
+        for device_category_dict in conf_options['options'][0]['add-options']:
+            for device in device_category_dict['items']:
+                device_id = device['value']
+                shelf = create_shelf_for(device_id)
+                component_list.append(shelf.shelf_component)
+    #return a list of GeneratedMechanicalComponent objects
+    return component_list
 
-    components.append(
-        generate_leg(
-            length=168,
-            mounting_holes_dia=5.8,
-            name="Rack leg with 12 M6 holes",
-            out_file="./printed_components/beam-M6-12holes.stl"
-        )
-    )
-
-    for (shelf_type, height_in_u) in [
-            ("stuff", 3),
-            ("stuff-thin", 3),
-            ("nuc", 3),
-            ("nuc", 4),
-            ("usw-flex", 3),
-            ("usw-flex-mini", 2),
-            ("anker-powerport5", 2),
-            ("anker-a2123", 2),
-            ("anker-atom3slim", 2),
-            ("hdd35", 2),
-            ("dual-ssd", 2),
-            ("raspi", 2)]:
-
-        components.append(generate_shelf(shelf_type, height_in_u))
-
-    return components
-
-
-def generate_leg(length, mounting_holes_dia, name, out_file):
-    """
-    Helper function to generate a leg. Returns a GeneratedMechanicalComponent
-    object which contains the data for the leg.
-    """
-    source = os.path.join(REL_MECH_DIR, "components/cadquery/rack_leg.py")
-    key = name.lower().replace(' ', '_')
-    return GeneratedMechanicalComponent(
-        key=key,
-        name=name,
-        description='A leg for a nimble rack',
-        output_files=[out_file],
-        source_files=[source],
-        parameters={
-            "length": length,
-            "mounting_holes_dia": mounting_holes_dia
-        },
-        application="cadquery"
-    )
-
-
-def generate_shelf(shelf_type, height_in_u):
-    """
-    Helper function to generate a shelf/tray. Returns a GeneratedMechanicalComponent
-    object which contains the data for the shelf.
-    """
-    out_file = f"./printed_components/shelf_6in_{shelf_type}u_{height_in_u}.stl"
-    source = os.path.join(REL_MECH_DIR, "components/cadquery/tray_6in.py")
-    device_name = shelf_type.replace('-', ' ')
-    return GeneratedMechanicalComponent(
-        key=f"{shelf_type}_{height_in_u}u",
-        name=f"Tray for {device_name}",
-        description=f"Tray for {device_name}, height = {height_in_u}u",
-        output_files=[out_file],
-        source_files=[source],
-        parameters={'shelf_type': shelf_type, 'height_in_u': height_in_u},
-        application="cadquery"
-    )
 
 def output_static_site(components):
     """
@@ -139,37 +62,30 @@ def output_static_site(components):
                 </style>
                 </head>
                 <body>
-                
+
                 <h1>
-                Nimble STL files
+                Nimble downloads
                 </h1>
 
+                <h2>Auto-generated documentation:</h3>
                 <p>
-                Nimble is going through a transition towards live generation of all files and documentation
-                for hardware configuration. We call this "Smart Doc". For more details on Nimble see
-                <a href="https://github.com/Wakoma/nimble">https://github.com/Wakoma/nimble</a>
+                We are working on a system to automatically generate documentation for any
+                nimble configuration. This is an example of the <a href="assembly-docs">
+                automatically generated documentation</a> for a specific configuration.
                 </p>
 
+                <h2>Shelf STL files:</h3>
                 <p>
-                Smart Doc" is not yet finished, but the code already generates a number of nimble components
-                that may be useful to you. You can find them below.
+                While we work on builing the nimble configurator you can download all
+                nimble shelves from the list below
                 </p>
-                
                 """)
 
-        f.write("<h3>Generated files:</h3>")
+        f.write("")
         f.write("<ul>")
         for component in components:
-            f.write(f"<li><a href='{component.output_files[0]}'>{component.name}</a></li>")
+            f.write(f"<li><a href='{component.stl_representation}'>{component.name}</a></li>")
         f.write("</ul>")
-        f.write(
-            """
-            <h3>Example documentation:</h3>
-            <p>
-            Partially complete automatically generated documentation
-            <a href="assembly-docs">is also available</a>.
-            </p>
-            """)
 
         f.write("</body></html>")
 
