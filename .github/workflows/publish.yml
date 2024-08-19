@@ -39,10 +39,11 @@ jobs:
 
       - name: Install nimble packages
         run: |
-          pip install .
+          pip install -e .
 
       - name: Generate STLs
         run: |
+          gen_nimble_conf_options
           ./generate_static.py
 
       - name: Generate example docs
