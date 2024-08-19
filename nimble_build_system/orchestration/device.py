@@ -3,7 +3,28 @@ Contains an object that represents the information of a device in the devices.js
 """
 
 import re
+import os
+import json
 from math import ceil
+from nimble_build_system.orchestration.paths import MODULE_PATH
+
+
+def load_device_data():
+    devices_filename = os.path.join(MODULE_PATH, "devices.json")
+    with open(devices_filename, encoding="utf-8") as devices_file:
+        all_devices = json.load(devices_file)
+
+    return all_devices
+
+ALL_DEVICES = load_device_data()
+ALL_DEVICE_IDS = [x['ID'] for x in ALL_DEVICES]
+
+def find_device(this_device_id):
+    if this_device_id in ALL_DEVICE_IDS:
+        return ALL_DEVICES[ALL_DEVICE_IDS.index(this_device_id)]
+    else:
+        raise ValueError(f'No device of ID "{this_device_id}" known')
+
 
 class Device:
     """
@@ -40,7 +61,10 @@ class Device:
       }
     """
 
-    def __init__(self, json_node, rack_params):
+    def __init__(self, device_id, rack_params):
+
+        json_node = find_device(device_id)
+
         self.id = json_node['ID']
         # self.name = json_node['Name']
         self.name = json_node['Hardware']
