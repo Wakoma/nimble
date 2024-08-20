@@ -22,7 +22,7 @@ class Shelf():
     _unit_width = 6  # 6 or 10 inch rack
 
     def __init__(self,
-                 device: Device,
+                 device_id: str,
                  assembly_key: str,
                  position: tuple[float],
                  color: str):
@@ -279,13 +279,13 @@ variants = {
 }
 
 
-def create_shelf_for_device(device: Device, assembly_key: str, position: tuple[float], color: str):
+def create_shelf_for_device(device_id: str, assembly_key: str, position: tuple[float], color: str):
     """
     Create a shelf for a given device.
     """
 
     # Check to make sure that the variant exists
-    if device.shelf_builder_id not in variants or device.shelf_builder_id == "generic":
-        return Shelf(device)
+    if device_id not in variants or device_id == "generic":
+        return Shelf(device_id, assembly_key=assembly_key, position=position, color=color)
     else:
-        return variants[device.shelf_builder_id]["class"](device, assembly_key=assembly_key, position=position, color=color)
+        return variants[device_id]["class"](device_id, assembly_key=assembly_key, position=position, color=color)

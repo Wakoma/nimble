@@ -17,4 +17,4 @@ def test_generating_raspberry_pi_shelf():
     # Make sure that each shelf can generate the proper files
     for i, shelf in enumerate(config.shelves):
         # Generate the right type of shelf based on the name
-        create_shelf_for_device(shelf.device, shelf.assembled_shelf.key, shelf.assembled_shelf.data["position"], shelf.assembled_shelf.data["color"])
+        create_shelf_for_device(shelf.device.shelf_id, assembly_key=shelf.assembled_shelf.key, position=shelf.assembled_shelf.data["position"], color=shelf.assembled_shelf.data["color"])

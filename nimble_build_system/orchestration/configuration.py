@@ -14,7 +14,7 @@ from cadorchestrator.components import (GeneratedMechanicalComponent,
                                         Assembly)
 
 from nimble_build_system.cad import RackParameters
-from nimble_build_system.cad.shelf import Shelf
+from nimble_build_system.cad.shelf import create_shelf_for_device
 from nimble_build_system.orchestration.device import Device
 from nimble_build_system.orchestration.paths import MODULE_PATH, REL_MECH_DIR
 
@@ -294,7 +294,7 @@ class NimbleConfiguration:
             y_pos = -self._rack_params.rack_width / 2.0
             z_pos = z_offset + height_in_u * self._rack_params.mounting_hole_spacing
             color = 'dodgerblue1' if i%2 == 0 else 'deepskyblue1'
-            shelf = Shelf(device=device,
+            shelf = create_shelf_for_device(device_id=device.shelf_id,
                           assembly_key=f"shelf_{i}",
                           position=(x_pos, y_pos, z_pos),
                           color=color)
