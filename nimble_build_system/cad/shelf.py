@@ -141,7 +141,7 @@ class Shelf():
         Return the name of the shelf. This is the same name as the
         component.
         """
-        return self.assembled_shelf.name
+        return self._assembled_shelf.name
 
 
     @property
@@ -178,6 +178,10 @@ class Shelf():
                                       self._device.width,
                                       self._device.depth,
                                       self._device.height)
+
+        # Once the device model has been generated once, save it so that it can be reused in assemblies and such
+        self._device_model = device
+
         return device
 
 
@@ -489,7 +493,7 @@ class RaspberryPiShelf(Shelf):
                 base_diameter=7
             )
 
-        return builder.get_body()
+        return builder.get_body().cq()
 
 
     def generate_assembly_model(self,
