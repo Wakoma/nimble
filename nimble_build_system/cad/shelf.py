@@ -233,29 +233,27 @@ class Shelf():
         return stl_path
 
 
-    # def generate_assembly_model(self,
-    #                             shelf_model=None,
-    #                             device_model=None,
-    #                             with_fasteners=True,
-    #                             exploded=False,
-    #                             annotated=False):
-    #     """
-    #     Generates an CAD model of the shelf assembly showing assembly step between
-    #     a device and a shelf. This can be optionally be exploded.
-    #     It is generated solely based on the device ID.
-    #     """
-    #     return NotImplemented
+    def generate_assembly_model(self,
+                                shelf_model=None,
+                                device_model=None):
+        """
+        Generates an CAD model of the shelf assembly showing assembly step between
+        a device and a shelf. This can be optionally be exploded.
+        It is generated solely based on the device ID.
+        """
+        #pylint: disable=unused-argument
+        return NotImplemented
 
 
-    # def get_render(self, assy, camera_pos, image_format="png"):
-    #     """
-    #     Generates a render of the assembly.
-    #     """
+    def get_render(self, assy, camera_pos, image_format="png"):
+        """
+        Generates a render of the assembly.
+        """
 
-    #     # TODO - Use the PNG functionality in CadQuery to generate a PNG render
-    #     # TODO - Maybe also need other formats such as glTF
-
-    #     return NotImplemented
+        # TODO - Use the PNG functionality in CadQuery to generate a PNG render
+        # TODO - Maybe also need other formats such as glTF
+        #pylint: disable=unused-argument
+        return NotImplemented
 
 
     def generate_docs(self):
