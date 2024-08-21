@@ -7,19 +7,18 @@ the a class for generating a full cofiguration for a nimble rack `NimbleConfigur
 import os
 from copy import deepcopy
 import posixpath
-import json
+
 
 from cadorchestrator.components import (GeneratedMechanicalComponent,
                                         AssembledComponent,
                                         Assembly)
 
 from nimble_build_system.cad import RackParameters
-from nimble_build_system.cad.shelf import Shelf
-from nimble_build_system.orchestration.device import Device
-from nimble_build_system.orchestration.paths import MODULE_PATH, REL_MECH_DIR
+from nimble_build_system.cad.shelf import create_shelf_for
+from nimble_build_system.orchestration.paths import REL_MECH_DIR
 
-def create_assembly(selected_devices_ids):
-    config = NimbleConfiguration(selected_devices_ids)
+def create_assembly(selected_device_ids):
+    config = NimbleConfiguration(selected_device_ids)
     return config.main_assembly
 
 class NimbleConfiguration:
@@ -31,32 +30,13 @@ class NimbleConfiguration:
     _shelves: list
 
 
-    def __init__(self, selected_devices_ids):
+    def __init__(self, selected_device_ids):
 
         self._rack_params = RackParameters()
-        devices_filename = os.path.join(MODULE_PATH, "devices.json")
 
-        # read devices file, select apprpriate entries
+        self._selected_device_ids = selected_device_ids
 
-        selected_devices = []
-        with open(devices_filename, encoding="utf-8") as devices_file:
-            all_devices = json.load(devices_file)
-
-        all_device_ids = [x['ID'] for x in all_devices]
-
-        def find_device(this_device_id):
-            if this_device_id in all_device_ids:
-                return all_devices[all_device_ids.index(this_device_id)]
-            else:
-                raise ValueError(f'No device of ID "{this_device_id}" known')
-
-        selected_devices = []
-        for device_id in selected_devices_ids:
-            device_data = find_device(device_id)
-            selected_devices.append(Device(device_data, self._rack_params))
-
-        self._devices = deepcopy(selected_devices)
-        self._shelves = self._generate_shelf_list()
+        self._shelves = self._generate_shelf_list(selected_device_ids)
         self._top_level_components = self._generate_assembled_components_list()
 
         self.main_assembly = self._generate_main_assembly()
@@ -115,8 +95,8 @@ class NimbleConfiguration:
         """
         Return the devices in this configuration as a list of Device objects
         """
-        #Deepcopy to avoid them being edited in place
-        return deepcopy(self._devices)
+
+        return [shelf.device for shelf in self._shelves]
 
 
     @property
@@ -135,7 +115,7 @@ class NimbleConfiguration:
         """
         Return the total height of the needed rack in units
         """
-        return sum(device.height_in_u for device in self._devices)
+        return sum(shelf.height_in_u for shelf in self._shelves)
 
     def _generate_assembled_components_list(self):
 
@@ -281,7 +261,7 @@ class NimbleConfiguration:
             include_stepfile=True
         )
 
-    def _generate_shelf_list(self):
+    def _generate_shelf_list(self, selected_device_ids):
         """
         Generate aseembled components for each shelf.
         """
@@ -289,18 +269,18 @@ class NimbleConfiguration:
         shelves = []
         z_offset = self._rack_params.bottom_tray_offet
         height_in_u = 0
-        for i, device in enumerate(self._devices):
+        for i, device_id in enumerate(selected_device_ids):
             x_pos = 0
             y_pos = -self._rack_params.rack_width / 2.0
             z_pos = z_offset + height_in_u * self._rack_params.mounting_hole_spacing
             color = 'dodgerblue1' if i%2 == 0 else 'deepskyblue1'
-            shelf = Shelf(device=device,
-                          assembly_key=f"shelf_{i}",
-                          position=(x_pos, y_pos, z_pos),
-                          color=color)
+            shelf = create_shelf_for(device_id=device_id,
+                                     assembly_key=f"shelf_{i}",
+                                     position=(x_pos, y_pos, z_pos),
+                                     color=color)
 
             shelves.append(shelf)
 
-            height_in_u += device.height_in_u
+            height_in_u += shelf.height_in_u
 
         return shelves
