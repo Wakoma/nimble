@@ -1,3 +1,10 @@
+"""
+This module generates shelves for the nimble rack system. The shelves are matched with devices, and
+the shelves are generated based on the device type. The shelves are generated using the
+`ShelfBuilder` class from the `nimble_build_system.cad.shelf_builder` module.
+
+Rendering and documentation generation is also supported for the shelves.
+"""
 import os
 import posixpath
 import warnings
@@ -21,7 +28,21 @@ def create_shelf_for(device_id: str,
                      color: str='dodgerblue1',
                      rack_params: RackParameters|None = None,
                      dummy_device_data:dict|None=None):
+    """
+    Create a shelf for a device based on the device id. The shelf is generated based on the device
+    type and dimensions.
 
+    Parameters:
+        device_id (str): The id of the device that the shelf is for.
+        assembly_key (str): The key for the assembled shelf.
+        position (tuple[float, float, float]): The position of the shelf in the rack.
+        color (str): The color of the shelf, useful for rendering.
+        rack_params (RackParameters): The parameters for the rack that this shelf will be in.
+        dummy_device_data (dict): Data used if the device is a dummy device.
+
+        Returns:
+            Shelf: A shelf object for the device, instantiating the correct Class.
+    """
 
     if not rack_params:
         rack_params = RackParameters()
@@ -99,6 +120,9 @@ class Shelf():
 
     @property
     def height_in_u(self):
+        """
+        Return the height of the shelf in standard rack units/increments.
+        """
         return self._device.height_in_u
 
     def _generate_assembled_shelf(self,
@@ -179,7 +203,8 @@ class Shelf():
                                       self._device.depth,
                                       self._device.height)
 
-        # Once the device model has been generated once, save it so that it can be reused in assemblies and such
+        # Once the device model has been generated once, save it so that it can be reused in
+        # assemblies and such
         self._device_model = device
 
         return device
@@ -208,29 +233,29 @@ class Shelf():
         return stl_path
 
 
-    def generate_assembly_model(self,
-                                shelf_model=None,
-                                device_model=None,
-                                with_fasteners=True,
-                                exploded=False,
-                                annotated=False):
-        """
-        Generates an CAD model of the shelf assembly showing assembly step between
-        a device and a shelf. This can be optionally be exploded.
-        It is generated solely based on the device ID.
-        """
-        return NotImplemented
+    # def generate_assembly_model(self,
+    #                             shelf_model=None,
+    #                             device_model=None,
+    #                             with_fasteners=True,
+    #                             exploded=False,
+    #                             annotated=False):
+    #     """
+    #     Generates an CAD model of the shelf assembly showing assembly step between
+    #     a device and a shelf. This can be optionally be exploded.
+    #     It is generated solely based on the device ID.
+    #     """
+    #     return NotImplemented
 
 
-    def get_render(self, assy, camera_pos, image_format="png"):
-        """
-        Generates a render of the assembly.
-        """
+    # def get_render(self, assy, camera_pos, image_format="png"):
+    #     """
+    #     Generates a render of the assembly.
+    #     """
 
-        # TODO - Use the PNG functionality in CadQuery to generate a PNG render
-        # TODO - Maybe also need other formats such as glTF
+    #     # TODO - Use the PNG functionality in CadQuery to generate a PNG render
+    #     # TODO - Maybe also need other formats such as glTF
 
-        return NotImplemented
+    #     return NotImplemented
 
 
     def generate_docs(self):
@@ -262,6 +287,9 @@ class Shelf():
         return  md
 
 class StuffShelf(Shelf):
+    """
+    A generic shelf for devices that do not have a specific shelf type.
+    """
     ##TODO: Perhaps make a "dummy" device for "stuff"?
     def __init__(self,
                  device: Device,
@@ -286,6 +314,9 @@ class StuffShelf(Shelf):
         return builder.get_body()
 
 class NUCShelf(Shelf):
+    """
+    Shelf class for an Intel NUC device.
+    """
     def generate_shelf_model(self) -> cadscript.Body:
         """
         A shelf for an Intel NUC
@@ -300,6 +331,9 @@ class NUCShelf(Shelf):
         return builder.get_body()
 
 class USWFlexShelf(Shelf):
+    """
+    Shelf class for a Ubiquiti USW-Flex device.
+    """
     def generate_shelf_model(self) -> cadscript.Body:
         """
         A shelf for a Ubiquiti USW-Flex
@@ -319,6 +353,9 @@ class USWFlexShelf(Shelf):
         return builder.get_body()
 
 class USWFlexMiniShelf(Shelf):
+    """
+    Shelf class for a Ubiquiti Flex Mini device.
+    """
     def generate_shelf_model(self) -> cadscript.Body:
         """
         A shelf for a for Ubiquiti Flex Mini
@@ -346,7 +383,9 @@ class USWFlexMiniShelf(Shelf):
         return builder.get_body()
 
 class AnkerShelf(Shelf):
-
+    """
+    Shelf class for an Anker PowerPort 5, Anker 360 Charger 60W (a2123), etc
+    """
     def __init__(self,
                  device: Device,
                  assembly_key: str,
@@ -378,6 +417,9 @@ class AnkerShelf(Shelf):
         )
 
 class HDD35Shelf(Shelf):
+    """
+    Shelf class for a 3.5" hard drive device.
+    """
     def generate_shelf_model(self) -> cadscript.Body:
         """
         A shelf for an 3.5" HDD
@@ -414,6 +456,9 @@ class HDD35Shelf(Shelf):
         return builder.get_body()
 
 class DualSSDShelf(Shelf):
+    """
+    Shelf class for two 2.5" solid state drive devices.
+    """
     def generate_shelf_model(self) -> cadscript.Body:
         """
         A shelf for two 2.5" SSDs
@@ -498,10 +543,7 @@ class RaspberryPiShelf(Shelf):
 
     def generate_assembly_model(self,
                                 shelf_model=None,
-                                device_model=None,
-                                with_fasteners=True,
-                                exploded=False,
-                                annotated=False):
+                                device_model=None):
         """
         Generates an assembly showing the assembly step between a device
         and a shelf, optionally with fasteners.
