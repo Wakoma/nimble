@@ -101,7 +101,11 @@ def test_shelf_generation():
         device = shelf.device
 
         # Instantiate the shelf object and check to make sure it has a valid name
-        shelf = RaspberryPiShelf(device, assembly_key=f"shelf_{i}", position=(1.0, 0.0, 12.0), color='deepskyblue1', rack_params=config._rack_params)
+        shelf = RaspberryPiShelf(device,
+                                 assembly_key=f"shelf_{i}",
+                                 position=(1.0, 0.0, 12.0),
+                                 color='deepskyblue1',
+                                 rack_params=config._rack_params)
         assert shelf.name.lower().startswith(test_config[i].lower().split("_")[0])
 
         # Check that the device model was generated with the proper dimensions per the configuration
@@ -114,7 +118,7 @@ def test_shelf_generation():
         assert z_size == pytest.approx(config.devices[i].height, 0.001)
 
         # Make sure the shelf model is valid and has generally the correct dimensions
-        shelf_model = shelf.generate_shelf_model()
+        shelf_model = shelf.generate_shelf_model().cq()
         x_size = shelf_model.val().BoundingBox().xmax - shelf_model.val().BoundingBox().xmin
         y_size = shelf_model.val().BoundingBox().ymax - shelf_model.val().BoundingBox().ymin
         z_size = shelf_model.val().BoundingBox().zmax - shelf_model.val().BoundingBox().zmin

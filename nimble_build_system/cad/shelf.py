@@ -538,7 +538,7 @@ class RaspberryPiShelf(Shelf):
                 base_diameter=7
             )
 
-        return builder.get_body().cq()
+        return builder.get_body()
 
 
     def generate_assembly_model(self,
