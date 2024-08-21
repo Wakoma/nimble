@@ -23,7 +23,8 @@ setup(
     extras_require={
         'dev': [
             'pylint',
-            'colorama'
+            'colorama',
+            'pytest'
         ]
     },
     entry_points={'console_scripts': ['gen_nimble_conf_options = nimble_build_system.utils.gen_nimble_conf_options:main']}
