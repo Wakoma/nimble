@@ -6,6 +6,9 @@ import os
 import sys
 
 def print_path():
+    """
+    Debug methods to discover the path of the module
+    """
     print("Full path of __file__:", __file__)
     print("Directory name:", os.path.dirname(__file__))
     sys.stdout.flush()

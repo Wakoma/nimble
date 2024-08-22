@@ -206,7 +206,7 @@ class Shelf():
         """
         # Generate the placeholder device so that it can be used in the assembly step,
         # but do not generated if it has been generated already.
-        if self._device_model == None:
+        if self._device_model is None:
             device = generate_placeholder(self.name,
                                         self._device.width,
                                         self._device.depth,
@@ -224,7 +224,7 @@ class Shelf():
         Generates the shelf model only.
         """
         # Generate the shelf model, but do not generate if it has been generated already.
-        if self._shelf_model == None:
+        if self._shelf_model is None:
             shelf = ziptie_shelf(self.height_in_u)
             self._shelf_model = shelf
 
@@ -241,7 +241,9 @@ class Shelf():
         # Create the assembly holding all the parts that go into the shelf unit
         assy = cq.Assembly()
         assy.add(self.generate_shelf_model(), name="device", color=cq.Color(0.996, 0.867, 0.0, 1.0))
-        assy.add(self.generate_shelf_model(), name="shelf", color=cq.Color(0.565, 0.698, 0.278, 1.0))
+        assy.add(self.generate_shelf_model(),
+                 name="shelf",
+                 color=cq.Color(0.565, 0.698, 0.278, 1.0))
 
         return assy
 
@@ -305,7 +307,7 @@ class StuffShelf(Shelf):
         """
         A shelf for general stuff such as wires. No access to the front
         """
-        if self._shelf_model == None:
+        if self._shelf_model is None:
             width = "broad" if not self.thin else "standard"
             builder = ShelfBuilder(
                 self.height_in_u, width=width, depth="standard", front_type="w-pattern"
@@ -341,7 +343,7 @@ class USWFlexShelf(Shelf):
         """
         A shelf for a Ubiquiti USW-Flex
         """
-        if self._shelf_model == None:
+        if self._shelf_model is None:
             builder = ShelfBuilder(
                 self.height_in_u, width="standard", depth=119.5, front_type="full"
             )
@@ -366,7 +368,7 @@ class USWFlexMiniShelf(Shelf):
         """
         A shelf for a for Ubiquiti Flex Mini
         """
-        if self._shelf_model == None:
+        if self._shelf_model is None:
             rack_params = RackParameters(tray_side_wall_thickness=3.8)
             builder = ShelfBuilder(
                 self.height_in_u,
@@ -377,7 +379,10 @@ class USWFlexMiniShelf(Shelf):
             )
             builder.cut_opening("<Y", 85, offset_y=5, size_y=19)
             builder.make_tray(sides="slots", back="slots")
-            builder.cut_opening(">Y", 30, offset_y=builder.rack_params.tray_bottom_thickness, depth=10)
+            builder.cut_opening(">Y",
+                                30,
+                                offset_y=builder.rack_params.tray_bottom_thickness,
+                                depth=10)
             builder.add_mounting_hole_to_side(
                 y_pos=59, z_pos=builder.height / 2, hole_type="M3-tightfit", side="both"
             )
@@ -406,6 +411,8 @@ class AnkerShelf(Shelf):
                  internal_height: float = 25,
                  front_cutout_width: float = 53):
 
+        #pylint: disable=too-many-arguments
+
         super().__init__(device, assembly_key, position, color, rack_params)
         self.internal_width = internal_width
         self.internal_depth = internal_depth
@@ -417,7 +424,7 @@ class AnkerShelf(Shelf):
         A shelf for an Anker PowerPort 5, Anker 360 Charger 60W (a2123),  or Anker PowerPort Atom
         III Slim (AK-194644090180)
         """
-        if self._shelf_model == None:
+        if self._shelf_model is None:
             self._shelf_model = ziptie_shelf(
                 self.height_in_u,
                 internal_width=self.internal_width,
@@ -436,7 +443,7 @@ class HDD35Shelf(Shelf):
         """
         A shelf for an 3.5" HDD
         """
-        if self._shelf_model == None:
+        if self._shelf_model is None:
             width = 102.8  # 101.6 + 1.2 clearance
             screw_pos1 = 77.3  # distance from front
             screw_pos2 = screw_pos1 + 41.61
@@ -478,7 +485,7 @@ class DualSSDShelf(Shelf):
         """
         A shelf for two 2.5" SSDs
         """
-        if self._shelf_model == None:
+        if self._shelf_model is None:
             rack_params = RackParameters()
             width = 70
             screw_pos1 = 12.5  # distance from front
@@ -524,7 +531,7 @@ class RaspberryPiShelf(Shelf):
         """
         Generates the shelf model only.
         """
-        if self._shelf_model == None:
+        if self._shelf_model is None:
             screw_dist_x = 49
             screw_dist_y = 58
             dist_to_front = 23.5
