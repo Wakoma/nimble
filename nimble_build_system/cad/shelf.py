@@ -217,22 +217,6 @@ class Shelf():
         return ziptie_shelf(self.height_in_u)
 
 
-    def generate_shelf_stl(self, shelf_model=None):
-        """
-        Generates the STL file for the shelf.
-        """
-        #TODO: I think we need to decide if we are exporting directly or
-        # if we are are using exsource via cq-cli. I think we need to do one
-        # or the other
-
-
-        stl_path = os.path.join(self.shelf_component.stl_representation)
-
-        cq.exporters.export(shelf_model, stl_path)
-
-        return stl_path
-
-
     def generate_assembly_model(self,
                                 shelf_model=None,
                                 device_model=None):
