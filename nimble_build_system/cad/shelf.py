@@ -96,8 +96,10 @@ class Shelf():
     _variant = None
     _device = None
     _device_model = None
+    _shelf_model = None
     _assembled_shelf = None
     _unit_width = 6  # 6 or 10 inch rack
+
 
     def __init__(self,
                  device: Device,
@@ -118,12 +120,14 @@ class Shelf():
         #Note docs can only be generated after self._assembled_shelf is set
         self._assembled_shelf.component.set_documentation(self.generate_docs())
 
+
     @property
     def height_in_u(self):
         """
         Return the height of the shelf in standard rack units/increments.
         """
         return self._device.height_in_u
+
 
     def _generate_assembled_shelf(self,
                                   assembly_key: str,
@@ -159,6 +163,7 @@ class Shelf():
             include_stepfile=True
         )
 
+
     @property
     def name(self):
         """
@@ -175,6 +180,7 @@ class Shelf():
         """
         return self._device
 
+
     @property
     def assembled_shelf(self) -> AssembledComponent:
         """
@@ -184,6 +190,7 @@ class Shelf():
         """
         return self._assembled_shelf
 
+
     @property
     def shelf_component(self) -> GeneratedMechanicalComponent:
         """
@@ -192,41 +199,51 @@ class Shelf():
         """
         return self._assembled_shelf.component
 
+
     def generate_device_model(self):
         """
         Generates the device model only.
         """
-        # Generate the placeholder device so that it can be used
-        # in the assembly step
-        device = generate_placeholder(self.name,
-                                      self._device.width,
-                                      self._device.depth,
-                                      self._device.height)
+        # Generate the placeholder device so that it can be used in the assembly step,
+        # but do not generated if it has been generated already.
+        if self._device_model == None:
+            device = generate_placeholder(self.name,
+                                        self._device.width,
+                                        self._device.depth,
+                                        self._device.height)
 
-        # Once the device model has been generated once, save it so that it can be reused in
-        # assemblies and such
-        self._device_model = device
+            # Once the device model has been generated once, save it so that it can be reused in
+            # assemblies and such
+            self._device_model = device
 
-        return device
+        return self._device_model
 
 
     def generate_shelf_model(self):
         """
         Generates the shelf model only.
         """
-        return ziptie_shelf(self.height_in_u)
+        # Generate the shelf model, but do not generate if it has been generated already.
+        if self._shelf_model == None:
+            shelf = ziptie_shelf(self.height_in_u)
+            self._shelf_model = shelf
+
+        return self._shelf_model
 
 
-    def generate_assembly_model(self,
-                                shelf_model=None,
-                                device_model=None):
+    def generate_assembly_model(self):
         """
         Generates an CAD model of the shelf assembly showing assembly step between
         a device and a shelf. This can be optionally be exploded.
         It is generated solely based on the device ID.
         """
-        #pylint: disable=unused-argument
-        return NotImplemented
+
+        # Create the assembly holding all the parts that go into the shelf unit
+        assy = cq.Assembly()
+        assy.add(self.generate_shelf_model(), name="device", color=cq.Color(0.996, 0.867, 0.0, 1.0))
+        assy.add(self.generate_shelf_model(), name="shelf", color=cq.Color(0.565, 0.698, 0.278, 1.0))
+
+        return assy
 
 
     def get_render(self, assy, camera_pos, image_format="png"):
@@ -288,12 +305,16 @@ class StuffShelf(Shelf):
         """
         A shelf for general stuff such as wires. No access to the front
         """
-        width = "broad" if not self.thin else "standard"
-        builder = ShelfBuilder(
-            self.height_in_u, width=width, depth="standard", front_type="w-pattern"
-        )
-        builder.make_tray(sides="w-pattern", back="open")
-        return builder.get_body()
+        if self._shelf_model == None:
+            width = "broad" if not self.thin else "standard"
+            builder = ShelfBuilder(
+                self.height_in_u, width=width, depth="standard", front_type="w-pattern"
+            )
+            builder.make_tray(sides="w-pattern", back="open")
+            self._shelf_model = builder.get_body()
+
+        return self._shelf_model
+
 
 class NUCShelf(Shelf):
     """
@@ -320,19 +341,22 @@ class USWFlexShelf(Shelf):
         """
         A shelf for a Ubiquiti USW-Flex
         """
-        builder = ShelfBuilder(
-            self.height_in_u, width="standard", depth=119.5, front_type="full"
-        )
-        builder.cut_opening("<Y", builder.inner_width, 4)
-        builder.make_tray(sides="w-pattern", back="open")
-        # add 2 mounting bars on the bottom plate
-        sketch = cadscript.make_sketch()
-        sketch.add_rect(8, 60, center="X", pos=[(-17.5, 42), (+17.5, 42)])
-        base = cadscript.make_extrude("XY", sketch, builder.rack_params.tray_bottom_thickness)
-        sketch.cut_circle(d=3.8, pos=[(-17.5, 30 + 42), (+17.5, 30 + 42)])
-        base2 = cadscript.make_extrude("XY", sketch, 5)
-        builder.get_body().add(base).add(base2)
-        return builder.get_body()
+        if self._shelf_model == None:
+            builder = ShelfBuilder(
+                self.height_in_u, width="standard", depth=119.5, front_type="full"
+            )
+            builder.cut_opening("<Y", builder.inner_width, 4)
+            builder.make_tray(sides="w-pattern", back="open")
+            # add 2 mounting bars on the bottom plate
+            sketch = cadscript.make_sketch()
+            sketch.add_rect(8, 60, center="X", pos=[(-17.5, 42), (+17.5, 42)])
+            base = cadscript.make_extrude("XY", sketch, builder.rack_params.tray_bottom_thickness)
+            sketch.cut_circle(d=3.8, pos=[(-17.5, 30 + 42), (+17.5, 30 + 42)])
+            base2 = cadscript.make_extrude("XY", sketch, 5)
+            builder.get_body().add(base).add(base2)
+            self._shelf_model = builder.get_body()
+
+        return self._shelf_model
 
 class USWFlexMiniShelf(Shelf):
     """
@@ -342,27 +366,30 @@ class USWFlexMiniShelf(Shelf):
         """
         A shelf for a for Ubiquiti Flex Mini
         """
-        rack_params = RackParameters(tray_side_wall_thickness=3.8)
-        builder = ShelfBuilder(
-            self.height_in_u,
-            width="standard",
-            depth=73.4,
-            front_type="full",
-            rack_params=rack_params
-        )
-        builder.cut_opening("<Y", 85, offset_y=5, size_y=19)
-        builder.make_tray(sides="slots", back="slots")
-        builder.cut_opening(">Y", 30, offset_y=builder.rack_params.tray_bottom_thickness, depth=10)
-        builder.add_mounting_hole_to_side(
-            y_pos=59, z_pos=builder.height / 2, hole_type="M3-tightfit", side="both"
-        )
-        builder.add_mounting_hole_to_back(
-            x_pos=-75 / 2, z_pos=builder.height / 2, hole_type="M3-tightfit"
-        )
-        builder.add_mounting_hole_to_back(
-            x_pos=+75 / 2, z_pos=builder.height / 2, hole_type="M3-tightfit"
-        )
-        return builder.get_body()
+        if self._shelf_model == None:
+            rack_params = RackParameters(tray_side_wall_thickness=3.8)
+            builder = ShelfBuilder(
+                self.height_in_u,
+                width="standard",
+                depth=73.4,
+                front_type="full",
+                rack_params=rack_params
+            )
+            builder.cut_opening("<Y", 85, offset_y=5, size_y=19)
+            builder.make_tray(sides="slots", back="slots")
+            builder.cut_opening(">Y", 30, offset_y=builder.rack_params.tray_bottom_thickness, depth=10)
+            builder.add_mounting_hole_to_side(
+                y_pos=59, z_pos=builder.height / 2, hole_type="M3-tightfit", side="both"
+            )
+            builder.add_mounting_hole_to_back(
+                x_pos=-75 / 2, z_pos=builder.height / 2, hole_type="M3-tightfit"
+            )
+            builder.add_mounting_hole_to_back(
+                x_pos=+75 / 2, z_pos=builder.height / 2, hole_type="M3-tightfit"
+            )
+            self._shelf_model =  builder.get_body()
+
+        return self._shelf_model
 
 class AnkerShelf(Shelf):
     """
@@ -390,13 +417,16 @@ class AnkerShelf(Shelf):
         A shelf for an Anker PowerPort 5, Anker 360 Charger 60W (a2123),  or Anker PowerPort Atom
         III Slim (AK-194644090180)
         """
-        return ziptie_shelf(
-            self.height_in_u,
-            internal_width=self.internal_width,
-            internal_depth=self.internal_depth,
-            internal_height=self.internal_height,
-            front_cutout_width=self.front_cutout_width
-        )
+        if self._shelf_model == None:
+            self._shelf_model = ziptie_shelf(
+                self.height_in_u,
+                internal_width=self.internal_width,
+                internal_depth=self.internal_depth,
+                internal_height=self.internal_height,
+                front_cutout_width=self.front_cutout_width
+            )
+
+        return self._shelf_model
 
 class HDD35Shelf(Shelf):
     """
@@ -406,36 +436,39 @@ class HDD35Shelf(Shelf):
         """
         A shelf for an 3.5" HDD
         """
-        width = 102.8  # 101.6 + 1.2 clearance
-        screw_pos1 = 77.3  # distance from front
-        screw_pos2 = screw_pos1 + 41.61
-        screw_y = 7  # distance from bottom plane
-        builder = ShelfBuilder(
-            self.height_in_u, width="standard", depth="standard", front_type="w-pattern"
-        )
-        builder.make_tray(sides="slots", back="open")
-        mount_sketch = cadscript.make_sketch()
-        mount_sketch.add_rect(
-            (width / 2, builder.inner_width / 2 + builder.rack_params.tray_side_wall_thickness),
-            21,
-            pos=[(0, screw_pos1), (0, screw_pos2)],
-        )
-        mount_sketch.chamfer("<X", (builder.inner_width - width) / 2)
-        mount_sketch.mirror("X")
-        builder.get_body().add(cadscript.make_extrude("XY", mount_sketch, 14))
-        builder.add_mounting_hole_to_side(
-            y_pos=screw_pos1,
-            z_pos=screw_y + builder.rack_params.tray_bottom_thickness,
-            hole_type="HDD",
-            side="both",
-        )
-        builder.add_mounting_hole_to_side(
-            y_pos=screw_pos2,
-            z_pos=screw_y + builder.rack_params.tray_bottom_thickness,
-            hole_type="HDD",
-            side="both",
-        )
-        return builder.get_body()
+        if self._shelf_model == None:
+            width = 102.8  # 101.6 + 1.2 clearance
+            screw_pos1 = 77.3  # distance from front
+            screw_pos2 = screw_pos1 + 41.61
+            screw_y = 7  # distance from bottom plane
+            builder = ShelfBuilder(
+                self.height_in_u, width="standard", depth="standard", front_type="w-pattern"
+            )
+            builder.make_tray(sides="slots", back="open")
+            mount_sketch = cadscript.make_sketch()
+            mount_sketch.add_rect(
+                (width / 2, builder.inner_width / 2 + builder.rack_params.tray_side_wall_thickness),
+                21,
+                pos=[(0, screw_pos1), (0, screw_pos2)],
+            )
+            mount_sketch.chamfer("<X", (builder.inner_width - width) / 2)
+            mount_sketch.mirror("X")
+            builder.get_body().add(cadscript.make_extrude("XY", mount_sketch, 14))
+            builder.add_mounting_hole_to_side(
+                y_pos=screw_pos1,
+                z_pos=screw_y + builder.rack_params.tray_bottom_thickness,
+                hole_type="HDD",
+                side="both",
+            )
+            builder.add_mounting_hole_to_side(
+                y_pos=screw_pos2,
+                z_pos=screw_y + builder.rack_params.tray_bottom_thickness,
+                hole_type="HDD",
+                side="both",
+            )
+            self._shelf_model = builder.get_body()
+
+        return self._shelf_model
 
 class DualSSDShelf(Shelf):
     """
@@ -445,35 +478,38 @@ class DualSSDShelf(Shelf):
         """
         A shelf for two 2.5" SSDs
         """
-        rack_params = RackParameters()
-        width = 70
-        screw_pos1 = 12.5  # distance from front
-        screw_pos2 = screw_pos1 + 76
-        screw_y1 = 6.6  # distance from bottom plane
-        screw_y2 = screw_y1 + 11.1
-        builder = ShelfBuilder(
-            self.height_in_u,
-            width=width + 2 * rack_params.tray_side_wall_thickness,
-            depth=111,
-            front_type="w-pattern",
-            base_between_beam_walls="none",
-            beam_wall_type="none",
-        )
-        builder.make_tray(sides="slots", back="open")
-        for x, y in [
-            (screw_pos1, screw_y2),
-            (screw_pos2, screw_y2),
-            (screw_pos1, screw_y1),
-            (screw_pos2, screw_y1),
-        ]:
-            builder.add_mounting_hole_to_side(
-                y_pos=x,
-                z_pos=y + rack_params.tray_bottom_thickness,
-                hole_type="M3-tightfit",
-                side="both",
-                base_diameter=11,
+        if self._shelf_model == None:
+            rack_params = RackParameters()
+            width = 70
+            screw_pos1 = 12.5  # distance from front
+            screw_pos2 = screw_pos1 + 76
+            screw_y1 = 6.6  # distance from bottom plane
+            screw_y2 = screw_y1 + 11.1
+            builder = ShelfBuilder(
+                self.height_in_u,
+                width=width + 2 * rack_params.tray_side_wall_thickness,
+                depth=111,
+                front_type="w-pattern",
+                base_between_beam_walls="none",
+                beam_wall_type="none",
             )
-        return builder.get_body()
+            builder.make_tray(sides="slots", back="open")
+            for x, y in [
+                (screw_pos1, screw_y2),
+                (screw_pos2, screw_y2),
+                (screw_pos1, screw_y1),
+                (screw_pos2, screw_y1),
+            ]:
+                builder.add_mounting_hole_to_side(
+                    y_pos=x,
+                    z_pos=y + rack_params.tray_bottom_thickness,
+                    hole_type="M3-tightfit",
+                    side="both",
+                    base_diameter=11,
+                )
+            self._shelf_model = builder.get_body()
+
+        return self._shelf_model
 
 class RaspberryPiShelf(Shelf):
     """
@@ -488,55 +524,43 @@ class RaspberryPiShelf(Shelf):
         """
         Generates the shelf model only.
         """
-        screw_dist_x = 49
-        screw_dist_y = 58
-        dist_to_front = 23.5
-        offset_x = -13
-        builder = ShelfBuilder(self.height_in_u,
-                               width="standard",
-                               depth=111,
-                               front_type="full")
-        builder.cut_opening("<Y", (-15, 39.5), size_y=(6, 25))
-        builder.cut_opening("<Y", (-41.5, -25.5), size_y=(6, 22))
-        builder.make_tray(sides="ramp", back="open")
-        for x, y in [
-            (offset_x, dist_to_front),
-            (offset_x + screw_dist_x, dist_to_front),
-            (offset_x, dist_to_front + screw_dist_y),
-            (offset_x + screw_dist_x, dist_to_front + screw_dist_y),
-        ]:
-            builder.add_mounting_hole_to_bottom(
-                x_pos=x,
-                y_pos=y,
-                hole_type="base-only",
-                base_thickness=builder.rack_params.tray_bottom_thickness,
-                base_diameter=20,
-            )
-            builder.add_mounting_hole_to_bottom(
-                x_pos=x,
-                y_pos=y,
-                hole_type="M3-tightfit",
-                base_thickness=5.5,
-                base_diameter=7
-            )
+        if self._shelf_model == None:
+            screw_dist_x = 49
+            screw_dist_y = 58
+            dist_to_front = 23.5
+            offset_x = -13
+            builder = ShelfBuilder(self.height_in_u,
+                                width="standard",
+                                depth=111,
+                                front_type="full")
+            builder.cut_opening("<Y", (-15, 39.5), size_y=(6, 25))
+            builder.cut_opening("<Y", (-41.5, -25.5), size_y=(6, 22))
+            builder.make_tray(sides="ramp", back="open")
+            for x, y in [
+                (offset_x, dist_to_front),
+                (offset_x + screw_dist_x, dist_to_front),
+                (offset_x, dist_to_front + screw_dist_y),
+                (offset_x + screw_dist_x, dist_to_front + screw_dist_y),
+            ]:
+                builder.add_mounting_hole_to_bottom(
+                    x_pos=x,
+                    y_pos=y,
+                    hole_type="base-only",
+                    base_thickness=builder.rack_params.tray_bottom_thickness,
+                    base_diameter=20,
+                )
+                builder.add_mounting_hole_to_bottom(
+                    x_pos=x,
+                    y_pos=y,
+                    hole_type="M3-tightfit",
+                    base_thickness=5.5,
+                    base_diameter=7
+                )
 
-        return builder.get_body()
+            self._shelf_model = builder.get_body()
 
+        return self._shelf_model
 
-    def generate_assembly_model(self,
-                                shelf_model=None,
-                                device_model=None):
-        """
-        Generates an assembly showing the assembly step between a device
-        and a shelf, optionally with fasteners.
-        """
-
-        # Generate the assembly
-        assy = cq.Assembly()
-        assy.add(shelf_model, name="shelf", color=cq.Color(0.996, 0.867, 0.0, 1.0))
-        assy.add(device_model, name="device", color=cq.Color(0.565, 0.698, 0.278, 1.0))
-
-        return assy
 
 # Dictionary of shelf types and their corresponding class and kwargs as tuple
 # (class, keyword-arguments)

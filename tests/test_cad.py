@@ -128,3 +128,30 @@ def test_shelf_generation():
         assert x_size > config.devices[i].width
         assert y_size > config.devices[i].depth
         assert z_size > config.devices[i].height
+
+
+def test_shelf_assembly_generation():
+    """
+    Tests whether or not the assembly is valid and all the components are present and in the correct
+    locations and orientations.
+    """
+
+    # The configuration of hardware/shelves that we want to test against
+    test_config = ["Raspberry_Pi_4B"]
+
+    # Load the needed information to generate a Shelf object
+    config = NimbleConfiguration(test_config)
+
+    # Get the only shelf that we should have to deal with
+    rpi_shelf = config.shelves[0]
+
+    assert rpi_shelf != None
+
+    # Test the generated CAD assembly
+    assy = rpi_shelf.generate_assembly_model()
+
+    # Make sure the assembly has the number of children we expect
+    assert len(assy.children) == 2
+    import nimble_build_system.orchestration.paths as paths
+    paths.print_path()
+    assert False
