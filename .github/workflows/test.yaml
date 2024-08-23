@@ -30,7 +30,7 @@ jobs:
 
       - name: Install nimble packages and dev tools
         run: |
-          pip install .[dev]
+          pip install -e .[dev]
 
       - name: Run tests
         run: |
