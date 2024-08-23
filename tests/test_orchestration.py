@@ -17,7 +17,7 @@ def test_cadorchestrator_command_line():
 
     # Run the cadorchestrator with the test configuration file
     result = subprocess.run(["cadorchestrator", "generate", "[\"NUC10i5FNH\", \"Raspberry_Pi_4B\", \"Raspberry_Pi_4B\"]"])
-    print(result.stdout)
+
     # Make sure that the command ran successfully
     assert result.returncode == 0
 

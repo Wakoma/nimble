@@ -152,6 +152,3 @@ def test_shelf_assembly_generation():
 
     # Make sure the assembly has the number of children we expect
     assert len(assy.children) == 2
-    import nimble_build_system.orchestration.paths as paths
-    paths.print_path()
-    assert False

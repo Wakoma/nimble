@@ -3,16 +3,9 @@ This module to defines the paths used by orchestration scripts
 """
 
 import os
-import sys
+from pathlib import Path
 
-def print_path():
-    """
-    Debug methods to discover the path of the module
-    """
-    print("Full path of __file__:", __file__)
-    print("Directory name:", os.path.dirname(__file__))
-    sys.stdout.flush()
-
-MODULE_PATH = os.path.join(os.path.dirname(__file__), '..', '..')
+# MODULE_PATH = os.path.join(os.path.dirname(__file__), '..', '..')
+MODULE_PATH = Path(__file__).parent.parent.parent
 BUILD_DIR = os.path.join(MODULE_PATH, "build")
 REL_MECH_DIR = os.path.relpath(os.path.join(MODULE_PATH, "mechanical"), BUILD_DIR)
