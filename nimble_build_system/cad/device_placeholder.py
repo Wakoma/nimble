@@ -6,16 +6,16 @@ model.
 """
 import cadquery as cq
 
-def generate_placeholder(device_name, length, depth, height):
+def generate_placeholder(device_name, width, depth, height):
     """
     Generates a generalized placeholder object for a device.
     """
 
     # Save the smallest dimension for things like filleting and text
-    smallest_dim = min(length, depth, height)
+    smallest_dim = min(width, depth, height)
 
     # The overall shape
-    placeholder = cq.Workplane().box(length, depth, height)
+    placeholder = cq.Workplane().box(width, depth, height)
 
     # Round the edges
     placeholder = placeholder.edges().fillet(smallest_dim * 0.3)

@@ -98,6 +98,8 @@ class Shelf():
     _device_model = None
     _shelf_model = None
     _assembled_shelf = None
+    _device_depth_axis = None  # Can be items like "-X", "X", "-Y", etc
+    _device_offset = (0, 0, 0)  # Offsets to put the device for the correct assembly position
     _unit_width = 6  # 6 or 10 inch rack
 
 
@@ -238,10 +240,30 @@ class Shelf():
         It is generated solely based on the device ID.
         """
 
+        # Get and orient the device model properly in relation to the shelf
+        device = self.generate_device_model()
+        if self._device_depth_axis == "X":
+            device = device.rotateAboutCenter((0, 0, 1), 90)
+        elif self._device_depth_axis == "-X":
+            device = device.rotateAboutCenter((0, 0, 1), -90)
+        elif self._device_depth_axis == "Y":
+            device = device.rotateAboutCenter((1, 0, 0), 90)
+        elif self._device_depth_axis == "-Y":
+            device = device.rotateAboutCenter((1, 0, 0), -90)
+        elif self._device_depth_axis == "Z":
+            device = device.rotateAboutCenter((0, 1, 0), 90)
+        elif self._device_depth_axis == "-Z":
+            device = device.rotateAboutCenter((0, 1, 0), -90)
+
+        # Move the device to the correct position on the shelf
+        device = device.translate((self._device_offset[0],
+                                   self._device_offset[1],
+                                   self._device_offset[2]))
+
         # Create the assembly holding all the parts that go into the shelf unit
         assy = cq.Assembly()
-        assy.add(self.generate_shelf_model(), name="device", color=cq.Color(0.996, 0.867, 0.0, 1.0))
-        assy.add(self.generate_shelf_model(),
+        assy.add(device, name="device", color=cq.Color(0.996, 0.867, 0.0, 1.0))
+        assy.add(self.generate_shelf_model().cq(),
                  name="shelf",
                  color=cq.Color(0.565, 0.698, 0.278, 1.0))
 
@@ -527,6 +549,21 @@ class RaspberryPiShelf(Shelf):
         "Raspberry_Pi_5": {"description": "A shelf for a Raspberry Pi 5", "step_path": "N/A"},
     }
 
+    def __init__(self,
+                 device: Device,
+                 assembly_key: str,
+                 position: tuple[float, float, float],
+                 color: str,
+                 rack_params: RackParameters,
+                 device_depth_axis: float = "X",
+                 device_offset: tuple[float, float, float] = (0, 0, 0)):
+
+        #pylint: disable=too-many-arguments
+
+        super().__init__(device, assembly_key, position, color, rack_params)
+        self._device_depth_axis = device_depth_axis
+        self._device_offset = device_offset
+
     def generate_shelf_model(self):
         """
         Generates the shelf model only.
@@ -599,5 +636,8 @@ SHELF_TYPES= {
     }),
     "hdd35": (HDD35Shelf, {}),
     "dual-ssd": (DualSSDShelf, {}),
-    "raspi": (RaspberryPiShelf, {})
+    "raspi": (RaspberryPiShelf, {
+        "device_depth_axis": "-X",
+        "device_offset": (12, 50, 15)
+    })
 }

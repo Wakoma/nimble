@@ -150,5 +150,14 @@ def test_shelf_assembly_generation():
     # Test the generated CAD assembly
     assy = rpi_shelf.generate_assembly_model()
 
+    # The following will only be here during development to visualize the assembly
+    # from cadquery.vis import show
+    # show(assy)
+
     # Make sure the assembly has the number of children we expect
     assert len(assy.children) == 2
+
+    # Make sure that the assembly has no parts that are interfering with each other
+    intersection_part = assy.objects["device"].shapes[0]
+    intersection_part = intersection_part.intersect(assy.objects["shelf"].shapes[0])
+    assert intersection_part.Volume() == pytest.approx(0.0, 0.001)
