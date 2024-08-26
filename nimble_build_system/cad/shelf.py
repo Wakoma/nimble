@@ -13,6 +13,7 @@ import yaml
 from cadorchestrator.components import AssembledComponent, GeneratedMechanicalComponent
 import cadquery as cq
 import cadscript
+from cq_warehouse.fastener import SocketHeadCapScrew
 
 from nimble_build_system.cad import RackParameters
 from nimble_build_system.cad.device_placeholder import generate_placeholder
@@ -100,6 +101,7 @@ class Shelf():
     _assembled_shelf = None
     _device_depth_axis = None  # Can be items like "-X", "X", "-Y", etc
     _device_offset = (0, 0, 0)  # Offsets to put the device for the correct assembly position
+    _fasteners = []  # List of screw positions for the device
     _unit_width = 6  # 6 or 10 inch rack
 
 
@@ -247,9 +249,9 @@ class Shelf():
         elif self._device_depth_axis == "-X":
             device = device.rotateAboutCenter((0, 0, 1), -90)
         elif self._device_depth_axis == "Y":
-            device = device.rotateAboutCenter((1, 0, 0), 90)
+            device = device.rotateAboutCenter((0, 0, 1), 0) # No rotation needed
         elif self._device_depth_axis == "-Y":
-            device = device.rotateAboutCenter((1, 0, 0), -90)
+            device = device.rotateAboutCenter((0, 0, 1), -180)
         elif self._device_depth_axis == "Z":
             device = device.rotateAboutCenter((0, 1, 0), 90)
         elif self._device_depth_axis == "-Z":
@@ -266,6 +268,17 @@ class Shelf():
         assy.add(self.generate_shelf_model().cq(),
                  name="shelf",
                  color=cq.Color(0.565, 0.698, 0.278, 1.0))
+
+        # Add the screws to the assembly
+        for i, screw in enumerate(self._fasteners):
+            cur_screw = SocketHeadCapScrew(size=screw["size"],
+                                           fastener_type=screw["type"],
+                                           length=screw["length"],
+                                           simple=True)
+            assy.add(cur_screw,
+                     name=f"screw_{i}",
+                     loc=cq.Location(*screw["position"]),
+                     color=cq.Color(0.5, 0.5, 0.5, 1.0))
 
         return assy
 
@@ -556,13 +569,15 @@ class RaspberryPiShelf(Shelf):
                  color: str,
                  rack_params: RackParameters,
                  device_depth_axis: float = "X",
-                 device_offset: tuple[float, float, float] = (0, 0, 0)):
+                 device_offset: tuple[float, float, float] = (0, 0, 0),
+                 fasteners: list[dict] = None):
 
         #pylint: disable=too-many-arguments
 
         super().__init__(device, assembly_key, position, color, rack_params)
         self._device_depth_axis = device_depth_axis
         self._device_offset = device_offset
+        self._fasteners = fasteners
 
     def generate_shelf_model(self):
         """
@@ -637,7 +652,14 @@ SHELF_TYPES= {
     "hdd35": (HDD35Shelf, {}),
     "dual-ssd": (DualSSDShelf, {}),
     "raspi": (RaspberryPiShelf, {
-        "device_depth_axis": "-X",
-        "device_offset": (12, 50, 15)
+        "device_depth_axis": "Y",
+        "device_offset": (11.5, 42.5, 6.3),
+        "fasteners": [{
+            "position": (-13, 23.5, 7.0),
+            "size": "M3-0.5",
+            "type": "iso4762",
+            "length": 6,
+            "axis": "-Z"
+        }]
     })
 }
