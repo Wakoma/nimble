@@ -13,14 +13,14 @@ import yaml
 from cadorchestrator.components import AssembledComponent, GeneratedMechanicalComponent
 import cadquery as cq
 import cadscript
-from cq_warehouse.fastener import SocketHeadCapScrew
+from cq_warehouse.fastener import ButtonHeadScrew
+from cq_annotate.views import explode_assembly
 
 from nimble_build_system.cad import RackParameters
 from nimble_build_system.cad.device_placeholder import generate_placeholder
 from nimble_build_system.cad.shelf_builder import ShelfBuilder, ziptie_shelf
 from nimble_build_system.orchestration.device import Device
 from nimble_build_system.orchestration.paths import REL_MECH_DIR
-
 
 
 def create_shelf_for(device_id: str,
@@ -80,6 +80,8 @@ class Shelf():
     Base shelf class that can be interrogated to get all of the renders and docs.
     """
 
+    # pylint: disable=too-many-instance-attributes
+
     variants = {
         "generic": "A generic cable tie shelf",
         "stuff": "A shelf for general stuff such as wires. No access to the front",
@@ -98,9 +100,12 @@ class Shelf():
     _device = None
     _device_model = None
     _shelf_model = None
+    _shelf_assembly_model = None
+    _exploded_shelf_assembly_model = None
     _assembled_shelf = None
     _device_depth_axis = None  # Can be items like "-X", "X", "-Y", etc
     _device_offset = (0, 0, 0)  # Offsets to put the device for the correct assembly position
+    _device_explode_translation = (0, 0, 0)  # Where to move the device to during an explode
     _fasteners = []  # List of screw positions for the device
     _unit_width = 6  # 6 or 10 inch rack
 
@@ -110,11 +115,22 @@ class Shelf():
                  assembly_key: str,
                  position: tuple[float, float, float],
                  color: str,
-                 rack_params: RackParameters):
+                 rack_params: RackParameters,
+                 device_depth_axis: float = "X",
+                 device_offset: tuple[float, float, float] = (0, 0, 0),
+                 fasteners: list[dict] = None,
+                 device_explode_translation: tuple[float, float, float] = (0, 0, 0)
+                 ):
+
+        # pylint: disable=too-many-arguments
 
         self._rack_params = rack_params
 
         self._device = device
+        self._device_depth_axis = device_depth_axis
+        self._device_offset = device_offset
+        self._fasteners = fasteners
+        self._device_explode_translation = device_explode_translation
 
         #Note that "assembled shelf" is the CadOrchestrator AssembledComponent
         # object not the full calculation in CadQuery of the physical assembly!
@@ -235,52 +251,81 @@ class Shelf():
         return self._shelf_model
 
 
-    def generate_assembly_model(self):
+    def generate_assembly_model(self, explode=False):
         """
         Generates an CAD model of the shelf assembly showing assembly step between
         a device and a shelf. This can be optionally be exploded.
         It is generated solely based on the device ID.
         """
 
-        # Get and orient the device model properly in relation to the shelf
-        device = self.generate_device_model()
-        if self._device_depth_axis == "X":
-            device = device.rotateAboutCenter((0, 0, 1), 90)
-        elif self._device_depth_axis == "-X":
-            device = device.rotateAboutCenter((0, 0, 1), -90)
-        elif self._device_depth_axis == "Y":
-            device = device.rotateAboutCenter((0, 0, 1), 0) # No rotation needed
-        elif self._device_depth_axis == "-Y":
-            device = device.rotateAboutCenter((0, 0, 1), -180)
-        elif self._device_depth_axis == "Z":
-            device = device.rotateAboutCenter((0, 1, 0), 90)
-        elif self._device_depth_axis == "-Z":
-            device = device.rotateAboutCenter((0, 1, 0), -90)
+        # There is a false positive on the cq.Location constructor. If I make pylint happy it breaks
+        # the method dispatch. If I make Python happy, pylint fails.
+        # pylint: disable=E1120
 
-        # Move the device to the correct position on the shelf
-        device = device.translate((self._device_offset[0],
-                                   self._device_offset[1],
-                                   self._device_offset[2]))
+        # If the shelf assembly has already been generated, do not generate it again
+        if self._shelf_assembly_model is None:
+            # Get and orient the device model properly in relation to the shelf
+            device = self.generate_device_model()
+            if self._device_depth_axis == "X":
+                device = device.rotateAboutCenter((0, 0, 1), 90)
+            elif self._device_depth_axis == "-X":
+                device = device.rotateAboutCenter((0, 0, 1), -90)
+            elif self._device_depth_axis == "Y":
+                device = device.rotateAboutCenter((0, 0, 1), 0) # No rotation needed
+            elif self._device_depth_axis == "-Y":
+                device = device.rotateAboutCenter((0, 0, 1), -180)
+            elif self._device_depth_axis == "Z":
+                device = device.rotateAboutCenter((0, 1, 0), 90)
+            elif self._device_depth_axis == "-Z":
+                device = device.rotateAboutCenter((0, 1, 0), -90)
 
-        # Create the assembly holding all the parts that go into the shelf unit
-        assy = cq.Assembly()
-        assy.add(device, name="device", color=cq.Color(0.996, 0.867, 0.0, 1.0))
-        assy.add(self.generate_shelf_model().cq(),
-                 name="shelf",
-                 color=cq.Color(0.565, 0.698, 0.278, 1.0))
+            # Move the device to the correct position on the shelf
+            device = device.translate((self._device_offset[0],
+                                    self._device_offset[1],
+                                    self._device_offset[2]))
 
-        # Add the screws to the assembly
-        for i, screw in enumerate(self._fasteners):
-            cur_screw = SocketHeadCapScrew(size=screw["size"],
-                                           fastener_type=screw["type"],
-                                           length=screw["length"],
-                                           simple=True)
-            assy.add(cur_screw,
-                     name=f"screw_{i}",
-                     loc=cq.Location(*screw["position"]),
-                     color=cq.Color(0.5, 0.5, 0.5, 1.0))
+            # Create the assembly holding all the parts that go into the shelf unit
+            assy = cq.Assembly()
+            assy.add(device, name="device", color=cq.Color(0.996, 0.867, 0.0, 1.0))
+            assy.add(self.generate_shelf_model().cq(),
+                    name="shelf",
+                    color=cq.Color(0.565, 0.698, 0.278, 1.0),
+                    metadata={
+                            "explode_translation": cq.Location(
+                                (self._device_explode_translation[0],
+                                 self._device_explode_translation[1],
+                                 self._device_explode_translation[2]))
+                        })
 
-        return assy
+            # Add the screws to the assembly
+            for i, screw in enumerate(self._fasteners):
+                cur_screw = ButtonHeadScrew(size=screw["size"],
+                                            fastener_type=screw["type"],
+                                            length=screw["length"],
+                                            simple=True).cq_object
+                assy.add(cur_screw,
+                        name=f"screw_{i}",
+                        loc=cq.Location(*screw["position"]),
+                        color=cq.Color(0.5, 0.5, 0.5, 1.0),
+                        metadata={
+                            "explode_translation": cq.Location(
+                                (screw["explode_translation"][0],
+                                 screw["explode_translation"][1],
+                                 screw["explode_translation"][2]))
+                        })
+
+            self._shelf_assembly_model = assy
+
+        # Handle assembly explosion
+        if explode:
+            # If the exploded shelf assembly has already been generated, do not re-generate it
+            if self._exploded_shelf_assembly_model is None:
+                self._exploded_shelf_assembly_model = self._shelf_assembly_model
+                explode_assembly(self._exploded_shelf_assembly_model)
+
+            return self._exploded_shelf_assembly_model
+
+        return self._shelf_assembly_model
 
 
     def get_render(self, assy, camera_pos, image_format="png"):
@@ -570,14 +615,21 @@ class RaspberryPiShelf(Shelf):
                  rack_params: RackParameters,
                  device_depth_axis: float = "X",
                  device_offset: tuple[float, float, float] = (0, 0, 0),
-                 fasteners: list[dict] = None):
+                 fasteners: list[dict] = None,
+                 device_explode_translation: tuple[float, float, float] = (0, 0, 0)):
 
         #pylint: disable=too-many-arguments
 
-        super().__init__(device, assembly_key, position, color, rack_params)
-        self._device_depth_axis = device_depth_axis
-        self._device_offset = device_offset
-        self._fasteners = fasteners
+        super().__init__(device,
+                         assembly_key,
+                         position,
+                         color,
+                         rack_params,
+                         device_depth_axis,
+                         device_offset,
+                         fasteners,
+                         device_explode_translation)
+
 
     def generate_shelf_model(self):
         """
@@ -653,11 +705,38 @@ SHELF_TYPES= {
     "dual-ssd": (DualSSDShelf, {}),
     "raspi": (RaspberryPiShelf, {
         "device_depth_axis": "Y",
-        "device_offset": (11.5, 42.5, 6.3),
-        "fasteners": [{
-            "position": (-13, 23.5, 7.0),
+        "device_offset": (11.5, 42.5, 6.2),
+        "device_explode_translation": (0.0, 0.0, -25.0),
+        "fasteners": [
+        {
+            "position": (-13.0, 23.5, 7.0),
+            "explode_translation": (0.0, 0.0, 35.0),
             "size": "M3-0.5",
-            "type": "iso4762",
+            "type": "iso7380_1",
+            "length": 6,
+            "axis": "-Z"
+        },
+        {
+            "position": (36.0, 23.5, 7.0),
+            "explode_translation": (0.0, 0.0, 35.0),
+            "size": "M3-0.5",
+            "type": "iso7380_1",
+            "length": 6,
+            "axis": "-Z"
+        },
+        {
+            "position": (-13.0, 81.5, 7.0),
+            "explode_translation": (0.0, 0.0, 35.0),
+            "size": "M3-0.5",
+            "type": "iso7380_1",
+            "length": 6,
+            "axis": "-Z"
+        },
+        {
+            "position": (36.0, 81.5, 7.0),
+            "explode_translation": (0.0, 0.0, 35.0),
+            "size": "M3-0.5",
+            "type": "iso7380_1",
             "length": 6,
             "axis": "-Z"
         }]
