@@ -1,5 +1,5 @@
 import pytest
-from nimble_build_system.cad.shelf import Shelf, RaspberryPiShelf
+from nimble_build_system.cad.shelf import RaspberryPiShelf
 from nimble_build_system.orchestration.configuration import NimbleConfiguration
 
 def test_shelf_generation():
