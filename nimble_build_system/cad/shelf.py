@@ -255,6 +255,9 @@ class Shelf():
         # the method dispatch. If I make Python happy, pylint fails.
         # pylint: disable=E1120
 
+        # TODO: Abstract hole/screw position and use it for both shelf construction and fastener
+        # placement
+
         # If the shelf assembly has already been generated, do not generate it again
         if self._shelf_assembly_model is None:
             # Get and orient the device model properly in relation to the shelf
@@ -742,11 +745,5 @@ SHELF_TYPES= {
     }),
     "hdd35": (HDD35Shelf, {}),
     "dual-ssd": (DualSSDShelf, {}),
-    "raspi": (RaspberryPiShelf, {
-        # TODO: Hard code this into the shelf
-        # TODO: Abstract hole/screw position and use it for both shelf construction and fastener
-        # placement
-        # TODO: Create a fastener class that holds the fastener type, size, and position below
-        # TODO: Hard code as list of Fastener objects in the shelf constructor
-    })
+    "raspi": (RaspberryPiShelf, {})
 }
