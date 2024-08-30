@@ -172,6 +172,8 @@ def test_shelf_assembly_generation():
     # Make sure the assembly has the number of children we expect
     assert len(assy.children) == 6
 
-    # The following will only be here during development to visualize the assembly
+    # TODO: Remove the following before merging the PR
     # from cadquery.vis import show
+    # show(rpi_shelf.generate_shelf_model().cq())
+    # show(assy)
     # show(exploded_assy)

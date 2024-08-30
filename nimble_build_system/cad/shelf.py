@@ -107,8 +107,15 @@ class Shelf():
     _device_depth_axis = None  # Can be items like "-X", "X", "-Y", etc
     _device_offset = (0, 0, 0)  # Offsets to put the device for the correct assembly position
     _device_explode_translation = (0, 0, 0)  # Where to move the device to during an explode
+    _hole_locations = None  # List of hole locations for the device
     _fasteners = []  # List of screw positions for the device
     _unit_width = 6  # 6 or 10 inch rack
+
+    # Hole location parameters
+    _screw_dist_x = None
+    _screw_dist_y = None
+    _dist_to_front = None
+    _offset_x = None
 
 
     def __init__(self,
@@ -213,6 +220,85 @@ class Shelf():
         return self._assembled_shelf.component
 
 
+    @property
+    def screw_dist_x(self):
+        """
+        Return the distance between the screws on the x-axis.
+        """
+        return self._screw_dist_x
+
+
+    @screw_dist_x.setter
+    def screw_dist_x(self, value):
+        """
+        Set the distance between the screws on the x-axis.
+        """
+        self._screw_dist_x = value
+
+
+    @property
+    def screw_dist_y(self):
+        """
+        Return the distance between the screws on the y-axis.
+        """
+        return self._screw_dist_y
+
+
+    @screw_dist_y.setter
+    def screw_dist_y(self, value):
+        """
+        Set the distance between the screws on the y-axis.
+        """
+        self._screw_dist_y = value
+
+    @property
+    def dist_to_front(self):
+        """
+        Return the distance to the front of the shelf.
+        """
+        return self._dist_to_front
+
+
+    @dist_to_front.setter
+    def dist_to_front(self, value):
+        """
+        Set the distance to the front of the shelf.
+        """
+        self._dist_to_front = value
+
+
+    @property
+    def offset_x(self):
+        """
+        Return the offset on the x-axis.
+        """
+        return self._offset_x
+
+
+    @offset_x.setter
+    def offset_x(self, value):
+        """
+        Set the offset on the x-axis.
+        """
+        self._offset_x = value
+
+
+    @property
+    def hole_locations(self):
+        """
+        Return the hole locations for the device.
+        """
+        return self._hole_locations
+
+
+    @hole_locations.setter
+    def hole_locations(self, value):
+        """
+        Set the hole locations for the device.
+        """
+        self._hole_locations = value
+
+
     def generate_device_model(self):
         """
         Generates the device model only.
@@ -254,9 +340,7 @@ class Shelf():
         # There is a false positive on the cq.Location constructor. If I make pylint happy it breaks
         # the method dispatch. If I make Python happy, pylint fails.
         # pylint: disable=E1120
-
-        # TODO: Abstract hole/screw position and use it for both shelf construction and fastener
-        # placement
+        # pylint: disable=W0212
 
         # If the shelf assembly has already been generated, do not generate it again
         if self._shelf_assembly_model is None:
@@ -320,7 +404,7 @@ class Shelf():
         if explode:
             # If the exploded shelf assembly has already been generated, do not re-generate it
             if self._exploded_shelf_assembly_model is None:
-                self._exploded_shelf_assembly_model = self._shelf_assembly_model
+                self._exploded_shelf_assembly_model = self._shelf_assembly_model._copy()
                 explode_assembly(self._exploded_shelf_assembly_model)
 
             return self._exploded_shelf_assembly_model
@@ -620,6 +704,8 @@ class RaspberryPiShelf(Shelf):
     """
     A shelf for Raspberry Pi models.
     """
+    # pylint: disable=too-many-instance-attributes
+
     variants = {
         "Raspberry_Pi_4B": {"description": "A shelf for a Raspberry Pi 4B", "step_path": "N/A"},
         "Raspberry_Pi_5": {"description": "A shelf for a Raspberry Pi 5", "step_path": "N/A"},
@@ -632,33 +718,46 @@ class RaspberryPiShelf(Shelf):
                  color: str,
                  rack_params: RackParameters):
 
+        # Screw hole parameters
+        self.screw_dist_x = 49
+        self.screw_dist_y = 58
+        self.dist_to_front = 23.5
+        self.offset_x = -13
+
         self._device_depth_axis = "Y"
         self._device_offset = (11.5, 42.5, 6.2)
         self._device_explode_translation = (0.0, 0.0, -25.0)
+        # Gather all the mounting screw locations
+        self.hole_locations = [
+                (self.offset_x, self.dist_to_front),
+                (self.offset_x + self.screw_dist_x, self.dist_to_front),
+                (self.offset_x, self.dist_to_front + self.screw_dist_y),
+                (self.offset_x + self.screw_dist_x, self.dist_to_front + self.screw_dist_y),
+            ]
         self._fasteners = [
             Screw(name=None,
-                  position=(-13.0, 23.5, 7.0),
+                  position=self.hole_locations[0] + (7.0,),
                   explode_translation=(0.0, 0.0, 35.0),
                   size="M3-0.5",
                   fastener_type="iso7380_1",
                   axis="-Z",
                   length=6),
             Screw(name=None,
-                  position=(36.0, 23.5, 7.0),
+                  position=self.hole_locations[1] + (7.0,),
                   explode_translation=(0.0, 0.0, 35.0),
                   size="M3-0.5",
                   fastener_type="iso7380_1",
                   axis="-Z",
                   length=6),
             Screw(name=None,
-                  position=(-13.0, 81.5, 7.0),
+                  position=self.hole_locations[2] + (7.0,),
                   explode_translation=(0.0, 0.0, 35.0),
                   size="M3-0.5",
                   fastener_type="iso7380_1",
                   axis="-Z",
                   length=6),
             Screw(name=None,
-                  position=(36.0, 81.5, 7.0),
+                  position=self.hole_locations[3] + (7.0,),
                   explode_translation=(0.0, 0.0, 35.0),
                   size="M3-0.5",
                   fastener_type="iso7380_1",
@@ -677,11 +776,8 @@ class RaspberryPiShelf(Shelf):
         """
         Generates the shelf model only.
         """
+
         if self._shelf_model is None:
-            screw_dist_x = 49
-            screw_dist_y = 58
-            dist_to_front = 23.5
-            offset_x = -13
             builder = ShelfBuilder(self.height_in_u,
                                 width="standard",
                                 depth=111,
@@ -689,12 +785,7 @@ class RaspberryPiShelf(Shelf):
             builder.cut_opening("<Y", (-15, 39.5), size_y=(6, 25))
             builder.cut_opening("<Y", (-41.5, -25.5), size_y=(6, 22))
             builder.make_tray(sides="ramp", back="open")
-            for x, y in [
-                (offset_x, dist_to_front),
-                (offset_x + screw_dist_x, dist_to_front),
-                (offset_x, dist_to_front + screw_dist_y),
-                (offset_x + screw_dist_x, dist_to_front + screw_dist_y),
-            ]:
+            for x, y in self.hole_locations:
                 builder.add_mounting_hole_to_bottom(
                     x_pos=x,
                     y_pos=y,
