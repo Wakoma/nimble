@@ -53,14 +53,15 @@ def test_assembly_png_rendering():
     # Test the generated CAD assembly
     shelf_assy = rpi_shelf.generate_assembly_model()
 
-    rpi_shelf.get_render(shelf_assy, (0, 0, 0))
+    # Set up a temporary path to export the image to
+    temp_dir = tempfile.gettempdir()
+    temp_path = os.path.join(temp_dir, "test_model.png")
 
-    # temp_dir = tempfile.gettempdir()
+    # Do a sample render of the shelf assembly
+    rpi_shelf.get_render(shelf_assy,
+                         file_path=temp_path)
 
-    # Export the model to a PNG image
-    # cq.exporters.export(shelf_assy, os.path.join(temp_dir, "test_model.png"))
-
-    assert True
+    assert os.path.isfile(temp_path)
 
 
 def test_annotated_assembly_png_rendering():

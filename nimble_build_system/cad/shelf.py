@@ -5,6 +5,9 @@ the shelves are generated based on the device type. The shelves are generated us
 
 Rendering and documentation generation is also supported for the shelves.
 """
+
+# pylint: disable=unused-import
+
 import os
 import posixpath
 import warnings
@@ -12,6 +15,7 @@ import warnings
 import yaml
 from cadorchestrator.components import AssembledComponent, GeneratedMechanicalComponent
 import cadquery as cq
+import cadquery_png_plugin.plugin  # This activates the PNG plugin for CadQuery
 import cadscript
 from cq_warehouse.fastener import ButtonHeadScrew
 from cq_annotate.views import explode_assembly
@@ -110,6 +114,7 @@ class Shelf():
     _hole_locations = None  # List of hole locations for the device
     _fasteners = []  # List of screw positions for the device
     _unit_width = 6  # 6 or 10 inch rack
+    _render_options = None
 
     # Hole location parameters
     _screw_dist_x = None
@@ -299,6 +304,22 @@ class Shelf():
         self._hole_locations = value
 
 
+    @property
+    def render_options(self):
+        """
+        Return the options for rendering the shelf.
+        """
+        return self._render_options
+
+
+    @render_options.setter
+    def render_options(self, value):
+        """
+        Set the options for rendering the shelf.
+        """
+        self._render_options = value
+
+
     def generate_device_model(self):
         """
         Generates the device model only.
@@ -412,7 +433,12 @@ class Shelf():
         return self._shelf_assembly_model
 
 
-    def get_render(self, model, camera_pos, annotate=False, image_format="png", image_path=None):
+    def get_render(self,
+                   model,
+                   camera_position=None,
+                   annotate=False,
+                   image_format="png",
+                   file_path=None):
         """
         Generates a render of the assembly.
 
@@ -434,9 +460,10 @@ class Shelf():
 
         # Check to see if we are dealing with a single part or an assembly
         if isinstance(model, cq.Assembly):
-            print("We have an assembly")
+            model.exportPNG(options=self.render_options, file_path=file_path)
         else:
             print("We have a part")
+            # TODO - Implement PNG rendering of a single part
 
         return NotImplemented
 
@@ -764,6 +791,10 @@ class RaspberryPiShelf(Shelf):
                   axis="-Z",
                   length=6)
         ]
+        self.render_options = {
+            "view": "back-top-left",
+            "zoom": 1.25,
+        }
 
         super().__init__(device,
                          assembly_key,
