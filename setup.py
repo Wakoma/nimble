@@ -11,9 +11,9 @@ setup(
     python_requires='>=3.10',
     install_requires=[
         'numpy~=1.26',
-        'cadquery>=2',
+        # 'cadquery>=2',
         # 'cadquery-ocp<=7.7.2.0',
-        # 'cadquery @ git+https://github.com/CadQuery/cadquery.git',
+        'cadquery @ git+https://github.com/CadQuery/cadquery.git',
         'cadquery-png-plugin @ git+https://github.com/jmwright/cadquery-png-plugin.git',
         'cadscript>=0.5.2',
         'exsource-tools',
