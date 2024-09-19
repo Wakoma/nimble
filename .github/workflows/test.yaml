@@ -5,7 +5,7 @@ on: [push]
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: "Check out the repo"
         uses: actions/checkout@v3
@@ -26,12 +26,13 @@ jobs:
 
       - name: Install system dependencies
         run: |
-          sudo apt update && sudo apt install -y libgl1 libglx-mesa0 libosmesa6
+          sudo apt update && sudo apt install -y libgl1 libglx-mesa0
 
       - name: Install nimble packages and dev tools
         run: |
           pip install -e .[dev]
 
       - name: Run tests
+        uses: coactions/setup-xvfb@v1
         run: |
           pytest
