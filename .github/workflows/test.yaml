@@ -26,7 +26,7 @@ jobs:
 
       - name: Install system dependencies
         run: |
-          sudo apt update && sudo apt install -y libgl1 libglx-mesa0
+          sudo apt update && sudo apt install -y libgl1 libglx-mesa0 libosmesa6
 
       - name: Install nimble packages and dev tools
         run: |
