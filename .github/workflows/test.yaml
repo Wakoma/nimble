@@ -34,5 +34,5 @@ jobs:
 
       - name: Run tests
         uses: coactions/setup-xvfb@v1
-        run: |
-          pytest
+        with:
+          run: pytest
