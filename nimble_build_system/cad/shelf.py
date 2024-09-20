@@ -19,6 +19,7 @@ import cadquery_png_plugin.plugin  # This activates the PNG plugin for CadQuery
 import cadscript
 from cq_warehouse.fastener import ButtonHeadScrew
 from cq_annotate.views import explode_assembly
+from cq_annotate.callouts import add_assembly_lines
 
 from nimble_build_system.cad import RackParameters
 from nimble_build_system.cad.device_placeholder import generate_placeholder
@@ -398,10 +399,13 @@ class Shelf():
             # Add the screws to the assembly
             for i, screw in enumerate(self._fasteners):
                 # Create a button head screw model
-                cur_screw = ButtonHeadScrew(size=screw.size,
+                cur_screw = cq.Workplane(ButtonHeadScrew(size=screw.size,
                                             fastener_type=screw.fastener_type,
                                             length=screw.length,
-                                            simple=True).cq_object
+                                            simple=True).cq_object)
+
+                # Make sure assembly lines are present with each screw
+                cur_screw.faces("<Z").tag("assembly_line")
 
                 # Figure out what the name of the screw should be
                 if screw.name is None:
@@ -460,7 +464,15 @@ class Shelf():
 
         # Check to see if we are dealing with a single part or an assembly
         if isinstance(model, cq.Assembly):
-            model.exportPNG(options=self.render_options, file_path=file_path)
+            # Handle assembly annotation
+            if annotate:
+                add_assembly_lines(model)
+
+            # Handle the varioius image formats separately
+            if image_format == "png":
+                model.exportPNG(options=self.render_options, file_path=file_path)
+            else:
+                print("Unknown image format")
         else:
             print("We have a part")
             # TODO - Implement PNG rendering of a single part
