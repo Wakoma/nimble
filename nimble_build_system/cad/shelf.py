@@ -767,7 +767,7 @@ class RaspberryPiShelf(Shelf):
 
         self._device_depth_axis = "Y"
         self._device_offset = (11.5, 42.5, 6.2)
-        self._device_explode_translation = (0.0, 0.0, 15.0)
+        self._device_explode_translation = (0.0, 0.0, 25.0)
         # Gather all the mounting screw locations
         self.hole_locations = [
                 (self.offset_x, self.dist_to_front),
@@ -778,36 +778,36 @@ class RaspberryPiShelf(Shelf):
         self._fasteners = [
             Screw(name=None,
                   position=self.hole_locations[0] + (7.0,),
-                  explode_translation=(0.0, 0.0, 35.0),
+                  explode_translation=(0.0, 0.0, 45.0),
                   size="M3-0.5",
                   fastener_type="iso7380_1",
                   axis="-Z",
                   length=6),
             Screw(name=None,
                   position=self.hole_locations[1] + (7.0,),
-                  explode_translation=(0.0, 0.0, 35.0),
+                  explode_translation=(0.0, 0.0, 45.0),
                   size="M3-0.5",
                   fastener_type="iso7380_1",
                   axis="-Z",
                   length=6),
             Screw(name=None,
                   position=self.hole_locations[2] + (7.0,),
-                  explode_translation=(0.0, 0.0, 35.0),
+                  explode_translation=(0.0, 0.0, 45.0),
                   size="M3-0.5",
                   fastener_type="iso7380_1",
                   axis="-Z",
                   length=6),
             Screw(name=None,
                   position=self.hole_locations[3] + (7.0,),
-                  explode_translation=(0.0, 0.0, 35.0),
+                  explode_translation=(0.0, 0.0, 45.0),
                   size="M3-0.5",
                   fastener_type="iso7380_1",
                   axis="-Z",
                   length=6)
         ]
         self.render_options = {
-            "view": "back-top-left",
-            "zoom": 1.25,
+            "view": "back-top-right",
+            "zoom": 1.5,
         }
 
         super().__init__(device,
