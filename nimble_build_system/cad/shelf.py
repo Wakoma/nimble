@@ -388,13 +388,14 @@ class Shelf():
 
             # Create the assembly holding all the parts that go into the shelf unit
             assy = cq.Assembly()
-            assy.add(device, name="device", color=cq.Color(0.996, 0.867, 0.0, 1.0))
+            assy.add(device, name="device",
+                     color=cq.Color(0.996, 0.867, 0.0, 1.0),
+                     metadata={
+                        "explode_translation": cq.Location(self._device_explode_translation)
+                    })
             assy.add(self.generate_shelf_model().cq(),
                     name="shelf",
-                    color=cq.Color(0.565, 0.698, 0.278, 1.0),
-                    metadata={
-                            "explode_translation": cq.Location(self._device_explode_translation)
-                        })
+                    color=cq.Color(0.565, 0.698, 0.278, 1.0))
 
             # Add the screws to the assembly
             for i, screw in enumerate(self._fasteners):
@@ -765,7 +766,7 @@ class RaspberryPiShelf(Shelf):
 
         self._device_depth_axis = "Y"
         self._device_offset = (11.5, 42.5, 6.2)
-        self._device_explode_translation = (0.0, 0.0, -25.0)
+        self._device_explode_translation = (0.0, 0.0, 15.0)
         # Gather all the mounting screw locations
         self.hole_locations = [
                 (self.offset_x, self.dist_to_front),
