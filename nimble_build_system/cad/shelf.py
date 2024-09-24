@@ -7,6 +7,7 @@ Rendering and documentation generation is also supported for the shelves.
 """
 
 # pylint: disable=unused-import
+# pylint: disable=too-many-positional-arguments
 
 import os
 import posixpath
