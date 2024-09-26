@@ -441,7 +441,6 @@ class Shelf():
 
     def get_render(self,
                    model,
-                   camera_position=None,
                    annotate=False,
                    image_format="png",
                    file_path=None):
@@ -806,6 +805,7 @@ class RaspberryPiShelf(Shelf):
                   length=6)
         ]
         self.render_options = {
+            "color_theme": "default",  # can also use black_and_white
             "view": "back-top-right",
             "zoom": 1.5,
         }
