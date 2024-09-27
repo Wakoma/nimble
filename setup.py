@@ -17,10 +17,14 @@ setup(
         'cadscript>=0.5.2',
         'exsource-tools',
         'cq-cli @ git+https://github.com/CadQuery/cq-cli.git',
+<<<<<<< HEAD
         'gitbuilding>=0.0.6',
+=======
+        'gitbuilding==0.15.0a4',
+>>>>>>> Add script to communicate with networking hardware database
         'cq-annotate @ git+https://github.com/jmwright/cq-annotate.git',
         'cq_warehouse @ git+https://github.com/gumyr/cq_warehouse.git',
-        'cadorchestrator @ git+https://gitlab.com/gitbuilding/cadorchestrator.git'
+        'cadorchestrator'
     ],
     extras_require={
         'dev': [
@@ -29,5 +33,10 @@ setup(
             'pytest'
         ]
     },
-    entry_points={'console_scripts': ['gen_nimble_conf_options = nimble_build_system.utils.gen_nimble_conf_options:main']}
+    entry_points={
+        'console_scripts': [
+            'gen_nimble_conf_options = nimble_build_system.utils.gen_nimble_conf_options:main',
+            'nimble_devices_updater = nimble_build_system.utils.nimble_devices_updater:main'
+        ]
+    }
 )
