@@ -26,12 +26,14 @@ jobs:
 
       - name: Install system dependencies
         run: |
-          sudo apt update && sudo apt install -y libgl1-mesa-glx
+          sudo apt update && sudo apt install -y libgl1 libglx-mesa0
 
       - name: Install nimble packages and dev tools
         run: |
-          pip install .[dev]
+          pip install -e .[dev]
+          pip list
 
       - name: Run tests
-        run: |
-          pytest
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: pytest

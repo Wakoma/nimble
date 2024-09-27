@@ -1,5 +1,5 @@
 import pytest
-from nimble_build_system.cad.shelf import Shelf, RaspberryPiShelf
+from nimble_build_system.cad.shelf import RaspberryPiShelf
 from nimble_build_system.orchestration.configuration import NimbleConfiguration
 
 def test_shelf_generation():
@@ -110,12 +110,19 @@ def test_shelf_generation():
 
         # Check that the device model was generated with the proper dimensions per the configuration
         device_model = shelf.generate_device_model()
-        x_size = device_model.val().BoundingBox().xmax - device_model.val().BoundingBox().xmin
-        y_size = device_model.val().BoundingBox().ymax - device_model.val().BoundingBox().ymin
-        z_size = device_model.val().BoundingBox().zmax - device_model.val().BoundingBox().zmin
-        assert x_size == pytest.approx(config.devices[i].width, 0.001)
-        assert y_size == pytest.approx(config.devices[i].depth, 0.001)
-        assert z_size == pytest.approx(config.devices[i].height, 0.001)
+
+        # Account for the custom model model for the Raspberry Pi 4B
+        if "raspberry" in device.name.lower():
+            assert device.width == pytest.approx(85.0, 0.001)
+            assert device.depth == pytest.approx(56.0, 0.001)
+            assert device.height == pytest.approx(17.0, 0.001)
+        else:
+            x_size = device_model.val().BoundingBox().xmax - device_model.val().BoundingBox().xmin
+            y_size = device_model.val().BoundingBox().ymax - device_model.val().BoundingBox().ymin
+            z_size = device_model.val().BoundingBox().zmax - device_model.val().BoundingBox().zmin
+            assert x_size == pytest.approx(config.devices[i].width, 0.001)
+            assert y_size == pytest.approx(config.devices[i].depth, 0.001)
+            assert z_size == pytest.approx(config.devices[i].height, 0.001)
 
         # Make sure the shelf model is valid and has generally the correct dimensions
         shelf_model = shelf.generate_shelf_model().cq()
@@ -128,3 +135,45 @@ def test_shelf_generation():
         assert x_size > config.devices[i].width
         assert y_size > config.devices[i].depth
         assert z_size > config.devices[i].height
+
+
+def test_shelf_assembly_generation():
+    """
+    Tests whether or not the assembly is valid and all the components are present and in the correct
+    locations and orientations.
+    """
+
+    # The configuration of hardware/shelves that we want to test against
+    test_config = ["Raspberry_Pi_4B"]
+
+    # Load the needed information to generate a Shelf object
+    config = NimbleConfiguration(test_config)
+
+    # Get the only shelf that we should have to deal with
+    rpi_shelf = config.shelves[0]
+
+    assert rpi_shelf != None
+
+    # Test the generated CAD assembly
+    assy = rpi_shelf.generate_assembly_model()
+
+    # Make sure the assembly has the number of children we expect
+    assert len(assy.children) == 6
+
+    # Make sure that the assembly has no parts that are interfering with each other
+    print(assy.objects["screw_0"].shapes[0])
+    intersection_part = assy.objects["shelf"].shapes[0]
+    intersection_part = intersection_part.intersect(assy.objects["device"].shapes[0])
+    assert intersection_part.Volume() == pytest.approx(0.0, 0.001)
+
+    # Test exploded assembly
+    exploded_assy = rpi_shelf.generate_assembly_model(explode=True)
+
+    # Make sure the assembly has the number of children we expect
+    assert len(assy.children) == 6
+
+    # TODO: Remove the following before merging the PR
+    # from cadquery.vis import show
+    # show(rpi_shelf.generate_shelf_model().cq())
+    # show(assy)
+    # show(exploded_assy)

@@ -11,11 +11,13 @@ setup(
     python_requires='>=3.10',
     install_requires=[
         'numpy~=1.26',
-        'cadquery>=2',
+        # 'cadquery>=2',
+        'cadquery @ git+https://github.com/CadQuery/cadquery.git',
+        'cadquery-png-plugin @ git+https://github.com/jmwright/cadquery-png-plugin.git',
         'cadscript>=0.5.2',
         'exsource-tools',
         'cq-cli @ git+https://github.com/CadQuery/cq-cli.git',
-        'gitbuilding==0.15.0a2',
+        'gitbuilding>=0.0.6',
         'cq-annotate @ git+https://github.com/jmwright/cq-annotate.git',
         'cq_warehouse @ git+https://github.com/gumyr/cq_warehouse.git',
         'cadorchestrator @ git+https://gitlab.com/gitbuilding/cadorchestrator.git'
