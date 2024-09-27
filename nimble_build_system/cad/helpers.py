@@ -72,6 +72,7 @@ def cut_w_pattern(body: cad.Body,
                   size_y: cad.DimensionDefinitionType,
                   padding_x: float,
                   padding_y: float,
+                  *,
                   min_spacing: float = 0,
                   cut_depth: float = 10,
                   ) -> 'cad.Body':
