@@ -1,13 +1,13 @@
 AutoCompleteSubNav: true
 CustomCategories:
   consumable:
-    DisplayName: Comsumables
+    DisplayName: Consumables
     Reuse: false
   mech:
     DisplayName: Mechanical Components
     Reuse: false
   net:
-    DisplayName: Networking Compontents
+    DisplayName: Networking Components
     Reuse: false
   prev:
     DisplayName: Previously Assembled

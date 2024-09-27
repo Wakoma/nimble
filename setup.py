@@ -17,11 +17,7 @@ setup(
         'cadscript>=0.5.2',
         'exsource-tools',
         'cq-cli @ git+https://github.com/CadQuery/cq-cli.git',
-<<<<<<< HEAD
-        'gitbuilding>=0.0.6',
-=======
         'gitbuilding==0.15.0a4',
->>>>>>> Add script to communicate with networking hardware database
         'cq-annotate @ git+https://github.com/jmwright/cq-annotate.git',
         'cq_warehouse @ git+https://github.com/gumyr/cq_warehouse.git',
         'cadorchestrator'

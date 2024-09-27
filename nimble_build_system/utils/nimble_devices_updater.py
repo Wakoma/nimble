@@ -4,7 +4,6 @@
 This module is used to update the devices.json file from a CSV downloaded from nocodb.
 """
 
-import sys
 import csv
 import json
 import argparse
@@ -63,7 +62,7 @@ def main():
     """
 
     args = parse_args()
-    
+
     if args.local:
         if args.url:
             raise RuntimeError("Cannot set an API path and a local file. "
