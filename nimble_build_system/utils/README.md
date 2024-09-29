@@ -1,13 +1,13 @@
 The utilities sub-module of the nimble build system contains scripts that are needed for project specific tasks such as updating config files
 
-## devices_json_updater.py
+## nimble_devices_updater.py
 
 This converts the CSV that is downloaded from NocoDB into something that can be used by the orchestration/generation scripts. The scripts use the `devices.json` file that is in the root of this repository. This should eventually be replaced by a direct connection via the NocoDB API. This utility requires that it be passed the path to the CSV file to convert.
 
 **Usage:**
 
 ```bash
-./devices_json_updater.py /full/path/to/NocoDB/CSV/file
+./nimble_devices_updater.py
 ```
 
 The `devices.json` file it creates is committed to the repository.
