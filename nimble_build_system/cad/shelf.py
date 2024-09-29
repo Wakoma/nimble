@@ -7,7 +7,6 @@ Rendering and documentation generation is also supported for the shelves.
 """
 
 # pylint: disable=unused-import
-# pylint: disable=too-many-positional-arguments
 
 import os
 import posixpath
@@ -135,7 +134,6 @@ class Shelf():
                  rack_params: RackParameters
                  ):
 
-        # pylint: disable=too-many-arguments
 
         self._rack_params = rack_params
 
@@ -821,10 +819,10 @@ class RaspberryPiShelf(Shelf):
         }
 
         super().__init__(device,
-                         assembly_key,
-                         position,
-                         color,
-                         rack_params)
+                         assembly_key=assembly_key,
+                         position=position,
+                         color=color,
+                         rack_params=rack_params)
 
 
     def generate_shelf_model(self):
