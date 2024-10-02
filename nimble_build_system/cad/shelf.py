@@ -17,7 +17,7 @@ from cadorchestrator.components import AssembledComponent, GeneratedMechanicalCo
 import cadquery as cq
 import cadquery_png_plugin.plugin  # This activates the PNG plugin for CadQuery
 import cadscript
-from cq_warehouse.fastener import ButtonHeadScrew
+from cq_warehouse.fastener import ButtonHeadScrew, CounterSunkScrew
 from cq_annotate.views import explode_assembly
 from cq_annotate.callouts import add_assembly_lines
 
@@ -400,11 +400,19 @@ class Shelf():
 
             # Add the screws to the assembly
             for i, screw in enumerate(self._fasteners):
-                # Create a button head screw model
-                cur_screw = cq.Workplane(ButtonHeadScrew(size=screw.size,
-                                            fastener_type=screw.fastener_type,
-                                            length=screw.length,
-                                            simple=True).cq_object)
+                # Handle the different fastener types
+                if screw.fastener_type == "iso10642":
+                    # Create the counter-sunk screw model
+                    cur_screw = cq.Workplane(CounterSunkScrew(size=screw.size,
+                                                fastener_type=screw.fastener_type,
+                                                length=screw.length,
+                                                simple=True).cq_object)
+                else:
+                    # Create a button head screw model
+                    cur_screw = cq.Workplane(ButtonHeadScrew(size=screw.size,
+                                                fastener_type=screw.fastener_type,
+                                                length=screw.length,
+                                                simple=True).cq_object)
 
                 # Make sure assembly lines are present with each screw
                 cur_screw.faces("<Z").tag("assembly_line")
@@ -412,6 +420,20 @@ class Shelf():
                 # Figure out what the name of the screw should be
                 if screw.name is None:
                     screw.name = f"screw_{i}"
+
+                # Figure out what the rotation should be
+                if screw.direction_axis == "X":
+                    cur_screw = cur_screw.rotate((0, 0, 0), (0, 1, 0), 90)
+                elif screw.direction_axis == "-X":
+                    cur_screw = cur_screw.rotate((0, 0, 0), (0, 1, 0), -90)
+                elif screw.direction_axis == "Y":
+                    cur_screw = cur_screw.rotate((0, 0, 0), (1, 0, 0), 90)
+                elif screw.direction_axis == "-Y":
+                    cur_screw = cur_screw.rotate((0, 0, 0), (1, 0, 0), -90)
+                elif screw.direction_axis == "Z":
+                    cur_screw = cur_screw.rotate((0, 0, 0), (0, 1, 0), 0)
+                elif screw.direction_axis == "-Z":
+                    cur_screw = cur_screw.rotate((0, 0, 0), (0, 1, 0), 180)
 
                 # Add the screw to the assembly
                 assy.add(cur_screw,
@@ -549,6 +571,55 @@ class NUCShelf(Shelf):
     """
     Shelf class for an Intel NUC device.
     """
+
+
+    def __init__(self,
+                 device: Device,
+                 assembly_key: str,
+                 position: tuple[float, float, float],
+                 color: str,
+                 rack_params: RackParameters):
+
+        # Device location settings
+        self._device_depth_axis = "Y"
+        self._device_offset = (0.0, 80.0, 29.5)
+        self._device_explode_translation = (0.0, 0.0, 60.0)
+
+        # Gather all the mounting screw locations
+        self.hole_locations = [
+                (0.0, 35.0, -45.0),
+                (0.0, 120.0, -45.0),
+            ]
+
+        self._fasteners = [
+            Screw(name=None,
+                  position=self.hole_locations[0],
+                  explode_translation=(0.0, 0.0, 25.0),
+                  size="M3-0.5",
+                  fastener_type="iso10642",
+                  axis="-Z",
+                  length=6),
+            Screw(name=None,
+                  position=self.hole_locations[1],
+                  explode_translation=(0.0, 0.0, 25.0),
+                  size="M3-0.5",
+                  fastener_type="iso10642",
+                  axis="-Z",
+                  length=6),
+        ]
+        self.render_options = {
+            "color_theme": "default",  # can also use black_and_white
+            "view": "back-bottom-right",
+            "zoom": 1.0,
+        }
+
+        super().__init__(device,
+                         assembly_key,
+                         position,
+                         color,
+                         rack_params)
+
+
     def generate_shelf_model(self) -> cadscript.Body:
         """
         A shelf for an Intel NUC

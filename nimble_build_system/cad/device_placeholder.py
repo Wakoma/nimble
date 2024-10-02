@@ -127,6 +127,27 @@ def generate_raspberry_pi_4b(device_name):
     return placeholder
 
 
+def generate_nuc(device_name, width, depth, height):
+    """
+    Generates a slightly modified placeholder for the NUC devices.
+    """
+
+    # The overall shape
+    placeholder = cq.Workplane().box(width, depth, height)
+
+    # Round the edges
+    placeholder = placeholder.edges("|Z").fillet(8.0)
+
+    # Add the text of what the device is to the top
+    placeholder = (placeholder.faces(">Z")
+                    .workplane(centerOption="CenterOfBoundBox")
+                    .text(device_name.replace(" shelf", ""),
+                          fontsize=6,
+                          distance=-0.1))
+
+    return placeholder
+
+
 def generate_placeholder(device_name, width, depth, height):
     """
     Generates a generalized placeholder object for a device.
@@ -139,6 +160,9 @@ def generate_placeholder(device_name, width, depth, height):
     if "raspberry" in device_name.lower() and "4b" in device_name.lower():
         # The overall shape
         placeholder = generate_raspberry_pi_4b(device_name)
+    elif "nuc" in device_name.lower():
+        # The overall shape
+        placeholder = generate_nuc(device_name, width, depth, height)
     else:
         # The overall shape
         placeholder = generate_generic(device_name, width, depth, height, smallest_dim)
