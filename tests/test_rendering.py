@@ -71,7 +71,8 @@ def test_annotated_assembly_png_rendering():
     """
 
     # The configuration of hardware/shelves that we want to test against
-    test_config = ["Raspberry_Pi_4B"]
+    # test_config = ["Raspberry_Pi_4B"]
+    test_config = ["NUC8I5BEH"]
 
     # Load the needed information to generate a Shelf object
     config = NimbleConfiguration(test_config)
@@ -81,7 +82,8 @@ def test_annotated_assembly_png_rendering():
 
     # Test the generated CAD assembly
     shelf_assy = rpi_shelf.generate_assembly_model(explode=True)
-
+    # from cadquery.vis import show
+    # show(shelf_assy)
     # Set up a temporary path to export the image to
     temp_dir = tempfile.gettempdir()
     temp_path = os.path.join(temp_dir, "assembly_render_test_exploded.png")
