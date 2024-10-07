@@ -414,8 +414,8 @@ class Shelf():
                                                 length=screw.length,
                                                 simple=True).cq_object)
 
-                # Make sure assembly lines are present with each screw
-                cur_screw.faces("<Z").tag("assembly_line")
+                # Allows the proper face to be selected for the extension lines
+                face_selector = "<Z"
 
                 # Figure out what the name of the screw should be
                 if screw.name is None:
@@ -424,16 +424,25 @@ class Shelf():
                 # Figure out what the rotation should be
                 if screw.direction_axis == "X":
                     cur_screw = cur_screw.rotate((0, 0, 0), (0, 1, 0), 90)
+                    face_selector = "<X"
                 elif screw.direction_axis == "-X":
                     cur_screw = cur_screw.rotate((0, 0, 0), (0, 1, 0), -90)
+                    face_selector = ">X"
                 elif screw.direction_axis == "Y":
                     cur_screw = cur_screw.rotate((0, 0, 0), (1, 0, 0), 90)
+                    face_selector = "<Y"
                 elif screw.direction_axis == "-Y":
                     cur_screw = cur_screw.rotate((0, 0, 0), (1, 0, 0), -90)
+                    face_selector = ">Y"
                 elif screw.direction_axis == "Z":
                     cur_screw = cur_screw.rotate((0, 0, 0), (0, 1, 0), 0)
+                    face_selector = "<Z"
                 elif screw.direction_axis == "-Z":
                     cur_screw = cur_screw.rotate((0, 0, 0), (0, 1, 0), 180)
+                    face_selector = ">Z"
+
+                # Make sure assembly lines are present with each screw
+                cur_screw.faces(face_selector).tag("assembly_line")
 
                 # Add the screw to the assembly
                 assy.add(cur_screw,
@@ -490,6 +499,12 @@ class Shelf():
             # Handle assembly annotation
             if annotate:
                 add_assembly_lines(model)
+
+                # Switch the view to the annotated view
+                self.render_options["view"] = self.render_options["annotated_view"]
+            else:
+                # Switch the view to the standard view
+                self.render_options["view"] = self.render_options["standard_view"]
 
             # Handle the varioius image formats separately
             if image_format == "png":
@@ -582,26 +597,26 @@ class NUCShelf(Shelf):
 
         # Device location settings
         self._device_depth_axis = "Y"
-        self._device_offset = (0.0, 80.0, 29.5)
+        self._device_offset = (0.0, 78.0, 29.5)
         self._device_explode_translation = (0.0, 0.0, 60.0)
 
         # Gather all the mounting screw locations
         self.hole_locations = [
-                (0.0, 35.0, -45.0),
-                (0.0, 120.0, -45.0),
+                (0.0, 35.0, 0.0),
+                (0.0, 120.0, 0.0),
             ]
 
         self._fasteners = [
             Screw(name=None,
                   position=self.hole_locations[0],
-                  explode_translation=(0.0, 0.0, 25.0),
+                  explode_translation=(0.0, 0.0, -45.0),
                   size="M3-0.5",
                   fastener_type="iso10642",
                   axis="-Z",
                   length=6),
             Screw(name=None,
                   position=self.hole_locations[1],
-                  explode_translation=(0.0, 0.0, 25.0),
+                  explode_translation=(0.0, 0.0, -45.0),
                   size="M3-0.5",
                   fastener_type="iso10642",
                   axis="-Z",
@@ -609,8 +624,10 @@ class NUCShelf(Shelf):
         ]
         self.render_options = {
             "color_theme": "default",  # can also use black_and_white
-            "view": "back-bottom-right",
-            "zoom": 1.0,
+            "view": "front-top-right",
+            "standard_view": "front-top-right",
+            "annotated_view": "front-bottom-right",
+            "zoom": 1.15,
         }
 
         super().__init__(device,
@@ -632,6 +649,7 @@ class NUCShelf(Shelf):
         builder.add_mounting_hole_to_bottom(x_pos=0, y_pos=35, base_thickness=4, hole_type="M3cs")
         builder.add_mounting_hole_to_bottom(x_pos=0, y_pos=120, base_thickness=4, hole_type="M3cs")
         return builder.get_body()
+
 
 class USWFlexShelf(Shelf):
     """
@@ -859,34 +877,36 @@ class RaspberryPiShelf(Shelf):
                   explode_translation=(0.0, 0.0, 45.0),
                   size="M3-0.5",
                   fastener_type="iso7380_1",
-                  axis="-Z",
+                  axis="Z",
                   length=6),
             Screw(name=None,
                   position=self.hole_locations[1] + (7.0,),
                   explode_translation=(0.0, 0.0, 45.0),
                   size="M3-0.5",
                   fastener_type="iso7380_1",
-                  axis="-Z",
+                  axis="Z",
                   length=6),
             Screw(name=None,
                   position=self.hole_locations[2] + (7.0,),
                   explode_translation=(0.0, 0.0, 45.0),
                   size="M3-0.5",
                   fastener_type="iso7380_1",
-                  axis="-Z",
+                  axis="Z",
                   length=6),
             Screw(name=None,
                   position=self.hole_locations[3] + (7.0,),
                   explode_translation=(0.0, 0.0, 45.0),
                   size="M3-0.5",
                   fastener_type="iso7380_1",
-                  axis="-Z",
+                  axis="Z",
                   length=6)
         ]
         self.render_options = {
             "color_theme": "default",  # can also use black_and_white
             "view": "back-top-right",
-            "zoom": 1.5,
+            "standard_view": "back-top-right",
+            "annotated_view": "back-top-right",
+            "zoom": 1.25,
         }
 
         super().__init__(device,
