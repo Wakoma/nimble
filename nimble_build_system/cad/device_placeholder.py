@@ -145,6 +145,16 @@ def generate_nuc(device_name, width, depth, height):
                           fontsize=6,
                           distance=-0.1))
 
+    # Add mounting holes to the placeholder
+    hole_locations = [
+        (0.0, 42.5, 0.0),
+        (0.0, -42.5, 0.0),
+    ]
+    placeholder = (placeholder.faces("<Z")
+                    .workplane(centerOption="CenterOfBoundBox", invert=False)
+                    .pushPoints(hole_locations)
+                    .hole(3.5, depth=5.0))
+
     return placeholder
 
 
