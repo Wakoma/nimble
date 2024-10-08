@@ -453,7 +453,15 @@ class Shelf():
                             "explode_translation": cq.Location(
                                 (screw.explode_translation[0],
                                  screw.explode_translation[1],
-                                 screw.explode_translation[2]))
+                                 screw.explode_translation[2])),
+                            "assembly_line_length": (
+                                abs(self._device_explode_translation[0]) +
+                                    abs(screw.explode_translation[0]),
+                                abs(self._device_explode_translation[1]) +
+                                    abs(screw.explode_translation[1]),
+                                abs(self._device_explode_translation[2]) +
+                                    abs(screw.explode_translation[2])
+                            )
                         })
 
             self._shelf_assembly_model = assy
