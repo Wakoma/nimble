@@ -2,6 +2,8 @@
 Holds fastener classes containing the information needed to generate CAD models of fasteners.
 """
 
+# pylint: disable=R0917
+
 class Fastener:
     """
     Class that defines a generic fastener that can be used in the assembly of a device and/or rack.
