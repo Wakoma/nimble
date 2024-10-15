@@ -12,7 +12,7 @@ def test_assembly_png_rendering():
     """
 
     # The configuration of hardware/shelves that we want to test against
-    test_config = ["Raspberry_Pi_4B", "NUC8I5BEH"]
+    test_config = ["Raspberry_Pi_4B", "NUC8I5BEH", "Unifi_Flex_Mini"]
 
     # Load the needed information to generate a Shelf object
     config = NimbleConfiguration(test_config)
@@ -41,7 +41,7 @@ def test_annotated_assembly_png_rendering():
     """
 
     # The configuration of hardware/shelves that we want to test against
-    test_config = ["Raspberry_Pi_4B", "NUC8I5BEH"]
+    test_config = ["Raspberry_Pi_4B", "NUC8I5BEH", "Unifi_Flex_Mini"]
 
     # Load the needed information to generate a Shelf object
     config = NimbleConfiguration(test_config)
