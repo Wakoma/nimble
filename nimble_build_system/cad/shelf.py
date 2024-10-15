@@ -682,6 +682,58 @@ class USWFlexShelf(Shelf):
     """
     Shelf class for a Ubiquiti USW-Flex device.
     """
+
+
+    def __init__(self,
+                 device: Device,
+                 assembly_key: str,
+                 position: tuple[float, float, float],
+                 color: str,
+                 rack_params: RackParameters):
+
+        # Device location settings
+        self._device_depth_axis = "X"
+        self._device_offset = (0.0, 58.0, 18.0)
+        self._device_explode_translation = (0.0, 0.0, 100.0)
+
+        # Gather all the mounting screw locations
+        self.hole_locations = [
+            (-17.5, 30 + 42, 0.0),
+            (+17.5, 30 + 42, 0.0)
+        ]
+
+        self._fasteners = [
+            Screw(name=None,
+                  position=self.hole_locations[0],
+                  explode_translation=(0.0, 0.0, 40.0),
+                  size="M3-0.5",
+                  fastener_type="iso7380_1",
+                  axis="-Z",
+                  length=10),
+            Screw(name=None,
+                  position=self.hole_locations[1],
+                  explode_translation=(0.0, 0.0, 40.0),
+                  size="M3-0.5",
+                  fastener_type="iso7380_1",
+                  axis="-Z",
+                  length=10),
+        ]
+        self.render_options = {
+            "color_theme": "default",  # can also use black_and_white
+            "view": "front-top-right",
+            "standard_view": "front-top-right",
+            "annotated_view": "front-bottom-right",
+            "add_device_offset": True,
+            "zoom": 1.15,
+        }
+
+        super().__init__(device,
+                         assembly_key,
+                         position,
+                         color,
+                         rack_params)
+
+
     def generate_shelf_model(self) -> cadscript.Body:
         """
         A shelf for a Ubiquiti USW-Flex
@@ -695,10 +747,12 @@ class USWFlexShelf(Shelf):
             # add 2 mounting bars on the bottom plate
             sketch = cadscript.make_sketch()
             sketch.add_rect(8, 60, center="X", pos=[(-17.5, 42), (+17.5, 42)])
-            base = cadscript.make_extrude("XY", sketch, builder.rack_params.tray_bottom_thickness)
-            sketch.cut_circle(d=3.8, pos=[(-17.5, 30 + 42), (+17.5, 30 + 42)])
-            base2 = cadscript.make_extrude("XY", sketch, 5)
-            builder.get_body().add(base).add(base2)
+            builder.get_body().add_extrude("<Z[-3]",
+                                           sketch,
+                                           -builder.rack_params.tray_bottom_thickness - 2.0)
+            builder.get_body().cut_hole("<Z[-3]",
+                                        r=3.8/2.0,
+                                        pos=[(-17.5, 30 + 42), (+17.5, 30 + 42)])
             self._shelf_model = builder.get_body()
 
         return self._shelf_model
@@ -1054,6 +1108,7 @@ SHELF_TYPES= {
     "stuff": (StuffShelf, {}),
     "stuff-thin": (StuffShelf, {"thin":True}),
     "nuc": (NUCShelf, {}),
+    "flex": (USWFlexShelf, {}),
     "usw-flex": (USWFlexShelf, {}),
     "usw-flex-mini": (USWFlexMiniShelf, {}),
     "flexmini": (USWFlexMiniShelf, {}),
