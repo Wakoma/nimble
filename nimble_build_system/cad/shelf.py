@@ -161,7 +161,13 @@ class Shelf():
             x_offset = 0.0
             y_offset = self._device.width / 2.0
 
-        self._device_offset = (x_offset, y_offset, self._device.height / 2.0 + 2.0)
+        # Protect against a non-existent device height
+        if self._device.height is None:
+            device_height = 0.0
+        else:
+            device_height = self._device.height
+
+        self._device_offset = (x_offset, y_offset, device_height / 2.0 + 2.0)
         self._device_explode_translation = (0, 0, 50)
 
         self._fasteners = [
