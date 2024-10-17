@@ -98,3 +98,46 @@ class Screw(Fastener):
         Getter for the length of the screw.
         """
         return self._length
+
+
+class Ziptie(Fastener):
+    """
+    Ziptie fastener, that shows the straight, ununsed condition only.
+    """
+    #pylint: disable=R0913
+
+    _thickness = 1.6  # mm
+    _width = 4  # mm
+    _length = 100  # mm
+    _fastener_type = "ziptie"
+
+
+    def __init__(self, name, position, explode_translation, size, fastener_type, axis, length):
+        self._length = length
+        self._width = float(size)
+
+        super().__init__(name, position, explode_translation, size, fastener_type, axis)
+
+
+    @property
+    def length(self):
+        """
+        Getter for the length of the screw.
+        """
+        return self._length
+
+
+    @property
+    def thickness(self):
+        """
+        Getter for the thickness of the ziptie.
+        """
+        return self._thickness
+
+
+    @property
+    def width(self):
+        """
+        Getter for the width of the ziptie.
+        """
+        return self._width
