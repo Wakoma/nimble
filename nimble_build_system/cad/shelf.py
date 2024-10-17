@@ -24,7 +24,7 @@ from cq_annotate.callouts import add_assembly_lines
 from nimble_build_system.cad import RackParameters
 from nimble_build_system.cad.device_placeholder import generate_placeholder
 from nimble_build_system.cad.shelf_builder import ShelfBuilder, ziptie_shelf
-from nimble_build_system.cad.fasteners import Screw
+from nimble_build_system.cad.fasteners import Screw, Ziptie
 from nimble_build_system.orchestration.device import Device
 from nimble_build_system.orchestration.paths import REL_MECH_DIR
 
@@ -146,6 +146,45 @@ class Shelf():
                                                                color)
         #Note docs can only be generated after self._assembled_shelf is set
         self._assembled_shelf.component.set_documentation(self.generate_docs())
+
+        # Make some sane guesses at the device positioning
+        if self._device.width < self._device.depth:
+            self._device_depth_axis = "Y"
+            x_offset = self._device.depth / 2.0
+            y_offset = 0.0
+        else:
+            self._device_depth_axis = "X"
+            x_offset = 0.0
+            y_offset = self._device.width / 2.0
+
+        self._device_offset = (x_offset, y_offset, self._device.height / 2.0 + 2.0)
+        self._device_explode_translation = (0, 0, 50)
+
+        self._fasteners = [
+            Ziptie(name=None,
+                  position=(0, 28.75, 1.0),
+                  explode_translation=(0.0, 0.0, -40.0),
+                  size="4",
+                  fastener_type="ziptie",
+                  axis="-X",
+                  length=300),
+            Ziptie(name=None,
+                  position=(0, 86.25, 1.0),
+                  explode_translation=(0.0, 0.0, -40.0),
+                  size="4",
+                  fastener_type="ziptie",
+                  axis="-X",
+                  length=300),
+        ]
+        self.render_options = {
+            "color_theme": "default",  # can also use black_and_white
+            "view": "front-top-right",
+            "standard_view": "front-top-right",
+            "annotated_view": "back-bottom-right",
+            "add_device_offset": False,
+            "add_fastener_length": False,
+            "zoom": 1.0,
+        }
 
 
     @property
@@ -401,52 +440,105 @@ class Shelf():
                     name="shelf",
                     color=cq.Color(0.565, 0.698, 0.278, 1.0))
 
-            # Add the screws to the assembly
-            for i, screw in enumerate(self._fasteners):
+            # Add the fasteners to the assembly
+            for i, fastener in enumerate(self._fasteners):
                 # Handle the different fastener types
-                if screw.fastener_type == "iso10642":
-                    # Create the counter-sunk screw model
-                    cur_screw = cq.Workplane(CounterSunkScrew(size=screw.size,
-                                                fastener_type=screw.fastener_type,
-                                                length=screw.length,
-                                                simple=True).cq_object)
+                if fastener.fastener_type == "ziptie":
+                    # Create the ziptie spine
+                    cur_fastener = cq.Workplane().box(fastener.width,
+                                                      fastener.length,
+                                                      fastener.thickness)
+
+                    # Create the ziptie head
+                    cur_fastener = (cur_fastener.faces(">Z")
+                                               .workplane(invert=True)
+                                               .move(0.0, fastener.length / 2.0)
+                                               .rect(fastener.width + 2.0,
+                                                     fastener.width + 2.0)
+                                                .extrude(fastener.thickness + 3.0))
+
+                    # Chamfer the insertion end of the ziptie
+                    cur_fastener = (cur_fastener.faces(">Y")
+                                                .edges(">X and |Z")
+                                                .chamfer(length=fastener.width / 4.0,
+                                                         length2=fastener.width * 2.0))
+                    cur_fastener = (cur_fastener.faces(">Y")
+                                                .edges("<X and |Z")
+                                                .chamfer(length=fastener.width / 4.0,
+                                                         length2=fastener.width * 2.0))
+
+                    # Add the slot in the head for insertion of the tail
+                    cur_fastener = (cur_fastener.faces(">Z")
+                                                .workplane(invert=True)
+                                                .move(0.0, -(fastener.length / 2.0))
+                                                .rect(fastener.width, fastener.thickness)
+                                                .cutThruAll())
                 else:
-                    # Create a button head screw model
-                    cur_screw = cq.Workplane(ButtonHeadScrew(size=screw.size,
-                                                fastener_type=screw.fastener_type,
-                                                length=screw.length,
-                                                simple=True).cq_object)
+                    if fastener.fastener_type == "iso10642":
+                        # Create the counter-sunk screw model
+                        cur_fastener = cq.Workplane(CounterSunkScrew(size=fastener.size,
+                                                    fastener_type=fastener.fastener_type,
+                                                    length=fastener.length,
+                                                    simple=True).cq_object)
+                    else:
+                        # Create a button head screw model
+                        cur_fastener = cq.Workplane(ButtonHeadScrew(size=fastener.size,
+                                                    fastener_type=fastener.fastener_type,
+                                                    length=fastener.length,
+                                                    simple=True).cq_object)
+
 
                 # Allows the proper face to be selected for the extension lines
                 face_selector = "<Z"
 
                 # Figure out what the name of the screw should be
-                if screw.name is None:
-                    screw.name = f"screw_{i}"
+                if fastener.name is None:
+                    fastener.name = f"fastener_{i}"
 
                 # Figure out what the rotation should be
-                rotation = ((0, 0, 1), 0)
-                if screw.direction_axis == "X":
-                    rotation = ((0, 1, 0), 90)
-                    face_selector = ">X"
-                elif screw.direction_axis == "-X":
-                    rotation = ((0, 1, 0), -90)
-                    face_selector = ">X"
-                elif screw.direction_axis == "Y":
-                    rotation = ((1, 0, 0), 90)
-                    face_selector = "<Y"
-                elif screw.direction_axis == "-Y":
-                    rotation = ((1, 0, 0), -90)
-                    face_selector = ">Y"
-                elif screw.direction_axis == "Z":
-                    rotation = ((0, 1, 0), 0)
-                    face_selector = "<Z"
-                elif screw.direction_axis == "-Z":
-                    rotation = ((0, 1, 0), 180)
-                    face_selector = ">Z"
+                if fastener.fastener_type == "ziptie":
+                    rotation = ((0, 0, 1), 0)
+                    if fastener.direction_axis == "X":
+                        rotation = ((0, 0, 1), -90)
+                        face_selector = ">Z"
+                    elif fastener.direction_axis == "-X":
+                        rotation = ((0, 0, 1), 90)
+                        face_selector = ">Z"
+                    elif fastener.direction_axis == "Y":
+                        rotation = ((0, 0, 1), 0)
+                        face_selector = ">Z"
+                    elif fastener.direction_axis == "-Y":
+                        rotation = ((0, 0, 1), 180)
+                        face_selector = ">Z"
+                    elif fastener.direction_axis == "Z":
+                        rotation = ((1, 0, 0), 0)
+                        face_selector = ">X"
+                    elif fastener.direction_axis == "-Z":
+                        rotation = ((1, 0, 0), 180)
+                        face_selector = ">X"
+                else:
+                    rotation = ((0, 0, 1), 0)
+                    if fastener.direction_axis == "X":
+                        rotation = ((0, 1, 0), 90)
+                        face_selector = ">X"
+                    elif fastener.direction_axis == "-X":
+                        rotation = ((0, 1, 0), -90)
+                        face_selector = ">X"
+                    elif fastener.direction_axis == "Y":
+                        rotation = ((1, 0, 0), 90)
+                        face_selector = "<Y"
+                    elif fastener.direction_axis == "-Y":
+                        rotation = ((1, 0, 0), -90)
+                        face_selector = ">Y"
+                    elif fastener.direction_axis == "Z":
+                        rotation = ((0, 1, 0), 0)
+                        face_selector = "<Z"
+                    elif fastener.direction_axis == "-Z":
+                        rotation = ((0, 1, 0), 180)
+                        face_selector = ">Z"
 
-                # Make sure assembly lines are present with each screw
-                cur_screw.faces(face_selector).tag("assembly_line")
+                # Make sure assembly lines are present with each fastener
+                cur_fastener.faces(face_selector).tag("assembly_line")
 
                 # Figure out if extra extensions to the assembly lines have been requested
                 if self.render_options["add_device_offset"]:
@@ -458,26 +550,29 @@ class Shelf():
                     y_offset = 0
                     z_offset = 0
 
-                # Add the screw to the assembly
-                assy.add(cur_screw,
-                        name=screw.name,
-                        loc=cq.Location(screw.position, rotation[0], rotation[1]),
+                # Check to see if the fastener length should be added to the assembly line length
+                if self.render_options["add_fastener_length"]:
+                    x_offset += fastener.length
+                    y_offset += fastener.length
+                    z_offset += fastener.length
+
+                # Add the fastener to the assembly
+                assy.add(cur_fastener,
+                        name=fastener.name,
+                        loc=cq.Location(fastener.position, rotation[0], rotation[1]),
                         color=cq.Color(0.5, 0.5, 0.5, 1.0),
                         metadata={
                             "explode_translation": cq.Location(
-                                (screw.explode_translation[0],
-                                 screw.explode_translation[1],
-                                 screw.explode_translation[2])),
+                                (fastener.explode_translation[0],
+                                 fastener.explode_translation[1],
+                                 fastener.explode_translation[2])),
                             "assembly_line_length": (
                                 abs(x_offset) +
-                                    abs(screw.explode_translation[0]) +
-                                    screw.length,
+                                    abs(fastener.explode_translation[0]),
                                 abs(y_offset) +
-                                    abs(screw.explode_translation[1]) +
-                                    screw.length,
+                                    abs(fastener.explode_translation[1]),
                                 abs(z_offset) +
-                                    abs(screw.explode_translation[2]) +
-                                    screw.length
+                                    abs(fastener.explode_translation[2])
                             )
                         })
 
@@ -621,6 +716,12 @@ class NUCShelf(Shelf):
                  color: str,
                  rack_params: RackParameters):
 
+        super().__init__(device,
+                         assembly_key=assembly_key,
+                         position=position,
+                         color=color,
+                         rack_params=rack_params)
+
         # Device location settings
         self._device_depth_axis = "Y"
         self._device_offset = (0.0, 78.0, 29.5)
@@ -654,14 +755,9 @@ class NUCShelf(Shelf):
             "standard_view": "front-top-right",
             "annotated_view": "front-bottom-right",
             "add_device_offset": True,
+            "add_fastener_length": True,
             "zoom": 1.15,
         }
-
-        super().__init__(device,
-                         assembly_key=assembly_key,
-                         position=position,
-                         color=color,
-                         rack_params=rack_params)
 
 
     def generate_shelf_model(self) -> cadscript.Body:
@@ -690,6 +786,12 @@ class USWFlexShelf(Shelf):
                  position: tuple[float, float, float],
                  color: str,
                  rack_params: RackParameters):
+
+        super().__init__(device,
+                         assembly_key=assembly_key,
+                         position=position,
+                         color=color,
+                         rack_params=rack_params)
 
         # Device location settings
         self._device_depth_axis = "X"
@@ -724,14 +826,9 @@ class USWFlexShelf(Shelf):
             "standard_view": "front-top-right",
             "annotated_view": "front-bottom-right",
             "add_device_offset": True,
+            "add_fastener_length": True,
             "zoom": 1.15,
         }
-
-        super().__init__(device,
-                         assembly_key,
-                         position,
-                         color,
-                         rack_params)
 
 
     def generate_shelf_model(self) -> cadscript.Body:
@@ -769,6 +866,12 @@ class USWFlexMiniShelf(Shelf):
                  position: tuple[float, float, float],
                  color: str,
                  rack_params: RackParameters):
+
+        super().__init__(device,
+                         assembly_key=assembly_key,
+                         position=position,
+                         color=color,
+                         rack_params=rack_params)
 
         # Device location settings
         self._device_depth_axis = "Y"
@@ -819,14 +922,9 @@ class USWFlexMiniShelf(Shelf):
             "standard_view": "front-top-right",
             "annotated_view": "back-top-right",
             "add_device_offset": False,
+            "add_fastener_length": True,
             "zoom": 1.0,
         }
-
-        super().__init__(device,
-                         assembly_key=assembly_key,
-                         position=position,
-                         color=color,
-                         rack_params=rack_params)
 
 
     def generate_shelf_model(self) -> cadscript.Body:
@@ -1005,6 +1103,12 @@ class RaspberryPiShelf(Shelf):
                  color: str,
                  rack_params: RackParameters):
 
+        super().__init__(device,
+                         assembly_key=assembly_key,
+                         position=position,
+                         color=color,
+                         rack_params=rack_params)
+
         # Screw hole parameters
         self.screw_dist_x = 49
         self.screw_dist_y = 58
@@ -1021,6 +1125,7 @@ class RaspberryPiShelf(Shelf):
                 (self.offset_x, self.dist_to_front + self.screw_dist_y),
                 (self.offset_x + self.screw_dist_x, self.dist_to_front + self.screw_dist_y),
             ]
+
         self._fasteners = [
             Screw(name=None,
                   position=self.hole_locations[0] + (7.0,),
@@ -1057,14 +1162,9 @@ class RaspberryPiShelf(Shelf):
             "standard_view": "back-top-right",
             "annotated_view": "back-top-right",
             "add_device_offset": False,
+            "add_fastener_length": True,
             "zoom": 1.25,
         }
-
-        super().__init__(device,
-                         assembly_key=assembly_key,
-                         position=position,
-                         color=color,
-                         rack_params=rack_params)
 
 
     def generate_shelf_model(self):
