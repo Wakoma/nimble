@@ -148,7 +148,9 @@ class Shelf():
         self._assembled_shelf.component.set_documentation(self.generate_docs())
 
         # Make some sane guesses at the device positioning
-        if self._device.width < self._device.depth:
+        if (self._device.width is not None and
+            self._device.depth is not None and
+            (self._device.width < self._device.depth)):
             self._device_depth_axis = "Y"
             x_offset = self._device.depth / 2.0
             y_offset = 0.0
