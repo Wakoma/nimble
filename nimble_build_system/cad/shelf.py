@@ -17,7 +17,7 @@ from cadorchestrator.components import AssembledComponent, GeneratedMechanicalCo
 import cadquery as cq
 import cadquery_png_plugin.plugin  # This activates the PNG plugin for CadQuery
 import cadscript
-from cq_warehouse.fastener import ButtonHeadScrew, CounterSunkScrew
+from cq_warehouse.fastener import ButtonHeadScrew, CounterSunkScrew, PanHeadScrew
 from cq_annotate.views import explode_assembly
 from cq_annotate.callouts import add_assembly_lines
 
@@ -487,6 +487,12 @@ class Shelf():
                     if fastener.fastener_type == "iso10642":
                         # Create the counter-sunk screw model
                         cur_fastener = cq.Workplane(CounterSunkScrew(size=fastener.size,
+                                                    fastener_type=fastener.fastener_type,
+                                                    length=fastener.length,
+                                                    simple=True).cq_object)
+                    elif fastener.fastener_type == "asme_b_18.6.3":
+                        # Create the cheesehead screw model
+                        cur_fastener = cq.Workplane(PanHeadScrew(size=fastener.size,
                                                     fastener_type=fastener.fastener_type,
                                                     length=fastener.length,
                                                     simple=True).cq_object)
@@ -1015,6 +1021,74 @@ class HDD35Shelf(Shelf):
     """
     Shelf class for a 3.5" hard drive device.
     """
+
+    def __init__(self,
+                 device: Device,
+                 assembly_key: str,
+                 position: tuple[float, float, float],
+                 color: str,
+                 rack_params: RackParameters):
+
+        super().__init__(device,
+                         assembly_key=assembly_key,
+                         position=position,
+                         color=color,
+                         rack_params=rack_params)
+
+        # Device location settings
+        self._device_depth_axis = "X"
+        # self._device_offset = (0.0, 0.0, 0.0)
+        self._device_explode_translation = (0.0, 0.0, 0.0)
+
+        self._fasteners = [
+            Screw(name=None,
+                  position=(-self._device.depth / 2.0 - 7.0,
+                            self._device.width / 2.0 + 3.75,
+                            self._device.height / 3.0 + 0.25),
+                  explode_translation=(0.0, 0.0, 35.0),
+                  size="#6-32",
+                  fastener_type="asme_b_18.6.3",
+                  axis="-X",
+                  length=6),
+            Screw(name=None,
+                  position=(-self._device.depth / 2.0 - 7.0,
+                            self._device.width / 2.0 + 45.35,
+                            self._device.height / 3.0 + 0.25),
+                  explode_translation=(0.0, 0.0, 35.0),
+                  size="#6-32",
+                  fastener_type="asme_b_18.6.3",
+                  axis="-X",
+                  length=6),
+            Screw(name=None,
+                  position=(self._device.depth / 2.0 + 7.0,
+                            self._device.width / 2.0 + 3.75,
+                            self._device.height / 3.0 + 0.25),
+                  explode_translation=(0.0, 0.0, 35.0),
+                  size="#6-32",
+                  fastener_type="asme_b_18.6.3",
+                  axis="X",
+                  length=6),
+            Screw(name=None,
+                  position=(self._device.depth / 2.0 + 7.0,
+                            self._device.width / 2.0 + 45.35,
+                            self._device.height / 3.0 + 0.25),
+                  explode_translation=(0.0, 0.0, 35.0),
+                  size="#6-32",
+                  fastener_type="asme_b_18.6.3",
+                  axis="X",
+                  length=6),
+        ]
+        self.render_options = {
+            "color_theme": "default",  # can also use black_and_white
+            "view": "front-top-right",
+            "standard_view": "front-top-right",
+            "annotated_view": "back-bottom-right",
+            "add_device_offset": False,
+            "add_fastener_length": True,
+            "zoom": 1.15,
+        }
+
+
     def generate_shelf_model(self) -> cadscript.Body:
         """
         A shelf for an 3.5" HDD

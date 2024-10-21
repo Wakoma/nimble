@@ -158,6 +158,39 @@ def generate_nuc(device_name, width, depth, height):
     return placeholder
 
 
+def generate_hdd(device_name, width, depth, height):
+    """
+    Generates a 3.5" HDD placeholder model.
+    """
+
+    # The overall shape
+    placeholder = cq.Workplane().box(width, depth, height)
+
+    # Add the holes in the first side
+    hole_locations = [
+        (0.0, -6.35, 0.0),
+        (101.6 / 2.0, -6.35, 0.0),
+        (-101.6 / 2.0, -6.35, 0.0)
+    ]
+    placeholder = (placeholder
+                   .faces("<Y")
+                   .workplane()
+                   .pushPoints(hole_locations)
+                   .hole(3.5, depth=5.0))
+
+    # Round the edges
+    placeholder = placeholder.edges("|Z").fillet(3.0)
+
+    # Add the text of what the device is to the top
+    placeholder = (placeholder.faces(">Z")
+                    .workplane(centerOption="CenterOfBoundBox")
+                    .text(device_name.replace(" shelf", ""),
+                          fontsize=6,
+                          distance=-0.1))
+
+    return placeholder
+
+
 def generate_placeholder(device_name, width, depth, height):
     """
     Generates a generalized placeholder object for a device.
@@ -173,6 +206,8 @@ def generate_placeholder(device_name, width, depth, height):
     elif "nuc" in device_name.lower():
         # The overall shape
         placeholder = generate_nuc(device_name, width, depth, height)
+    elif "hdd" in device_name.lower():
+        placeholder = generate_hdd(device_name, width, depth, height)
     else:
         # The overall shape
         placeholder = generate_generic(device_name, width, depth, height, smallest_dim)

@@ -6,13 +6,20 @@ from nimble_build_system.cad.shelf import RaspberryPiShelf
 from nimble_build_system.orchestration.configuration import NimbleConfiguration
 
 
+# The configuration of hardware/shelves that we want to test against
+test_config = ["Raspberry_Pi_4B",
+                "NUC8I5BEH",
+                "Unifi_Flex_Mini",
+                "Unifi_Switch_Flex",
+                "Hex",
+                # "Western_Digital_Red_HDD"
+            ]
+
+
 def test_assembly_png_rendering():
     """
     Tests whether or not a PNG image can be output for an entire assembly.
     """
-
-    # The configuration of hardware/shelves that we want to test against
-    test_config = ["Raspberry_Pi_4B", "NUC8I5BEH", "Unifi_Flex_Mini", "Unifi_Switch_Flex", "Hex"]
 
     # Load the needed information to generate a Shelf object
     config = NimbleConfiguration(test_config)
@@ -39,9 +46,6 @@ def test_annotated_assembly_png_rendering():
     Tests whether or not a PNG image can be output for an entire assembly with
     annotations (i.e. assembly lines).
     """
-
-    # The configuration of hardware/shelves that we want to test against
-    test_config = ["Raspberry_Pi_4B", "NUC8I5BEH", "Unifi_Flex_Mini", "Unifi_Switch_Flex", "Hex"]
 
     # Load the needed information to generate a Shelf object
     config = NimbleConfiguration(test_config)
