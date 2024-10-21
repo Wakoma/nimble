@@ -1037,8 +1037,7 @@ class HDD35Shelf(Shelf):
 
         # Device location settings
         self._device_depth_axis = "X"
-        # self._device_offset = (0.0, 0.0, 0.0)
-        self._device_explode_translation = (0.0, 0.0, 0.0)
+        self._device_explode_translation = (0.0, 0.0, 20.0)
 
         self._fasteners = [
             Screw(name=None,
@@ -1127,10 +1126,79 @@ class HDD35Shelf(Shelf):
 
         return self._shelf_model
 
+
 class DualSSDShelf(Shelf):
     """
     Shelf class for two 2.5" solid state drive devices.
     """
+
+    def __init__(self,
+                 device: Device,
+                 assembly_key: str,
+                 position: tuple[float, float, float],
+                 color: str,
+                 rack_params: RackParameters):
+
+        super().__init__(device,
+                         assembly_key=assembly_key,
+                         position=position,
+                         color=color,
+                         rack_params=rack_params)
+
+        # Device location settings
+        self._device_depth_axis = "X"
+        self._device_offset = (0.0, self._device.width / 2.0 + 1.5, 8.5)
+        self._device_explode_translation = (0.0, 0.0, 30.0)
+
+        self._fasteners = [
+            Screw(name=None,
+                  position=(-self._device.depth / 2.0 - 2.55,
+                            self._device.width - 11.75,
+                            8.65),
+                  explode_translation=(0.0, 0.0, 20.0),
+                  size="#6-32",
+                  fastener_type="asme_b_18.6.3",
+                  axis="-X",
+                  length=6),
+            Screw(name=None,
+                  position=(-self._device.depth / 2.0 - 2.55,
+                            12.75,
+                            8.65),
+                  explode_translation=(0.0, 0.0, 20.0),
+                  size="#6-32",
+                  fastener_type="asme_b_18.6.3",
+                  axis="-X",
+                  length=6),
+            Screw(name=None,
+                  position=(self._device.depth / 2.0 + 2.55,
+                            self._device.width - 11.75,
+                            8.65),
+                  explode_translation=(0.0, 0.0, 20.0),
+                  size="#6-32",
+                  fastener_type="asme_b_18.6.3",
+                  axis="X",
+                  length=6),
+            Screw(name=None,
+                  position=(self._device.depth / 2.0 + 2.55,
+                            12.75,
+                            8.65),
+                  explode_translation=(0.0, 0.0, 20.0),
+                  size="#6-32",
+                  fastener_type="asme_b_18.6.3",
+                  axis="X",
+                  length=6),
+        ]
+        self.render_options = {
+            "color_theme": "default",  # can also use black_and_white
+            "view": "front-top-right",
+            "standard_view": "front-top-right",
+            "annotated_view": "back-bottom-right",
+            "add_device_offset": False,
+            "add_fastener_length": False,
+            "zoom": 1.15,
+        }
+
+
     def generate_shelf_model(self) -> cadscript.Body:
         """
         A shelf for two 2.5" SSDs

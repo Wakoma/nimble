@@ -13,6 +13,7 @@ test_config = ["Raspberry_Pi_4B",
                 "Unifi_Switch_Flex",
                 "Hex",
                 # "Western_Digital_Red_HDD"
+                # "Western_Digital_Blue_SSD"
             ]
 
 
@@ -25,17 +26,17 @@ def test_assembly_png_rendering():
     config = NimbleConfiguration(test_config)
 
     # Get the only shelf that we should have to deal with
-    rpi_shelf = config.shelves[0]
+    cur_shelf = config.shelves[0]
 
     # Test the generated CAD assembly
-    shelf_assy = rpi_shelf.generate_assembly_model()
+    shelf_assy = cur_shelf.generate_assembly_model()
 
     # Set up a temporary path to export the image to
     temp_dir = tempfile.gettempdir()
     temp_path = os.path.join(temp_dir, "assembly_render_test.png")
 
     # Do a sample render of the shelf assembly
-    rpi_shelf.get_render(shelf_assy,
+    cur_shelf.get_render(shelf_assy,
                          file_path=temp_path)
 
     assert os.path.isfile(temp_path)
@@ -51,17 +52,17 @@ def test_annotated_assembly_png_rendering():
     config = NimbleConfiguration(test_config)
 
     # Get the only shelf that we should have to deal with
-    rpi_shelf = config.shelves[0]
+    cur_shelf = config.shelves[0]
 
     # Test the generated CAD assembly
-    shelf_assy = rpi_shelf.generate_assembly_model(explode=True)
+    shelf_assy = cur_shelf.generate_assembly_model(explode=True)
 
     # Set up a temporary path to export the image to
     temp_dir = tempfile.gettempdir()
     temp_path = os.path.join(temp_dir, "assembly_render_test_exploded.png")
 
     # Do a sample render of the shelf assembly
-    rpi_shelf.get_render(shelf_assy,
+    cur_shelf.get_render(shelf_assy,
                          file_path=temp_path,
                          annotate=True)
 

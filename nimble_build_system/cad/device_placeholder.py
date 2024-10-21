@@ -177,6 +177,48 @@ def generate_hdd(device_name, width, depth, height):
                    .workplane()
                    .pushPoints(hole_locations)
                    .hole(3.5, depth=5.0))
+    placeholder = (placeholder
+                   .faces(">Y")
+                   .workplane()
+                   .pushPoints(hole_locations)
+                   .hole(3.5, depth=5.0))
+
+    # Round the edges
+    placeholder = placeholder.edges("|Z").fillet(3.0)
+
+    # Add the text of what the device is to the top
+    placeholder = (placeholder.faces(">Z")
+                    .workplane(centerOption="CenterOfBoundBox")
+                    .text(device_name.replace(" shelf", ""),
+                          fontsize=6,
+                          distance=-0.1))
+
+    return placeholder
+
+
+def generate_ssd(device_name, width, depth, height):
+    """
+    Generates a 2.5" SSD placeholder model.
+    """
+
+    # The overall shape
+    placeholder = cq.Workplane().box(width, depth, height)
+
+    # Add the holes in the sides
+    hole_locations = [
+        ((101.6 / 2.0 - 14), 0.0, 0.0),
+        (-(101.6 / 2.0 - 14), 0.0, 0.0)
+    ]
+    placeholder = (placeholder
+                   .faces("<Y")
+                   .workplane()
+                   .pushPoints(hole_locations)
+                   .hole(3.5, depth=5.0))
+    placeholder = (placeholder
+                   .faces(">Y")
+                   .workplane()
+                   .pushPoints(hole_locations)
+                   .hole(3.5, depth=5.0))
 
     # Round the edges
     placeholder = placeholder.edges("|Z").fillet(3.0)
@@ -208,6 +250,8 @@ def generate_placeholder(device_name, width, depth, height):
         placeholder = generate_nuc(device_name, width, depth, height)
     elif "hdd" in device_name.lower():
         placeholder = generate_hdd(device_name, width, depth, height)
+    elif "ssd" in device_name.lower():
+        placeholder = generate_ssd(device_name, width, depth, height)
     else:
         # The overall shape
         placeholder = generate_generic(device_name, width, depth, height, smallest_dim)
