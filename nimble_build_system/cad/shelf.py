@@ -824,17 +824,17 @@ class USWFlexShelf(Shelf):
             Screw(name=None,
                   position=self.hole_locations[0],
                   explode_translation=(0.0, 0.0, 40.0),
-                  size="M3-0.5",
+                  size="M4-0.7",
                   fastener_type="iso7380_1",
                   axis="-Z",
-                  length=10),
+                  length=8),
             Screw(name=None,
                   position=self.hole_locations[1],
                   explode_translation=(0.0, 0.0, 40.0),
-                  size="M3-0.5",
+                  size="M4-0.7",
                   fastener_type="iso7380_1",
                   axis="-Z",
-                  length=10),
+                  length=8),
         ]
         self.render_options = {
             "color_theme": "default",  # can also use black_and_white
