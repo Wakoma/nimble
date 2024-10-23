@@ -12,8 +12,8 @@ test_config = ["Raspberry_Pi_4B",
                 "Unifi_Flex_Mini",
                 "Unifi_Switch_Flex",
                 "Hex",
-                # "Western_Digital_Red_HDD"
-                # "Western_Digital_Blue_SSD"
+                "Western_Digital_Red_HDD",
+                "Western_Digital_Blue_SSD"
             ]
 
 
@@ -25,21 +25,20 @@ def test_assembly_png_rendering():
     # Load the needed information to generate a Shelf object
     config = NimbleConfiguration(test_config)
 
-    # Get the only shelf that we should have to deal with
-    cur_shelf = config.shelves[0]
+    # Check all of the shelf assemblies
+    for cur_shelf in config.shelves:
+        # Test the generated CAD assembly
+        shelf_assy = cur_shelf.generate_assembly_model()
 
-    # Test the generated CAD assembly
-    shelf_assy = cur_shelf.generate_assembly_model()
+        # Set up a temporary path to export the image to
+        temp_dir = tempfile.gettempdir()
+        temp_path = os.path.join(temp_dir, "assembly_render_test_" + cur_shelf._device.name + ".png")
 
-    # Set up a temporary path to export the image to
-    temp_dir = tempfile.gettempdir()
-    temp_path = os.path.join(temp_dir, "assembly_render_test.png")
+        # Do a sample render of the shelf assembly
+        cur_shelf.get_render(shelf_assy,
+                            file_path=temp_path)
 
-    # Do a sample render of the shelf assembly
-    cur_shelf.get_render(shelf_assy,
-                         file_path=temp_path)
-
-    assert os.path.isfile(temp_path)
+        assert os.path.isfile(temp_path)
 
 
 def test_annotated_assembly_png_rendering():
@@ -51,19 +50,18 @@ def test_annotated_assembly_png_rendering():
     # Load the needed information to generate a Shelf object
     config = NimbleConfiguration(test_config)
 
-    # Get the only shelf that we should have to deal with
-    cur_shelf = config.shelves[0]
+    # Check all of the shelf assemblies
+    for cur_shelf in config.shelves:
+        # Test the generated CAD assembly
+        shelf_assy = cur_shelf.generate_assembly_model(explode=True)
 
-    # Test the generated CAD assembly
-    shelf_assy = cur_shelf.generate_assembly_model(explode=True)
+        # Set up a temporary path to export the image to
+        temp_dir = tempfile.gettempdir()
+        temp_path = os.path.join(temp_dir, "assembly_render_test_exploded_" + cur_shelf._device.name + ".png")
 
-    # Set up a temporary path to export the image to
-    temp_dir = tempfile.gettempdir()
-    temp_path = os.path.join(temp_dir, "assembly_render_test_exploded.png")
+        # Do a sample render of the shelf assembly
+        cur_shelf.get_render(shelf_assy,
+                            file_path=temp_path,
+                            annotate=True)
 
-    # Do a sample render of the shelf assembly
-    cur_shelf.get_render(shelf_assy,
-                         file_path=temp_path,
-                         annotate=True)
-
-    assert os.path.isfile(temp_path)
+        assert os.path.isfile(temp_path)
