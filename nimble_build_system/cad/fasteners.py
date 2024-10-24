@@ -127,7 +127,7 @@ class Ziptie(Fastener):
     """
     Ziptie fastener, that shows the straight, ununsed condition only.
     """
-    #pylint: disable=R0913
+    #pylint: disable=too-many-arguments
 
     _thickness = 1.6  # mm
     _width = 4  # mm

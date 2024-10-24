@@ -411,11 +411,11 @@ class Shelf():
 
         # There is a false positive on the cq.Location constructor. If I make pylint happy it breaks
         # the method dispatch. If I make Python happy, pylint fails.
-        # pylint: disable=E1120
-        # pylint: disable=W0212
-        # pylint: disable=R0912
-        # pylint: disable=R0915
-        # pylint: disable=E1121
+        # pylint: disable=no-value-for-parameter
+        # pylint: disable=protected-access
+        # pylint: disable=too-many-branches
+        # pylint: disable=too-many-statements
+        # pylint: disable=too-many-function-args
 
         # If the shelf assembly has already been generated, do not generate it again
         if self._shelf_assembly_model is None:
