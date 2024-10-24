@@ -38,9 +38,10 @@ class ShelfBuilder:
     def __init__(
         self,
         height_in_u: int,
-        width: Union[Literal["standard", "broad"], float],
-        depth: Union[Literal["standard"], float],
-        front_type: Literal["full", "open", "w-pattern", "slots"],
+        *,
+        width: Union[Literal["standard", "broad"], float] = "standard",
+        depth: Union[Literal["standard"], float] = "standard",
+        front_type: Literal["full", "open", "w-pattern", "slots"] = "full",
         base_between_beam_walls: Literal["none", "front-open", "closed"] = "closed",
         beam_wall_type: Literal["none", "standard", "ramp"] = "standard",
         rack_params=None,
@@ -399,6 +400,7 @@ class ShelfBuilder:
         self,
         face: str,
         size_x: cad.DimensionDefinitionType,
+        *,
         offset_y: float = 0,
         size_y: Optional[cad.DimensionDefinitionType] = None,
         depth: float = 999,
@@ -420,7 +422,8 @@ class ShelfBuilder:
         x_pos: float,
         y_pos: float,
         base_thickness: float,
-        hole_type: Literal["M3cs", "M3-tightfit", "base-only"],
+        *,
+        hole_type: Literal["M3cs", "M3-tightfit", "base-only"] = "M3-tightfit",
         base_diameter: float = 15,
     ) -> None:
         """
@@ -442,8 +445,9 @@ class ShelfBuilder:
         self,
         y_pos: float,
         z_pos: float,
-        hole_type: Literal["M3-tightfit", "HDD"],
-        side: Literal["left", "right", "both"],
+        *,
+        hole_type: Literal["M3-tightfit", "HDD"] = "M3-tightfit",
+        side: Literal["left", "right", "both"] = "both",
         base_diameter: float = 8,
     ) -> None:
         """
@@ -506,6 +510,7 @@ class ShelfBuilder:
         internal_width: float,
         internal_depth: float,
         internal_height: float = 0,
+        *,
         rear_cutout_width: float = 0,
         add_ziptie_channels: bool = True,
     ):
@@ -587,6 +592,7 @@ class ShelfBuilder:
 
 def ziptie_shelf(
     height_in_u: int,
+    *,
     internal_width: Optional[float] = None,
     internal_depth: Optional[float] = None,
     internal_height: Optional[float] = None,

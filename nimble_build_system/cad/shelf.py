@@ -7,7 +7,6 @@ Rendering and documentation generation is also supported for the shelves.
 """
 
 # pylint: disable=unused-import
-# pylint: disable=too-many-positional-arguments
 
 import os
 import posixpath
@@ -31,6 +30,7 @@ from nimble_build_system.orchestration.paths import REL_MECH_DIR
 
 
 def create_shelf_for(device_id: str,
+                     *,
                      assembly_key: str='Shelf',
                      position: tuple[float, float, float]=(0,0,0),
                      color: str='dodgerblue1',
@@ -75,10 +75,10 @@ def create_shelf_for(device_id: str,
         kwargs = {}
     return shelf_class(
             device,
-            assembly_key,
-            position,
-            color,
-            rack_params,
+            assembly_key=assembly_key,
+            position=position,
+            color=color,
+            rack_params=rack_params,
             **kwargs
     )
 
@@ -127,13 +127,13 @@ class Shelf():
 
     def __init__(self,
                  device: Device,
+                 *,
                  assembly_key: str,
                  position: tuple[float, float, float],
                  color: str,
                  rack_params: RackParameters
                  ):
 
-        # pylint: disable=too-many-arguments
 
         self._rack_params = rack_params
 
@@ -516,13 +516,18 @@ class StuffShelf(Shelf):
     ##TODO: Perhaps make a "dummy" device for "stuff"?
     def __init__(self,
                  device: Device,
+                 *,
                  assembly_key: str,
                  position: tuple[float, float, float],
                  color: str,
                  rack_params: RackParameters,
                  thin: bool=False):
 
-        super().__init__(device, assembly_key, position, color, rack_params)
+        super().__init__(device,
+                         assembly_key=assembly_key,
+                         position=position,
+                         color=color,
+                         rack_params=rack_params)
         self.thin = thin
 
     def generate_shelf_model(self) -> cadscript.Body:
@@ -551,7 +556,7 @@ class NUCShelf(Shelf):
         builder = ShelfBuilder(
             self.height_in_u, width="broad", depth="standard", front_type="full"
         )
-        builder.cut_opening("<Y", builder.inner_width, 4)
+        builder.cut_opening("<Y", builder.inner_width, offset_y=4)
         builder.make_tray(sides="w-pattern", back="open")
         builder.add_mounting_hole_to_bottom(x_pos=0, y_pos=35, base_thickness=4, hole_type="M3cs")
         builder.add_mounting_hole_to_bottom(x_pos=0, y_pos=120, base_thickness=4, hole_type="M3cs")
@@ -569,7 +574,7 @@ class USWFlexShelf(Shelf):
             builder = ShelfBuilder(
                 self.height_in_u, width="standard", depth=119.5, front_type="full"
             )
-            builder.cut_opening("<Y", builder.inner_width, 4)
+            builder.cut_opening("<Y", builder.inner_width, offset_y=4)
             builder.make_tray(sides="w-pattern", back="open")
             # add 2 mounting bars on the bottom plate
             sketch = cadscript.make_sketch()
@@ -624,6 +629,7 @@ class AnkerShelf(Shelf):
     """
     def __init__(self,
                  device: Device,
+                 *,
                  assembly_key: str,
                  position: tuple[float, float, float],
                  color: str,
@@ -633,9 +639,11 @@ class AnkerShelf(Shelf):
                  internal_height: float = 25,
                  front_cutout_width: float = 53):
 
-        #pylint: disable=too-many-arguments
-
-        super().__init__(device, assembly_key, position, color, rack_params)
+        super().__init__(device,
+                         assembly_key=assembly_key,
+                         position=position,
+                         color=color,
+                         rack_params=rack_params)
         self.internal_width = internal_width
         self.internal_depth = internal_depth
         self.internal_height = internal_height
@@ -811,10 +819,10 @@ class RaspberryPiShelf(Shelf):
         }
 
         super().__init__(device,
-                         assembly_key,
-                         position,
-                         color,
-                         rack_params)
+                         assembly_key=assembly_key,
+                         position=position,
+                         color=color,
+                         rack_params=rack_params)
 
 
     def generate_shelf_model(self):
