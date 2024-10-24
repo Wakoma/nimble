@@ -127,6 +127,112 @@ def generate_raspberry_pi_4b(device_name):
     return placeholder
 
 
+def generate_nuc(device_name, width, depth, height):
+    """
+    Generates a slightly modified placeholder for the NUC devices.
+    """
+
+    # The overall shape
+    placeholder = cq.Workplane().box(width, depth, height)
+
+    # Round the edges
+    placeholder = placeholder.edges("|Z").fillet(8.0)
+
+    # Add the text of what the device is to the top
+    placeholder = (placeholder.faces(">Z")
+                    .workplane(centerOption="CenterOfBoundBox")
+                    .text(device_name.replace(" shelf", ""),
+                          fontsize=6,
+                          distance=-0.1))
+
+    # Add mounting holes to the placeholder
+    hole_locations = [
+        (0.0, 42.5, 0.0),
+        (0.0, -42.5, 0.0),
+    ]
+    placeholder = (placeholder.faces("<Z")
+                    .workplane(centerOption="CenterOfBoundBox", invert=False)
+                    .pushPoints(hole_locations)
+                    .hole(3.5, depth=5.0))
+
+    return placeholder
+
+
+def generate_hdd(device_name, width, depth, height):
+    """
+    Generates a 3.5" HDD placeholder model.
+    """
+
+    # The overall shape
+    placeholder = cq.Workplane().box(width, depth, height)
+
+    # Add the holes in the first side
+    hole_locations = [
+        (0.0, -6.35, 0.0),
+        (101.6 / 2.0, -6.35, 0.0),
+        (-101.6 / 2.0, -6.35, 0.0)
+    ]
+    placeholder = (placeholder
+                   .faces("<Y")
+                   .workplane()
+                   .pushPoints(hole_locations)
+                   .hole(3.5, depth=5.0))
+    placeholder = (placeholder
+                   .faces(">Y")
+                   .workplane()
+                   .pushPoints(hole_locations)
+                   .hole(3.5, depth=5.0))
+
+    # Round the edges
+    placeholder = placeholder.edges("|Z").fillet(3.0)
+
+    # Add the text of what the device is to the top
+    placeholder = (placeholder.faces(">Z")
+                    .workplane(centerOption="CenterOfBoundBox")
+                    .text(device_name.replace(" shelf", ""),
+                          fontsize=6,
+                          distance=-0.1))
+
+    return placeholder
+
+
+def generate_ssd(device_name, width, depth, height):
+    """
+    Generates a 2.5" SSD placeholder model.
+    """
+
+    # The overall shape
+    placeholder = cq.Workplane().box(width, depth, height)
+
+    # Add the holes in the sides
+    hole_locations = [
+        ((101.6 / 2.0 - 14), 0.0, 0.0),
+        (-(101.6 / 2.0 - 14), 0.0, 0.0)
+    ]
+    placeholder = (placeholder
+                   .faces("<Y")
+                   .workplane()
+                   .pushPoints(hole_locations)
+                   .hole(3.5, depth=5.0))
+    placeholder = (placeholder
+                   .faces(">Y")
+                   .workplane()
+                   .pushPoints(hole_locations)
+                   .hole(3.5, depth=5.0))
+
+    # Round the edges
+    placeholder = placeholder.edges("|Z").fillet(3.0)
+
+    # Add the text of what the device is to the top
+    placeholder = (placeholder.faces(">Z")
+                    .workplane(centerOption="CenterOfBoundBox")
+                    .text(device_name.replace(" shelf", ""),
+                          fontsize=6,
+                          distance=-0.1))
+
+    return placeholder
+
+
 def generate_placeholder(device_name, width, depth, height):
     """
     Generates a generalized placeholder object for a device.
@@ -139,6 +245,13 @@ def generate_placeholder(device_name, width, depth, height):
     if "raspberry" in device_name.lower() and "4b" in device_name.lower():
         # The overall shape
         placeholder = generate_raspberry_pi_4b(device_name)
+    elif "nuc" in device_name.lower():
+        # The overall shape
+        placeholder = generate_nuc(device_name, width, depth, height)
+    elif "hdd" in device_name.lower():
+        placeholder = generate_hdd(device_name, width, depth, height)
+    elif "ssd" in device_name.lower():
+        placeholder = generate_ssd(device_name, width, depth, height)
     else:
         # The overall shape
         placeholder = generate_generic(device_name, width, depth, height, smallest_dim)

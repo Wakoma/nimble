@@ -129,8 +129,7 @@ def test_shelf_generation():
         x_size = shelf_model.val().BoundingBox().xmax - shelf_model.val().BoundingBox().xmin
         y_size = shelf_model.val().BoundingBox().ymax - shelf_model.val().BoundingBox().ymin
         z_size = shelf_model.val().BoundingBox().zmax - shelf_model.val().BoundingBox().zmin
-        print(x_size, y_size, z_size)
-        print(config.devices[i].width, config.devices[i].depth, config.devices[i].height)
+
         assert shelf_model.val().isValid()
         assert x_size > config.devices[i].width
         assert y_size > config.devices[i].depth
@@ -161,7 +160,6 @@ def test_shelf_assembly_generation():
     assert len(assy.children) == 6
 
     # Make sure that the assembly has no parts that are interfering with each other
-    print(assy.objects["screw_0"].shapes[0])
     intersection_part = assy.objects["shelf"].shapes[0]
     intersection_part = intersection_part.intersect(assy.objects["device"].shapes[0])
     assert intersection_part.Volume() == pytest.approx(0.0, 0.001)
@@ -171,9 +169,3 @@ def test_shelf_assembly_generation():
 
     # Make sure the assembly has the number of children we expect
     assert len(assy.children) == 6
-
-    # TODO: Remove the following before merging the PR
-    # from cadquery.vis import show
-    # show(rpi_shelf.generate_shelf_model().cq())
-    # show(assy)
-    # show(exploded_assy)
