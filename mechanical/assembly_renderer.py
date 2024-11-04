@@ -30,6 +30,9 @@ class PartDefinition:
     Definition of a part.
     """
 
+    # This is pretty much a glorified dataclass
+    # pylint: disable=too-few-public-methods
+
     name: str
     step_file: str
     position: tuple
@@ -96,4 +99,3 @@ if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals(
     # CQGI should execute this whenever called
     assembly = AssemblyRenderer(def_file.name).generate()
     show_object(assembly)
-
