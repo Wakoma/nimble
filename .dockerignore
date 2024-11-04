@@ -1,0 +1,16 @@
+*.egg-info
+*.pyc
+*.directory
+*.save
+
+build/
+__pycache__
+_cache_/
+_/gb_temp_
+
+.venv
+.git
+.github
+.pytest_cache
+.reuse
+.gitignore
