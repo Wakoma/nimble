@@ -73,8 +73,12 @@ class AssemblyRenderer:
         assembly = cq.Assembly()
         for part in self._parts:
             if part.device:
+                # This is a shelf and we load it directly rather than from an STL.
                 shelf_obj = create_shelf_for(part.device)
                 cq_part = shelf_obj.generate_assembly_model()
+                # generate all render pngs for this shelf
+                # commented out as this doesnt work yet
+                # self_obj.generate_renders()
             else:
                 cq_part = cq.importers.importStep(part.step_file)
             for tag in part.tags:
