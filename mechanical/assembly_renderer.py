@@ -20,12 +20,18 @@ from pathlib import Path
 import cadquery as cq
 import yaml
 
-assembly_definition_file = "assembly-def.yaml"
+from nimble_build_system.cad.shelf import create_shelf_for
+
+assembly_definition_file = "../build/assembly-def.yaml"
+
 
 class PartDefinition:
     """
     Definition of a part.
     """
+
+    # This is pretty much a glorified dataclass
+    # pylint: disable=too-few-public-methods
 
     name: str
     step_file: str
@@ -34,11 +40,13 @@ class PartDefinition:
 
     def __init__(self, definition: dict):
         self.name = definition["key"]
-        self.step_file = definition["step-file"]
+        self.step_file = definition.get("step-file", None)
         # convert position from string like "(1,2,3)" to tuple
         self.position = tuple(map(float, definition["position"].strip("()").split(",")))
         self.tags = definition.get("tags", [])
         self.color = definition.get("color", "gray95")
+        self.device = definition.get("device", None)
+        assert self.device or self.step_file, "No device or step file set."
 
 
 class AssemblyRenderer:
@@ -64,7 +72,15 @@ class AssemblyRenderer:
         """
         assembly = cq.Assembly()
         for part in self._parts:
-            cq_part = cq.importers.importStep(part.step_file)
+            if part.device:
+                # This is a shelf and we load it directly rather than from an STEP.
+                shelf_obj = create_shelf_for(part.device)
+                cq_part = shelf_obj.generate_assembly_model()
+                # generate all render pngs for this shelf
+                # commented out as this doesnt work yet
+                # self_obj.generate_renders()
+            else:
+                cq_part = cq.importers.importStep(part.step_file)
             for tag in part.tags:
                 cq_part = cq_part.tag(tag)
             #Pylint appears to be confused by the multimethod __init__ used by cq.Location
@@ -81,13 +97,9 @@ class AssemblyRenderer:
 
 # Handle different execution environments, including ExSource-Tools
 if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
-    # CQGI should execute this whenever called
-    assembly = AssemblyRenderer(assembly_definition_file).generate()
-    show_object(assembly)
-
-if __name__ == "__main__":
-    # for debugging
-    folder = Path(__file__).resolve().parent.parent
+    def_file = Path(assembly_definition_file)
+    folder = def_file.resolve().parent
     os.chdir(folder)
-    assembly = AssemblyRenderer(assembly_definition_file).generate()
-    assembly.save("assembly.stl", "STL")
+    # CQGI should execute this whenever called
+    assembly = AssemblyRenderer(def_file.name).generate()
+    show_object(assembly)

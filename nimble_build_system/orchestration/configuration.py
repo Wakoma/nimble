@@ -51,8 +51,6 @@ class NimbleConfiguration:
             name='Nimble Rack',
             description='Assembled nimble rack',
             output_files=[
-                "./assembly/assembly.stl",
-                "./assembly/assembly.step",
                 "./assembly/assembly.glb",
             ],
             source_files=[source],

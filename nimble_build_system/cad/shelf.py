@@ -233,7 +233,8 @@ class Shelf():
             component=component,
             data = {
                 'position': position,
-                'color': color
+                'color': color,
+                'device': self._device.id
             },
             include_key=True,
             include_stepfile=True
@@ -658,7 +659,7 @@ class Shelf():
         """
         Return the markdown (BuildUp) for the GitBuilding page for assembling this shelf.
         """
-        stlfilename = self.shelf_component.stl_representation
+        stlfilename = posixpath.normpath("../build/"+self.shelf_component.stl_representation)
         meta_data = {
             "Tag": "shelf",
             "Make": {

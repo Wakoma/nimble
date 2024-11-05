@@ -18,12 +18,6 @@ Make:
     stlname: beam.stl
     material: PLA
     weight-qty: 60g
-  stuff shelf:
-    template: printing.md
-    stl-file: models/Stuff_Shelf_1.0.stl
-    stlname: Stuff_Shelf_1.0.stl
-    material: PLA
-    weight-qty: 50g
 ---
 
 # Construct and populate the rack
