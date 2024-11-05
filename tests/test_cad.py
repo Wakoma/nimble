@@ -154,7 +154,7 @@ def test_shelf_assembly_generation():
     assert rpi_shelf != None
 
     # Test the generated CAD assembly
-    assy = rpi_shelf.generate_assembly_model()
+    assy = rpi_shelf.generate_assembly_model(rpi_shelf.renders["assembled"]["render_options"])
 
     # Make sure the assembly has the number of children we expect
     assert len(assy.children) == 6
@@ -165,7 +165,8 @@ def test_shelf_assembly_generation():
     assert intersection_part.Volume() == pytest.approx(0.0, 0.001)
 
     # Test exploded assembly
-    exploded_assy = rpi_shelf.generate_assembly_model(explode=True)
+    exploded_assy = rpi_shelf.generate_assembly_model(
+        rpi_shelf.renders["annotated"]["render_options"])
 
     # Make sure the assembly has the number of children we expect
     assert len(assy.children) == 6

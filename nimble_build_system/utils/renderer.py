@@ -1,3 +1,6 @@
+#pylint: disable=too-few-public-methods
+#pylint: disable=unused-import
+
 import cadquery as cq
 import cadquery_png_plugin.plugin  # This activates the PNG plugin for CadQuery
 from cq_annotate.callouts import add_assembly_lines
