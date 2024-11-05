@@ -17,51 +17,22 @@ test_config = ["Raspberry_Pi_4B",
             ]
 
 
-def test_assembly_png_rendering():
+def test_png_rendering():
     """
-    Tests whether or not a PNG image can be output for an entire assembly.
+    Tests whether or not a PNG image can be output for each render of a shelf assembly.
     """
-
-    # Load the needed information to generate a Shelf object
+     # Load the needed information to generate a Shelf object
     config = NimbleConfiguration(test_config)
 
     # Check all of the shelf assemblies
     for cur_shelf in config.shelves:
-        # Test the generated CAD assembly
-        shelf_assy = cur_shelf.generate_assembly_model()
 
         # Set up a temporary path to export the image to
         temp_dir = tempfile.gettempdir()
-        temp_path = os.path.join(temp_dir, "assembly_render_test_" + cur_shelf._device.name + ".png")
 
         # Do a sample render of the shelf assembly
-        cur_shelf.get_render(shelf_assy,
-                            file_path=temp_path)
+        cur_shelf.generate_renders(temp_dir)
 
-        assert os.path.isfile(temp_path)
-
-
-def test_annotated_assembly_png_rendering():
-    """
-    Tests whether or not a PNG image can be output for an entire assembly with
-    annotations (i.e. assembly lines).
-    """
-
-    # Load the needed information to generate a Shelf object
-    config = NimbleConfiguration(test_config)
-
-    # Check all of the shelf assemblies
-    for cur_shelf in config.shelves:
-        # Test the generated CAD assembly
-        shelf_assy = cur_shelf.generate_assembly_model(explode=True)
-
-        # Set up a temporary path to export the image to
-        temp_dir = tempfile.gettempdir()
-        temp_path = os.path.join(temp_dir, "assembly_render_test_exploded_" + cur_shelf._device.name + ".png")
-
-        # Do a sample render of the shelf assembly
-        cur_shelf.get_render(shelf_assy,
-                            file_path=temp_path,
-                            annotate=True)
-
-        assert os.path.isfile(temp_path)
+        # Check to make sure that all of the appropriate files were created
+        for render_file in cur_shelf.list_render_files():
+            assert os.path.isfile(os.path.join(temp_dir, render_file))

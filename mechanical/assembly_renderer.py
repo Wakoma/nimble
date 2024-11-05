@@ -23,6 +23,7 @@ import yaml
 from nimble_build_system.cad.shelf import create_shelf_for
 
 assembly_definition_file = "../build/assembly-def.yaml"
+render_destination = "../build/assembly-docs"
 
 
 class PartDefinition:
@@ -75,10 +76,9 @@ class AssemblyRenderer:
             if part.device:
                 # This is a shelf and we load it directly rather than from an STEP.
                 shelf_obj = create_shelf_for(part.device)
-                cq_part = shelf_obj.generate_assembly_model()
-                # generate all render pngs for this shelf
-                # commented out as this doesnt work yet
-                # self_obj.generate_renders()
+
+                # Generate all render pngs for this shelf
+                shelf_obj.generate_renders(base_path=render_destination)
             else:
                 cq_part = cq.importers.importStep(part.step_file)
             for tag in part.tags:
