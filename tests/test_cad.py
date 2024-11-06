@@ -166,7 +166,7 @@ def test_shelf_assembly_generation():
 
     # Test exploded assembly
     exploded_assy = rpi_shelf.generate_assembly_model(
-        rpi_shelf.renders["annotated"]["render_options"])
+                                    rpi_shelf.renders["annotated"]["render_options"])
 
     # Make sure the assembly has the number of children we expect
     assert len(assy.children) == 6
