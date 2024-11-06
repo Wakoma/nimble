@@ -49,7 +49,7 @@ jobs:
       - name: Generate example docs
         uses: coactions/setup-xvfb@v1
         with:
-          run: cadorchestrator --headless generate ["NUC10i5FNH", "Raspberry_Pi_4B", "Raspberry_Pi_4B"]
+          run: cadorchestrator --headless generate "[\"NUC10i5FNH\", \"Raspberry_Pi_4B\", \"Raspberry_Pi_4B\"]"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
