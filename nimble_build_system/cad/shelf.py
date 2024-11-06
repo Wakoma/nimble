@@ -23,10 +23,9 @@ from nimble_build_system.cad import RackParameters
 from nimble_build_system.cad.device_placeholder import generate_placeholder
 from nimble_build_system.cad.shelf_builder import ShelfBuilder, ziptie_shelf
 from nimble_build_system.cad.fasteners import Screw, Ziptie
+from nimble_build_system.cad.renderer import generate_render
 from nimble_build_system.orchestration.device import Device
 from nimble_build_system.orchestration.paths import REL_MECH_DIR
-
-from ..utils.renderer import generate_render
 
 
 def create_shelf_for(device_id: str,

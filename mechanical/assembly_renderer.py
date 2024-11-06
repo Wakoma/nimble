@@ -22,8 +22,6 @@ import yaml
 
 from nimble_build_system.cad.shelf import create_shelf_for
 
-print(os.getcwd())
-
 assembly_definition_file = "../build/assembly-def.yaml"
 render_destination = os.path.join(os.getcwd(), "assembly-docs")
 
