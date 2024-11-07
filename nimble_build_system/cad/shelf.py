@@ -15,16 +15,15 @@ import warnings
 import yaml
 from cadorchestrator.components import AssembledComponent, GeneratedMechanicalComponent
 import cadquery as cq
-import cadquery_png_plugin.plugin  # This activates the PNG plugin for CadQuery
 import cadscript
 from cq_warehouse.fastener import ButtonHeadScrew, CounterSunkScrew, PanHeadScrew
 from cq_annotate.views import explode_assembly
-from cq_annotate.callouts import add_assembly_lines
 
 from nimble_build_system.cad import RackParameters
 from nimble_build_system.cad.device_placeholder import generate_placeholder
 from nimble_build_system.cad.shelf_builder import ShelfBuilder, ziptie_shelf
 from nimble_build_system.cad.fasteners import Screw, Ziptie
+from nimble_build_system.cad.renderer import generate_render
 from nimble_build_system.orchestration.device import Device
 from nimble_build_system.orchestration.paths import REL_MECH_DIR
 
@@ -116,7 +115,7 @@ class Shelf():
     _hole_locations = None  # List of hole locations for the device
     _fasteners = []  # List of screw positions for the device
     _unit_width = 6  # 6 or 10 inch rack
-    _render_options = None
+    _renders = None  # Renders that are available for each shelf type
 
     # Hole location parameters
     _screw_dist_x = None
@@ -186,15 +185,22 @@ class Shelf():
                   axis="-X",
                   length=300),
         ]
-        self.render_options = {
-            "color_theme": "default",  # can also use black_and_white
-            "view": "front-top-right",
-            "standard_view": "front-top-right",
-            "annotated_view": "back-bottom-right",
-            "add_device_offset": False,
-            "add_fastener_length": False,
-            "zoom": 1.0,
-        }
+        self._renders = {"assembled":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "front-top-right",
+                                                "zoom": 1.0,
+                                                "add_device_offset": False,
+                                                "add_fastener_length": False,
+                                                "annotate": False,
+                                                "explode": False}},
+                        "annotated":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "back-bottom-right",
+                                                "add_device_offset": False,
+                                                "add_fastener_length": False,
+                                                "zoom": 1.0,
+                                                "annotate": True,
+                                                "explode": True}}}  # Render options for the shelf
 
 
     @property
@@ -357,19 +363,11 @@ class Shelf():
 
 
     @property
-    def render_options(self):
+    def renders(self):
         """
-        Return the options for rendering the shelf.
+        All of the renders that are available for a shelf and their render options.
         """
-        return self._render_options
-
-
-    @render_options.setter
-    def render_options(self, value):
-        """
-        Set the options for rendering the shelf.
-        """
-        self._render_options = value
+        return self._renders
 
 
     def generate_device_model(self):
@@ -403,7 +401,7 @@ class Shelf():
         return self._shelf_model
 
 
-    def generate_assembly_model(self, explode=False):
+    def generate_assembly_model(self, render_options=None):
         """
         Generates an CAD model of the shelf assembly showing assembly step between
         a device and a shelf. This can be optionally be exploded.
@@ -418,185 +416,183 @@ class Shelf():
         # pylint: disable=too-many-statements
         # pylint: disable=too-many-function-args
 
-        # If the shelf assembly has already been generated, do not generate it again
-        if self._shelf_assembly_model is None:
-            # Get and orient the device model properly in relation to the shelf
-            device = self.generate_device_model()
-            if self._device_depth_axis == "X":
-                device = device.rotateAboutCenter((0, 0, 1), 90)
-            elif self._device_depth_axis == "-X":
-                device = device.rotateAboutCenter((0, 0, 1), -90)
-            elif self._device_depth_axis == "Y":
-                device = device.rotateAboutCenter((0, 0, 1), 0) # No rotation needed
-            elif self._device_depth_axis == "-Y":
-                device = device.rotateAboutCenter((0, 0, 1), -180)
-            elif self._device_depth_axis == "Z":
-                device = device.rotateAboutCenter((0, 1, 0), 90)
-            elif self._device_depth_axis == "-Z":
-                device = device.rotateAboutCenter((0, 1, 0), -90)
+        # Get and orient the device model properly in relation to the shelf
+        device = self.generate_device_model()
+        if self._device_depth_axis == "X":
+            device = device.rotateAboutCenter((0, 0, 1), 90)
+        elif self._device_depth_axis == "-X":
+            device = device.rotateAboutCenter((0, 0, 1), -90)
+        elif self._device_depth_axis == "Y":
+            device = device.rotateAboutCenter((0, 0, 1), 0) # No rotation needed
+        elif self._device_depth_axis == "-Y":
+            device = device.rotateAboutCenter((0, 0, 1), -180)
+        elif self._device_depth_axis == "Z":
+            device = device.rotateAboutCenter((0, 1, 0), 90)
+        elif self._device_depth_axis == "-Z":
+            device = device.rotateAboutCenter((0, 1, 0), -90)
 
-            # Move the device to the correct position on the shelf
-            device = device.translate((self._device_offset[0],
-                                    self._device_offset[1],
-                                    self._device_offset[2]))
+        # Move the device to the correct position on the shelf
+        device = device.translate((self._device_offset[0],
+                                self._device_offset[1],
+                                self._device_offset[2]))
 
-            # Create the assembly holding all the parts that go into the shelf unit
-            assy = cq.Assembly()
-            assy.add(device, name="device",
-                     color=cq.Color(0.996, 0.867, 0.0, 1.0),
-                     metadata={
-                        "explode_translation": cq.Location(self._device_explode_translation)
+        # Create the assembly holding all the parts that go into the shelf unit
+        assy = cq.Assembly()
+        assy.add(device, name="device",
+                    color=cq.Color(0.996, 0.867, 0.0, 1.0),
+                    metadata={
+                    "explode_translation": cq.Location(self._device_explode_translation)
+                })
+        assy.add(self.generate_shelf_model().cq(),
+                name="shelf",
+                color=cq.Color(0.565, 0.698, 0.278, 1.0))
+
+        # Add the fasteners to the assembly
+        for i, fastener in enumerate(self._fasteners):
+            # Handle the different fastener types
+            if fastener.fastener_type == "ziptie":
+                # Create the ziptie spine
+                cur_fastener = cq.Workplane().box(fastener.width,
+                                                    fastener.length,
+                                                    fastener.thickness)
+
+                # Create the ziptie head
+                cur_fastener = (cur_fastener.faces(">Z")
+                                            .workplane(invert=True)
+                                            .move(0.0, fastener.length / 2.0)
+                                            .rect(fastener.width + 2.0,
+                                                    fastener.width + 2.0)
+                                            .extrude(fastener.thickness + 3.0))
+
+                # Chamfer the insertion end of the ziptie
+                cur_fastener = (cur_fastener.faces(">Y")
+                                            .edges(">X and |Z")
+                                            .chamfer(length=fastener.width / 4.0,
+                                                        length2=fastener.width * 2.0))
+                cur_fastener = (cur_fastener.faces(">Y")
+                                            .edges("<X and |Z")
+                                            .chamfer(length=fastener.width / 4.0,
+                                                        length2=fastener.width * 2.0))
+
+                # Add the slot in the head for insertion of the tail
+                cur_fastener = (cur_fastener.faces(">Z")
+                                            .workplane(invert=True)
+                                            .move(0.0, -(fastener.length / 2.0))
+                                            .rect(fastener.width, fastener.thickness)
+                                            .cutThruAll())
+            else:
+                if fastener.fastener_type == "iso10642":
+                    # Create the counter-sunk screw model
+                    cur_fastener = cq.Workplane(CounterSunkScrew(size=fastener.size,
+                                                fastener_type=fastener.fastener_type,
+                                                length=fastener.length,
+                                                simple=True).cq_object)
+                elif fastener.fastener_type == "asme_b_18.6.3":
+                    # Create the cheesehead screw model
+                    cur_fastener = cq.Workplane(PanHeadScrew(size=fastener.size,
+                                                fastener_type=fastener.fastener_type,
+                                                length=fastener.length,
+                                                simple=True).cq_object)
+                else:
+                    # Create a button head screw model
+                    cur_fastener = cq.Workplane(ButtonHeadScrew(size=fastener.size,
+                                                fastener_type=fastener.fastener_type,
+                                                length=fastener.length,
+                                                simple=True).cq_object)
+
+
+            # Allows the proper face to be selected for the extension lines
+            face_selector = "<Z"
+
+            # Figure out what the name of the screw should be
+            if fastener.name is None:
+                fastener.name = f"fastener_{i}"
+
+            # Figure out what the rotation should be
+            if fastener.fastener_type == "ziptie":
+                rotation = ((0, 0, 1), 0)
+                if fastener.direction_axis == "X":
+                    rotation = ((0, 0, 1), -90)
+                    face_selector = ">Z"
+                elif fastener.direction_axis == "-X":
+                    rotation = ((0, 0, 1), 90)
+                    face_selector = ">Z"
+                elif fastener.direction_axis == "Y":
+                    rotation = ((0, 0, 1), 0)
+                    face_selector = ">Z"
+                elif fastener.direction_axis == "-Y":
+                    rotation = ((0, 0, 1), 180)
+                    face_selector = ">Z"
+                elif fastener.direction_axis == "Z":
+                    rotation = ((1, 0, 0), 0)
+                    face_selector = ">X"
+                elif fastener.direction_axis == "-Z":
+                    rotation = ((1, 0, 0), 180)
+                    face_selector = ">X"
+            else:
+                rotation = ((0, 0, 1), 0)
+                if fastener.direction_axis == "X":
+                    rotation = ((0, 1, 0), 90)
+                    face_selector = ">X"
+                elif fastener.direction_axis == "-X":
+                    rotation = ((0, 1, 0), -90)
+                    face_selector = ">X"
+                elif fastener.direction_axis == "Y":
+                    rotation = ((1, 0, 0), 90)
+                    face_selector = "<Y"
+                elif fastener.direction_axis == "-Y":
+                    rotation = ((1, 0, 0), -90)
+                    face_selector = ">Y"
+                elif fastener.direction_axis == "Z":
+                    rotation = ((0, 1, 0), 0)
+                    face_selector = "<Z"
+                elif fastener.direction_axis == "-Z":
+                    rotation = ((0, 1, 0), 180)
+                    face_selector = ">Z"
+
+            # Make sure assembly lines are present with each fastener
+            cur_fastener.faces(face_selector).tag("assembly_line")
+
+            # Figure out if extra extensions to the assembly lines have been requested
+            if render_options["add_device_offset"]:
+                x_offset = self._device_explode_translation[0]
+                y_offset = self._device_explode_translation[1]
+                z_offset = self._device_explode_translation[2]
+            else:
+                x_offset = 0
+                y_offset = 0
+                z_offset = 0
+
+            # Check to see if the fastener length should be added to the assembly line length
+            if render_options["add_fastener_length"]:
+                x_offset += fastener.length
+                y_offset += fastener.length
+                z_offset += fastener.length
+
+            # Add the fastener to the assembly
+            assy.add(cur_fastener,
+                    name=fastener.name,
+                    loc=cq.Location(fastener.position, rotation[0], rotation[1]),
+                    color=cq.Color(0.5, 0.5, 0.5, 1.0),
+                    metadata={
+                        "explode_translation": cq.Location(
+                            (fastener.explode_translation[0],
+                                fastener.explode_translation[1],
+                                fastener.explode_translation[2])),
+                        "assembly_line_length": (
+                            abs(x_offset) +
+                                abs(fastener.explode_translation[0]),
+                            abs(y_offset) +
+                                abs(fastener.explode_translation[1]),
+                            abs(z_offset) +
+                                abs(fastener.explode_translation[2])
+                        )
                     })
-            assy.add(self.generate_shelf_model().cq(),
-                    name="shelf",
-                    color=cq.Color(0.565, 0.698, 0.278, 1.0))
 
-            # Add the fasteners to the assembly
-            for i, fastener in enumerate(self._fasteners):
-                # Handle the different fastener types
-                if fastener.fastener_type == "ziptie":
-                    # Create the ziptie spine
-                    cur_fastener = cq.Workplane().box(fastener.width,
-                                                      fastener.length,
-                                                      fastener.thickness)
-
-                    # Create the ziptie head
-                    cur_fastener = (cur_fastener.faces(">Z")
-                                               .workplane(invert=True)
-                                               .move(0.0, fastener.length / 2.0)
-                                               .rect(fastener.width + 2.0,
-                                                     fastener.width + 2.0)
-                                                .extrude(fastener.thickness + 3.0))
-
-                    # Chamfer the insertion end of the ziptie
-                    cur_fastener = (cur_fastener.faces(">Y")
-                                                .edges(">X and |Z")
-                                                .chamfer(length=fastener.width / 4.0,
-                                                         length2=fastener.width * 2.0))
-                    cur_fastener = (cur_fastener.faces(">Y")
-                                                .edges("<X and |Z")
-                                                .chamfer(length=fastener.width / 4.0,
-                                                         length2=fastener.width * 2.0))
-
-                    # Add the slot in the head for insertion of the tail
-                    cur_fastener = (cur_fastener.faces(">Z")
-                                                .workplane(invert=True)
-                                                .move(0.0, -(fastener.length / 2.0))
-                                                .rect(fastener.width, fastener.thickness)
-                                                .cutThruAll())
-                else:
-                    if fastener.fastener_type == "iso10642":
-                        # Create the counter-sunk screw model
-                        cur_fastener = cq.Workplane(CounterSunkScrew(size=fastener.size,
-                                                    fastener_type=fastener.fastener_type,
-                                                    length=fastener.length,
-                                                    simple=True).cq_object)
-                    elif fastener.fastener_type == "asme_b_18.6.3":
-                        # Create the cheesehead screw model
-                        cur_fastener = cq.Workplane(PanHeadScrew(size=fastener.size,
-                                                    fastener_type=fastener.fastener_type,
-                                                    length=fastener.length,
-                                                    simple=True).cq_object)
-                    else:
-                        # Create a button head screw model
-                        cur_fastener = cq.Workplane(ButtonHeadScrew(size=fastener.size,
-                                                    fastener_type=fastener.fastener_type,
-                                                    length=fastener.length,
-                                                    simple=True).cq_object)
-
-
-                # Allows the proper face to be selected for the extension lines
-                face_selector = "<Z"
-
-                # Figure out what the name of the screw should be
-                if fastener.name is None:
-                    fastener.name = f"fastener_{i}"
-
-                # Figure out what the rotation should be
-                if fastener.fastener_type == "ziptie":
-                    rotation = ((0, 0, 1), 0)
-                    if fastener.direction_axis == "X":
-                        rotation = ((0, 0, 1), -90)
-                        face_selector = ">Z"
-                    elif fastener.direction_axis == "-X":
-                        rotation = ((0, 0, 1), 90)
-                        face_selector = ">Z"
-                    elif fastener.direction_axis == "Y":
-                        rotation = ((0, 0, 1), 0)
-                        face_selector = ">Z"
-                    elif fastener.direction_axis == "-Y":
-                        rotation = ((0, 0, 1), 180)
-                        face_selector = ">Z"
-                    elif fastener.direction_axis == "Z":
-                        rotation = ((1, 0, 0), 0)
-                        face_selector = ">X"
-                    elif fastener.direction_axis == "-Z":
-                        rotation = ((1, 0, 0), 180)
-                        face_selector = ">X"
-                else:
-                    rotation = ((0, 0, 1), 0)
-                    if fastener.direction_axis == "X":
-                        rotation = ((0, 1, 0), 90)
-                        face_selector = ">X"
-                    elif fastener.direction_axis == "-X":
-                        rotation = ((0, 1, 0), -90)
-                        face_selector = ">X"
-                    elif fastener.direction_axis == "Y":
-                        rotation = ((1, 0, 0), 90)
-                        face_selector = "<Y"
-                    elif fastener.direction_axis == "-Y":
-                        rotation = ((1, 0, 0), -90)
-                        face_selector = ">Y"
-                    elif fastener.direction_axis == "Z":
-                        rotation = ((0, 1, 0), 0)
-                        face_selector = "<Z"
-                    elif fastener.direction_axis == "-Z":
-                        rotation = ((0, 1, 0), 180)
-                        face_selector = ">Z"
-
-                # Make sure assembly lines are present with each fastener
-                cur_fastener.faces(face_selector).tag("assembly_line")
-
-                # Figure out if extra extensions to the assembly lines have been requested
-                if self.render_options["add_device_offset"]:
-                    x_offset = self._device_explode_translation[0]
-                    y_offset = self._device_explode_translation[1]
-                    z_offset = self._device_explode_translation[2]
-                else:
-                    x_offset = 0
-                    y_offset = 0
-                    z_offset = 0
-
-                # Check to see if the fastener length should be added to the assembly line length
-                if self.render_options["add_fastener_length"]:
-                    x_offset += fastener.length
-                    y_offset += fastener.length
-                    z_offset += fastener.length
-
-                # Add the fastener to the assembly
-                assy.add(cur_fastener,
-                        name=fastener.name,
-                        loc=cq.Location(fastener.position, rotation[0], rotation[1]),
-                        color=cq.Color(0.5, 0.5, 0.5, 1.0),
-                        metadata={
-                            "explode_translation": cq.Location(
-                                (fastener.explode_translation[0],
-                                 fastener.explode_translation[1],
-                                 fastener.explode_translation[2])),
-                            "assembly_line_length": (
-                                abs(x_offset) +
-                                    abs(fastener.explode_translation[0]),
-                                abs(y_offset) +
-                                    abs(fastener.explode_translation[1]),
-                                abs(z_offset) +
-                                    abs(fastener.explode_translation[2])
-                            )
-                        })
-
-            self._shelf_assembly_model = assy
+        self._shelf_assembly_model = assy
 
         # Handle assembly explosion
-        if explode:
+        if render_options["explode"]:
             # If the exploded shelf assembly has already been generated, do not re-generate it
             if self._exploded_shelf_assembly_model is None:
                 self._exploded_shelf_assembly_model = self._shelf_assembly_model._copy()
@@ -607,52 +603,38 @@ class Shelf():
         return self._shelf_assembly_model
 
 
-    def get_render(self,
-                   model,
-                   annotate=False,
-                   image_format="png",
-                   file_path=None):
+    def list_renders(self):
         """
-        Generates a render of the assembly.
+        Return a list of all the renders that can be generated for the shelf.
+        """
+        return self.renders.keys()
 
-        parameters:
-            model (cadquery): The model to render, can be either a single part or an assembly
-            camera_pos (tuple): The position of the camera when capturing the render
-            annotate (bool): Whether or not to annotate the render using cq-annotate
-            image_format (str): The format of the image to render (png, svg, gltf, etc)
 
-        returns:
-            render_path (str): The path to the rendered image
+    def list_render_files(self):
+        """
+        Return a list of all the render paths that can be generated for the shelf.
+        This is done so that the documentation generate will know where to find the files.
+        """
+        shelf_name = self.name.replace(" ", "_")
+        return [f"{shelf_name}_{render_type}.png" for render_type in self.renders.keys()]
+
+
+    def generate_renders(self, base_path=None):
+        """
+        Generate all the renders for the shelf, using each one's specific render options.
         """
 
-        # pylint: disable=unused-argument
+        # Step through each render type and generate the render
+        for render_type in self.renders.keys():
+            # Get the base shelf name for the render filename
+            shelf_name = self.name.replace(" ", "_")
+            file_path = os.path.join(base_path, f"{shelf_name}_{render_type}.png")
+            cur_render_options = self.renders[render_type]["render_options"]
 
-        # TODO - Use the PNG functionality in CadQuery to generate a PNG render
-        # TODO - Maybe also need other formats such as glTF
-        # TODO - Return a bitmap buffer instead of a file path
-
-        # Check to see if we are dealing with a single part or an assembly
-        if isinstance(model, cq.Assembly):
-            # Handle assembly annotation
-            if annotate:
-                add_assembly_lines(model)
-
-                # Switch the view to the annotated view
-                self.render_options["view"] = self.render_options["annotated_view"]
-            else:
-                # Switch the view to the standard view
-                self.render_options["view"] = self.render_options["standard_view"]
-
-            # Handle the varioius image formats separately
-            if image_format == "png":
-                model.exportPNG(options=self.render_options, file_path=file_path)
-            else:
-                print("Unknown image format")
-        else:
-            print("We have a part")
-            # TODO - Implement PNG rendering of a single part
-
-        return NotImplemented
+            # Call the generic rendering method and pass it the model we want it to export to PNG
+            generate_render(model=self.generate_assembly_model(render_options=cur_render_options),
+                            file_path=file_path,
+                            render_options=cur_render_options)
 
 
     def generate_docs(self):
@@ -682,6 +664,7 @@ class Shelf():
         md += ">!! **TODO**  \n>!! Need information on how the item is secured to the shelf."
 
         return  md
+
 
 class StuffShelf(Shelf):
     """
@@ -766,15 +749,22 @@ class NUCShelf(Shelf):
                   axis="-Z",
                   length=6),
         ]
-        self.render_options = {
-            "color_theme": "default",  # can also use black_and_white
-            "view": "front-top-right",
-            "standard_view": "front-top-right",
-            "annotated_view": "front-bottom-right",
-            "add_device_offset": True,
-            "add_fastener_length": True,
-            "zoom": 1.15,
-        }
+        self._renders = {"assembled":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "front-top-right",
+                                                "add_device_offset": False,
+                                                "add_fastener_length": False,
+                                                "zoom": 1.15,
+                                                "annotate": False,
+                                                "explode": False}},
+                        "annotated":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "front-bottom-right",
+                                                "add_device_offset": True,
+                                                "add_fastener_length": True,
+                                                "zoom": 1.15,
+                                                "annotate": True,
+                                                "explode": True}}}  # Renders for the shelf
 
 
     def generate_shelf_model(self) -> cadscript.Body:
@@ -837,15 +827,22 @@ class USWFlexShelf(Shelf):
                   axis="-Z",
                   length=8),
         ]
-        self.render_options = {
-            "color_theme": "default",  # can also use black_and_white
-            "view": "front-top-right",
-            "standard_view": "front-top-right",
-            "annotated_view": "front-bottom-right",
-            "add_device_offset": True,
-            "add_fastener_length": True,
-            "zoom": 1.15,
-        }
+        self._renders = {"assembled":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "front-top-right",
+                                                "zoom": 1.15,
+                                                "add_device_offset": False,
+                                                "add_fastener_length": False,
+                                                "annotate": False,
+                                                "explode": False}},
+                        "annotated":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "front-bottom-right",
+                                                "add_device_offset": True,
+                                                "add_fastener_length": True,
+                                                "zoom": 1.15,
+                                                "annotate": True,
+                                                "explode": True}}}  # Render options for the shelf
 
 
     def generate_shelf_model(self) -> cadscript.Body:
@@ -933,15 +930,22 @@ class USWFlexMiniShelf(Shelf):
                   axis="-Y",
                   length=4),
         ]
-        self.render_options = {
-            "color_theme": "default",  # can also use black_and_white
-            "view": "front-top-right",
-            "standard_view": "front-top-right",
-            "annotated_view": "back-top-right",
-            "add_device_offset": False,
-            "add_fastener_length": True,
-            "zoom": 1.0,
-        }
+        self._renders = {"assembled":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "front-top-right",
+                                                "zoom": 1.0,
+                                                "add_device_offset": False,
+                                                "add_fastener_length": False,
+                                                "annotate": False,
+                                                "explode": False}},
+                        "annotated":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "back-top-right",
+                                                "add_device_offset": False,
+                                                "add_fastener_length": True,
+                                                "zoom": 1.0,
+                                                "annotate": True,
+                                                "explode": True}}}  # Render options for the shelf
 
 
     def generate_shelf_model(self) -> cadscript.Body:
@@ -1078,15 +1082,22 @@ class HDD35Shelf(Shelf):
                   axis="X",
                   length=6),
         ]
-        self.render_options = {
-            "color_theme": "default",  # can also use black_and_white
-            "view": "front-top-right",
-            "standard_view": "front-top-right",
-            "annotated_view": "back-bottom-right",
-            "add_device_offset": False,
-            "add_fastener_length": True,
-            "zoom": 1.15,
-        }
+        self._renders = {"assembled":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "front-top-right",
+                                                "zoom": 1.15,
+                                                "add_device_offset": False,
+                                                "add_fastener_length": False,
+                                                "annotate": False,
+                                                "explode": False}},
+                        "annotated":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "back-bottom-right",
+                                                "add_device_offset": False,
+                                                "add_fastener_length": True,
+                                                "zoom": 1.15,
+                                                "annotate": True,
+                                                "explode": True}}}  # Render options for the shelf
 
 
     def generate_shelf_model(self) -> cadscript.Body:
@@ -1189,15 +1200,22 @@ class DualSSDShelf(Shelf):
                   axis="X",
                   length=6),
         ]
-        self.render_options = {
-            "color_theme": "default",  # can also use black_and_white
-            "view": "front-top-right",
-            "standard_view": "front-top-right",
-            "annotated_view": "back-bottom-right",
-            "add_device_offset": False,
-            "add_fastener_length": False,
-            "zoom": 1.15,
-        }
+        self._renders = {"assembled":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "front-top-right",
+                                                "zoom": 1.15,
+                                                "add_device_offset": False,
+                                                "add_fastener_length": False,
+                                                "annotate": False,
+                                                "explode": False}},
+                        "annotated":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "back-bottom-right",
+                                                "add_device_offset": False,
+                                                "add_fastener_length": True,
+                                                "zoom": 1.15,
+                                                "annotate": True,
+                                                "explode": True}}}  # Renders for the shelf
 
 
     def generate_shelf_model(self) -> cadscript.Body:
@@ -1309,15 +1327,22 @@ class RaspberryPiShelf(Shelf):
                   axis="Z",
                   length=6)
         ]
-        self.render_options = {
-            "color_theme": "default",  # can also use black_and_white
-            "view": "back-top-right",
-            "standard_view": "back-top-right",
-            "annotated_view": "back-top-right",
-            "add_device_offset": False,
-            "add_fastener_length": True,
-            "zoom": 1.25,
-        }
+        self._renders = {"assembled":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "back-top-right",
+                                                "add_device_offset": False,
+                                                "add_fastener_length": False,
+                                                "zoom": 1.25,
+                                                "annotate": False,
+                                                "explode": False}},
+                        "annotated":
+                            {"render_options": {"color_theme": "default",
+                                                "view": "back-top-right",
+                                                "add_device_offset": False,
+                                                "add_fastener_length": True,
+                                                "zoom": 1.25,
+                                                "annotate": True,
+                                                "explode": True}}}  # Renders for the shelf
 
 
     def generate_shelf_model(self):
