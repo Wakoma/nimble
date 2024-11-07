@@ -10,16 +10,15 @@ def generate_render(model=None, image_format="png", file_path=None, render_optio
     Generates a render of an assembly.
 
         parameters:
-            model (cadquery): The model to render, can be either a single part or an assembly
-            camera_pos (tuple): The position of the camera when capturing the render
-            annotate (bool): Whether or not to annotate the render using cq-annotate
+            model (cadquery.Assembly): The assembly to render
             image_format (str): The format of the image to render (png, svg, gltf, etc)
+            file_path (str): The path to save the rendered image to
+            render_options (dict): A dictionary of options to pass to the render function for
+                                   things like which view to render,etc
 
         returns:
-            render_path (str): The path to the rendered image
+            None
     """
-
-    # TODO - Return a bitmap buffer instead of a file path
 
     # Check to see if we are dealing with a single part or an assembly
     if isinstance(model, cq.Assembly):
