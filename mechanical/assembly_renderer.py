@@ -23,7 +23,7 @@ import yaml
 from nimble_build_system.cad.shelf import create_shelf_for
 
 assembly_definition_file = "../build/assembly-def.yaml"
-render_destination = os.path.join(os.getcwd(), "assembly-docs", "renders")
+render_destination = os.path.join(os.getcwd(), "renders")
 
 class PartDefinition:
     """
