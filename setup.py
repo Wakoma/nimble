@@ -10,8 +10,10 @@ setup(
     version = '0.0.1',
     python_requires='>=3.10',
     install_requires=[
+        #defined to stop us using numpy 2 that CQ-cli isn't compatible with
         'numpy~=1.26',
-        # 'cadquery>=2',
+        #Stop whatever requires nlopt pulling in 2.8 which requires numpy v2.0.0
+        'nlopt<2.8.0',
         'cadquery @ git+https://github.com/CadQuery/cadquery.git',
         'cadquery-png-plugin @ git+https://github.com/jmwright/cadquery-png-plugin.git',
         'cadscript>=0.5.2',
