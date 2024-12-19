@@ -21,7 +21,8 @@ class Fastener:
         explode_translation:tuple[float, float, float]=(0.0, 0.0, 0.0),
         size:str="M3-0.5",
         fastener_type:str="iso7380_1",
-        direction_axis:str="-Z"
+        direction_axis:str="-Z",
+        human_name:str=""
     ):
         """
         Generic fastener constructor that sets common attributes for all faster types.
@@ -32,6 +33,10 @@ class Fastener:
         self._size = size
         self._fastener_type = fastener_type
         self._direction_axis = direction_axis
+        if human_name == "":
+            self._human_name = self._gen_human_name
+        else:
+            self._human_name=human_name
 
     @property
     def name(self):
@@ -46,6 +51,14 @@ class Fastener:
         Setter for the name of the fastener.
         """
         self._name = name
+
+    @property
+    def human_name(self):
+        """
+        Getter for the human name of the fastener. This is how it
+        will appear in GitBuilding.
+        """
+        return self._human_name
 
     @property
     def position(self):
@@ -82,6 +95,9 @@ class Fastener:
         """
         return self._direction_axis
 
+    def _gen_human_name(self):
+        return f"{self.size} {self.fastener_type}"
+
 
 class Screw(Fastener):
     """
@@ -98,7 +114,8 @@ class Screw(Fastener):
         size:str="M3-0.5",
         fastener_type:str="iso7380_1",
         axis:str="-Z",
-        length:float=6.0
+        length:float=6.0,
+        human_name:str=""
     ):
         """
         Screw constructor that additionally sets the length of the screw.
@@ -112,7 +129,8 @@ class Screw(Fastener):
             explode_translation=explode_translation,
             size=size,
             fastener_type=fastener_type,
-            direction_axis=axis
+            direction_axis=axis,
+            human_name=human_name
         )
 
     @property
@@ -122,6 +140,34 @@ class Screw(Fastener):
         """
         return self._length
 
+    def _gen_human_name(self):
+        if self.fastener_type == "iso10642":
+            fastener = "Countersunk Screw"
+        elif self.fastener_type == "asme_b_18.6.3":
+            fastener = "Pan Head Screw"
+        elif self.fastener_type == "iso7380_1":
+            fastener = "Button Head Screw"
+        else:
+            fastener = self.fastener_type
+        return f"{self._size_str}x{self.length} {fastener}"
+
+    @property
+    def _size_str(self):
+        reps = {"M1.6-0.35": "M1.6",
+                "M2-0.4": "M2",
+                "M2.5-0.45": "M2.5",
+                "M3-0.5": "M3",
+                "M3.5-0.6": "M3.5",
+                "M4-0.7": "M4",
+                "M5-0.8": "M5",
+                "M6-1": "M6",
+                "M8-1": "M8-fine",
+                "M8-1.25": "M8",
+                "M10-1.25": "M10-fine",
+                "M10-1.5": "M10"}
+        if self.size in reps:
+            return reps[self.size]
+        return self.size
 
 class Ziptie(Fastener):
     """
@@ -143,7 +189,8 @@ class Ziptie(Fastener):
                  size:str,
                  fastener_type:str,
                  axis:str,
-                 length:float):
+                 length:float,
+                 human_name:str=""):
 
         self._length = length
         self._width = float(size)
@@ -153,7 +200,8 @@ class Ziptie(Fastener):
                          explode_translation=explode_translation,
                          size=size,
                          fastener_type=fastener_type,
-                         direction_axis=axis)
+                         direction_axis=axis,
+                         human_name=human_name)
 
 
     @property
@@ -178,3 +226,6 @@ class Ziptie(Fastener):
         Getter for the width of the ziptie.
         """
         return self._width
+
+    def _gen_human_name(self):
+        return f"ziptie ({self.width}x{self.length}mm)"
