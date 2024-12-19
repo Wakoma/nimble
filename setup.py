@@ -11,7 +11,7 @@ setup(
     python_requires='>=3.10',
     install_requires=[
         'numpy~=1.26',
-        'cadquery',
+        'cadquery==2.4.0',
         'cadquery_png_plugin',
         'cadscript>=0.5.2',
         'exsource-tools',
