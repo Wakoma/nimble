@@ -12,7 +12,7 @@ setup(
     install_requires=[
         'numpy~=1.26',
         'cadquery==2.4.0',
-        'cadquery_png_plugin',
+        'cadquery_png_plugin==1.0.1',
         'cadscript>=0.5.2',
         'exsource-tools',
         'cadquery-cli==2.3.0',
