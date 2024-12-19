@@ -137,7 +137,7 @@ class Shelf():
         self._rack_params = rack_params
 
         self._device = device
-        self.setup_assembly()
+        self._setup_assembly()
         #Note that "assembled shelf" is the CadOrchestrator AssembledComponent
         # object not the full calculation in CadQuery of the physical assembly!
         self._assembled_shelf = self._generate_assembled_shelf(assembly_key,
@@ -146,7 +146,12 @@ class Shelf():
         #Note docs can only be generated after self._assembled_shelf is set
         self._assembled_shelf.component.set_documentation(self.generate_docs())
 
-    def setup_assembly(self):
+    def _setup_assembly(self):
+        """
+        This is called during init to set up how the device is assembled and rendered
+        This must be called before setting the documentation as this uses the renders
+        and fasteners set here
+        """
         # Make some sane guesses at the device positioning
         if self._device.width is None or self._device.depth is None:
             self._device_depth_axis = "X"
@@ -496,12 +501,14 @@ class Shelf():
                                                 fastener_type=fastener.fastener_type,
                                                 length=fastener.length,
                                                 simple=True).cq_object)
-                else:
+                elif fastener.fastener_type == "iso7380_1":
                     # Create a button head screw model
                     cur_fastener = cq.Workplane(ButtonHeadScrew(size=fastener.size,
                                                 fastener_type=fastener.fastener_type,
                                                 length=fastener.length,
                                                 simple=True).cq_object)
+                else:
+                    raise ValueError("Unknown screw type.")
 
 
             # Allows the proper face to be selected for the extension lines
@@ -646,6 +653,30 @@ class Shelf():
                             file_path=file_path,
                             render_options=cur_render_options)
 
+    def _fasteners_for_doc(self):
+        fastener_dict = {}
+        for fastener in self._fasteners:
+            if fastener.human_name() in fastener_dict:
+                fastener_dict[fastener.human_name()]["qty"] += 1
+            else:
+                fastener_dict[fastener.human_name()] = {"qty": 1}
+        return fastener_dict
+
+    @property
+    def _fastener_str(self):
+        fasteners = self._fasteners_for_doc()
+        fastener_strs = []
+        for name, data in fasteners.items():
+            qty = data["qty"]
+            fastener_strs.append(f"{qty} [{name}]"+"{qty:"+str(qty)+"}")
+        if len(fastener_strs) == 0:
+            return ""
+        if len(fastener_strs) == 1:
+            return fastener_strs[0]
+        if len(fastener_strs) == 2:
+            return fastener_strs[0] + " and " + fastener_strs[0]
+        fastener_strs[-1] = "and " + fastener_strs[-1]
+        return ", ".join(fastener_strs)
 
     def generate_docs(self):
         """
@@ -669,13 +700,15 @@ class Shelf():
         md += "{{BOM}}\n\n"
         md += "## Position the "+self._device.name+" {pagestep}\n\n"
         md += "* Take the ["+self.name+"]{make, qty:1, cat:printed} you printed earlier\n"
-        md += "* Position the ["+self._device.name+"]{qty:1, cat:net} on the shelf\n\n"
+        fastener_str = self._fastener_str
+        if fastener_str:
+            md += "* Position the ["+self._device.name+"]{qty:1, cat:net} on the shelf as shown\n"
+            md += f"* Fasten it in place using {fastener_str}.\n"
+        else:
+            md += "* Push fit the ["+self._device.name+"]{qty:1, cat:net} on the shelf as shown\n"
         md += "\n\n"
         for render in self.list_render_files():
-            md += f"![](../build/renders/{render})"
-        md += "\n"
-        md += "## Secure the "+self._device.name+" {pagestep}\n\n"
-        md += ">!! **TODO**  \n>!! Need information on how the item is secured to the shelf."
+            md += f"![](../build/renders/{render})\n"
 
         return  md
 
@@ -721,7 +754,7 @@ class NUCShelf(Shelf):
     Shelf class for an Intel NUC device.
     """
 
-    def setup_assembly(self):
+    def _setup_assembly(self):
 
         # Device location settings
         self._device_depth_axis = "Y"
@@ -790,7 +823,7 @@ class USWFlexShelf(Shelf):
     """
 
 
-    def setup_assembly(self):
+    def _setup_assembly(self):
 
         # Device location settings
         self._device_depth_axis = "X"
@@ -867,7 +900,7 @@ class USWFlexMiniShelf(Shelf):
     Shelf class for a Ubiquiti Flex Mini device.
     """
 
-    def setup_assembly(self):
+    def _setup_assembly(self):
 
         # Device location settings
         self._device_depth_axis = "Y"
@@ -1011,7 +1044,7 @@ class HDD35Shelf(Shelf):
     Shelf class for a 3.5" hard drive device.
     """
 
-    def setup_assembly(self):
+    def _setup_assembly(self):
 
         # Device location settings
         self._device_depth_axis = "X"
@@ -1119,7 +1152,7 @@ class DualSSDShelf(Shelf):
     Shelf class for two 2.5" solid state drive devices.
     """
 
-    def setup_assembly(self):
+    def _setup_assembly(self):
 
         # Device location settings
         self._device_depth_axis = "X"
@@ -1232,7 +1265,7 @@ class RaspberryPiShelf(Shelf):
         "Raspberry_Pi_5": {"description": "A shelf for a Raspberry Pi 5", "step_path": "N/A"},
     }
 
-    def setup_assembly(self):
+    def _setup_assembly(self):
 
         # Screw hole parameters
         self.screw_dist_x = 49
