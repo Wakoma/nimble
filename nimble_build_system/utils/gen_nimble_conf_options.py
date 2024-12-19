@@ -54,7 +54,9 @@ def main():
 
     conf_dict = {
         "options": [{
+            "response-key": "device-ids",
             "option-type": "list",
+            "item-name": "Shelf",
             "add-options": [
                 {
                     "display-name": "Access Point",

@@ -17,7 +17,8 @@ from nimble_build_system.cad import RackParameters
 from nimble_build_system.cad.shelf import create_shelf_for
 from nimble_build_system.orchestration.paths import REL_MECH_DIR
 
-def create_assembly(selected_device_ids):
+def create_assembly(config_dict):
+    selected_device_ids = config_dict['device-ids']
     config = NimbleConfiguration(selected_device_ids)
     return config.main_assembly
 
