@@ -137,7 +137,7 @@ class Shelf():
         self._rack_params = rack_params
 
         self._device = device
-
+        self._setup_assembly()
         #Note that "assembled shelf" is the CadOrchestrator AssembledComponent
         # object not the full calculation in CadQuery of the physical assembly!
         self._assembled_shelf = self._generate_assembled_shelf(assembly_key,
@@ -146,6 +146,12 @@ class Shelf():
         #Note docs can only be generated after self._assembled_shelf is set
         self._assembled_shelf.component.set_documentation(self.generate_docs())
 
+    def _setup_assembly(self):
+        """
+        This is called during init to set up how the device is assembled and rendered
+        This must be called before setting the documentation as this uses the renders
+        and fasteners set here
+        """
         # Make some sane guesses at the device positioning
         if self._device.width is None or self._device.depth is None:
             self._device_depth_axis = "X"
@@ -186,7 +192,8 @@ class Shelf():
                   length=300),
         ]
         self._renders = {"assembled":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 1,
+                             "render_options": {"color_theme": "default",
                                                 "view": "front-top-right",
                                                 "zoom": 1.0,
                                                 "add_device_offset": False,
@@ -194,7 +201,8 @@ class Shelf():
                                                 "annotate": False,
                                                 "explode": False}},
                         "annotated":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 0,
+                             "render_options": {"color_theme": "default",
                                                 "view": "back-bottom-right",
                                                 "add_device_offset": False,
                                                 "add_fastener_length": False,
@@ -493,12 +501,14 @@ class Shelf():
                                                 fastener_type=fastener.fastener_type,
                                                 length=fastener.length,
                                                 simple=True).cq_object)
-                else:
+                elif fastener.fastener_type == "iso7380_1":
                     # Create a button head screw model
                     cur_fastener = cq.Workplane(ButtonHeadScrew(size=fastener.size,
                                                 fastener_type=fastener.fastener_type,
                                                 length=fastener.length,
                                                 simple=True).cq_object)
+                else:
+                    raise ValueError("Unknown screw type.")
 
 
             # Allows the proper face to be selected for the extension lines
@@ -615,9 +625,17 @@ class Shelf():
         Return a list of all the render paths that can be generated for the shelf.
         This is done so that the documentation generate will know where to find the files.
         """
-        shelf_name = self.name.replace(" ", "_")
-        return [f"{shelf_name}_{render_type}.png" for render_type in self.renders.keys()]
 
+        ordered_types = sorted([(r["order"], r_type) for r_type, r in self.renders.items()])
+        render_types = [i[1] for i in ordered_types]
+        return [self.render_filename(render_type) for render_type in render_types]
+
+    def render_filename(self, render_type):
+        """
+        Return the file name for a given render type.
+        """
+        shelf_name = self.name.replace(" ", "_")
+        return f"{shelf_name}_{render_type}.png"
 
     def generate_renders(self, base_path=None):
         """
@@ -625,17 +643,40 @@ class Shelf():
         """
 
         # Step through each render type and generate the render
-        for render_type in self.renders.keys():
+        for render_type, render in self.renders.items():
             # Get the base shelf name for the render filename
-            shelf_name = self.name.replace(" ", "_")
-            file_path = os.path.join(base_path, f"{shelf_name}_{render_type}.png")
-            cur_render_options = self.renders[render_type]["render_options"]
+            file_path = os.path.join(base_path, self.render_filename(render_type))
+            cur_render_options = render["render_options"]
 
             # Call the generic rendering method and pass it the model we want it to export to PNG
             generate_render(model=self.generate_assembly_model(render_options=cur_render_options),
                             file_path=file_path,
                             render_options=cur_render_options)
 
+    def _fasteners_for_doc(self):
+        fastener_dict = {}
+        for fastener in self._fasteners:
+            if fastener.human_name() in fastener_dict:
+                fastener_dict[fastener.human_name()]["qty"] += 1
+            else:
+                fastener_dict[fastener.human_name()] = {"qty": 1}
+        return fastener_dict
+
+    @property
+    def _fastener_str(self):
+        fasteners = self._fasteners_for_doc()
+        fastener_strs = []
+        for name, data in fasteners.items():
+            qty = data["qty"]
+            fastener_strs.append(f"{qty} [{name}]"+"{qty:"+str(qty)+"}")
+        if len(fastener_strs) == 0:
+            return ""
+        if len(fastener_strs) == 1:
+            return fastener_strs[0]
+        if len(fastener_strs) == 2:
+            return fastener_strs[0] + " and " + fastener_strs[0]
+        fastener_strs[-1] = "and " + fastener_strs[-1]
+        return ", ".join(fastener_strs)
 
     def generate_docs(self):
         """
@@ -659,9 +700,15 @@ class Shelf():
         md += "{{BOM}}\n\n"
         md += "## Position the "+self._device.name+" {pagestep}\n\n"
         md += "* Take the ["+self.name+"]{make, qty:1, cat:printed} you printed earlier\n"
-        md += "* Position the ["+self._device.name+"]{qty:1, cat:net} on the shelf\n\n"
-        md += "## Secure the "+self._device.name+" {pagestep}\n\n"
-        md += ">!! **TODO**  \n>!! Need information on how the item is secured to the shelf."
+        fastener_str = self._fastener_str
+        if fastener_str:
+            md += "* Position the ["+self._device.name+"]{qty:1, cat:net} on the shelf as shown\n"
+            md += f"* Fasten it in place using {fastener_str}.\n"
+        else:
+            md += "* Push fit the ["+self._device.name+"]{qty:1, cat:net} on the shelf as shown\n"
+        md += "\n\n"
+        for render in self.list_render_files():
+            md += f"![](../build/renders/{render})\n"
 
         return  md
 
@@ -707,20 +754,7 @@ class NUCShelf(Shelf):
     Shelf class for an Intel NUC device.
     """
 
-
-    def __init__(self,
-                 device: Device,
-                 *,
-                 assembly_key: str,
-                 position: tuple[float, float, float],
-                 color: str,
-                 rack_params: RackParameters):
-
-        super().__init__(device,
-                         assembly_key=assembly_key,
-                         position=position,
-                         color=color,
-                         rack_params=rack_params)
+    def _setup_assembly(self):
 
         # Device location settings
         self._device_depth_axis = "Y"
@@ -750,7 +784,8 @@ class NUCShelf(Shelf):
                   length=6),
         ]
         self._renders = {"assembled":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 1,
+                             "render_options": {"color_theme": "default",
                                                 "view": "front-top-right",
                                                 "add_device_offset": False,
                                                 "add_fastener_length": False,
@@ -758,7 +793,8 @@ class NUCShelf(Shelf):
                                                 "annotate": False,
                                                 "explode": False}},
                         "annotated":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 0,
+                             "render_options": {"color_theme": "default",
                                                 "view": "front-bottom-right",
                                                 "add_device_offset": True,
                                                 "add_fastener_length": True,
@@ -787,18 +823,7 @@ class USWFlexShelf(Shelf):
     """
 
 
-    def __init__(self,
-                 device: Device,
-                 assembly_key: str,
-                 position: tuple[float, float, float],
-                 color: str,
-                 rack_params: RackParameters):
-
-        super().__init__(device,
-                         assembly_key=assembly_key,
-                         position=position,
-                         color=color,
-                         rack_params=rack_params)
+    def _setup_assembly(self):
 
         # Device location settings
         self._device_depth_axis = "X"
@@ -828,7 +853,8 @@ class USWFlexShelf(Shelf):
                   length=8),
         ]
         self._renders = {"assembled":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 1,
+                             "render_options": {"color_theme": "default",
                                                 "view": "front-top-right",
                                                 "zoom": 1.15,
                                                 "add_device_offset": False,
@@ -836,7 +862,8 @@ class USWFlexShelf(Shelf):
                                                 "annotate": False,
                                                 "explode": False}},
                         "annotated":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 0,
+                             "render_options": {"color_theme": "default",
                                                 "view": "front-bottom-right",
                                                 "add_device_offset": True,
                                                 "add_fastener_length": True,
@@ -873,19 +900,7 @@ class USWFlexMiniShelf(Shelf):
     Shelf class for a Ubiquiti Flex Mini device.
     """
 
-    def __init__(self,
-                 device: Device,
-                 *,
-                 assembly_key: str,
-                 position: tuple[float, float, float],
-                 color: str,
-                 rack_params: RackParameters):
-
-        super().__init__(device,
-                         assembly_key=assembly_key,
-                         position=position,
-                         color=color,
-                         rack_params=rack_params)
+    def _setup_assembly(self):
 
         # Device location settings
         self._device_depth_axis = "Y"
@@ -931,7 +946,8 @@ class USWFlexMiniShelf(Shelf):
                   length=4),
         ]
         self._renders = {"assembled":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 1,
+                             "render_options": {"color_theme": "default",
                                                 "view": "front-top-right",
                                                 "zoom": 1.0,
                                                 "add_device_offset": False,
@@ -939,7 +955,8 @@ class USWFlexMiniShelf(Shelf):
                                                 "annotate": False,
                                                 "explode": False}},
                         "annotated":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 0,
+                             "render_options": {"color_theme": "default",
                                                 "view": "back-top-right",
                                                 "add_device_offset": False,
                                                 "add_fastener_length": True,
@@ -1027,18 +1044,7 @@ class HDD35Shelf(Shelf):
     Shelf class for a 3.5" hard drive device.
     """
 
-    def __init__(self,
-                 device: Device,
-                 assembly_key: str,
-                 position: tuple[float, float, float],
-                 color: str,
-                 rack_params: RackParameters):
-
-        super().__init__(device,
-                         assembly_key=assembly_key,
-                         position=position,
-                         color=color,
-                         rack_params=rack_params)
+    def _setup_assembly(self):
 
         # Device location settings
         self._device_depth_axis = "X"
@@ -1083,7 +1089,8 @@ class HDD35Shelf(Shelf):
                   length=6),
         ]
         self._renders = {"assembled":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 1,
+                             "render_options": {"color_theme": "default",
                                                 "view": "front-top-right",
                                                 "zoom": 1.15,
                                                 "add_device_offset": False,
@@ -1091,7 +1098,8 @@ class HDD35Shelf(Shelf):
                                                 "annotate": False,
                                                 "explode": False}},
                         "annotated":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 0,
+                             "render_options": {"color_theme": "default",
                                                 "view": "back-bottom-right",
                                                 "add_device_offset": False,
                                                 "add_fastener_length": True,
@@ -1144,18 +1152,7 @@ class DualSSDShelf(Shelf):
     Shelf class for two 2.5" solid state drive devices.
     """
 
-    def __init__(self,
-                 device: Device,
-                 assembly_key: str,
-                 position: tuple[float, float, float],
-                 color: str,
-                 rack_params: RackParameters):
-
-        super().__init__(device,
-                         assembly_key=assembly_key,
-                         position=position,
-                         color=color,
-                         rack_params=rack_params)
+    def _setup_assembly(self):
 
         # Device location settings
         self._device_depth_axis = "X"
@@ -1201,7 +1198,8 @@ class DualSSDShelf(Shelf):
                   length=6),
         ]
         self._renders = {"assembled":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 1,
+                             "render_options": {"color_theme": "default",
                                                 "view": "front-top-right",
                                                 "zoom": 1.15,
                                                 "add_device_offset": False,
@@ -1209,7 +1207,8 @@ class DualSSDShelf(Shelf):
                                                 "annotate": False,
                                                 "explode": False}},
                         "annotated":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 0,
+                             "render_options": {"color_theme": "default",
                                                 "view": "back-bottom-right",
                                                 "add_device_offset": False,
                                                 "add_fastener_length": True,
@@ -1266,19 +1265,7 @@ class RaspberryPiShelf(Shelf):
         "Raspberry_Pi_5": {"description": "A shelf for a Raspberry Pi 5", "step_path": "N/A"},
     }
 
-    def __init__(self,
-                 device: Device,
-                 *,
-                 assembly_key: str,
-                 position: tuple[float, float, float],
-                 color: str,
-                 rack_params: RackParameters):
-
-        super().__init__(device,
-                         assembly_key=assembly_key,
-                         position=position,
-                         color=color,
-                         rack_params=rack_params)
+    def _setup_assembly(self):
 
         # Screw hole parameters
         self.screw_dist_x = 49
@@ -1328,7 +1315,8 @@ class RaspberryPiShelf(Shelf):
                   length=6)
         ]
         self._renders = {"assembled":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 1,
+                             "render_options": {"color_theme": "default",
                                                 "view": "back-top-right",
                                                 "add_device_offset": False,
                                                 "add_fastener_length": False,
@@ -1336,7 +1324,8 @@ class RaspberryPiShelf(Shelf):
                                                 "annotate": False,
                                                 "explode": False}},
                         "annotated":
-                            {"render_options": {"color_theme": "default",
+                            {"order": 0,
+                             "render_options": {"color_theme": "default",
                                                 "view": "back-top-right",
                                                 "add_device_offset": False,
                                                 "add_fastener_length": True,
