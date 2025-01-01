@@ -50,7 +50,7 @@ Currently the configuration is just a list of the networking components which ar
 
 To generate run the following:
 
-    cadorchestrator generate '["NUC10i5FNH", "Raspberry_Pi_4B", "Raspberry_Pi_4B"]'
+    cadorchestrator generate '{"device-ids": ["NUC10i5FNH", "Raspberry_Pi_4B", "Raspberry_Pi_4B"]}'
 
 This should create the `build` directory. Inside this the `printed_components` directory should contain a number of `stl` files that can be 3D printed. It will also contain `step` files for each of these components.
 
