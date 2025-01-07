@@ -16,7 +16,6 @@ import yaml
 from cadorchestrator.components import AssembledComponent, GeneratedMechanicalComponent
 import cadquery as cq
 import cadscript
-from cq_warehouse.fastener import ButtonHeadScrew, CounterSunkScrew, PanHeadScrew
 from cq_annotate.views import explode_assembly
 
 from nimble_build_system.cad import RackParameters
@@ -116,7 +115,7 @@ class Shelf():
     _fasteners = []  # List of screw positions for the device
     _unit_width = 6  # 6 or 10 inch rack
     _renders = None  # Renders that are available for each shelf type
-
+    _width_category = None  # Width category for the shelf ("broad" vs "standard" vs custom)
     # Hole location parameters
     _screw_dist_x = None
     _screw_dist_y = None
@@ -270,6 +269,22 @@ class Shelf():
         Return the Device object for the networking component that sits on this shelf.
         """
         return self._device
+
+
+    @property
+    def width_category(self):
+        """
+        Return the width category for the shelf.
+        """
+        return self._width_category
+
+
+    @width_category.setter
+    def width_category(self, value):
+        """
+        Set the width category for the shelf.
+        """
+        self._width_category = value
 
 
     @property
@@ -457,111 +472,12 @@ class Shelf():
 
         # Add the fasteners to the assembly
         for i, fastener in enumerate(self._fasteners):
-            # Handle the different fastener types
-            if fastener.fastener_type == "ziptie":
-                # Create the ziptie spine
-                cur_fastener = cq.Workplane().box(fastener.width,
-                                                    fastener.length,
-                                                    fastener.thickness)
-
-                # Create the ziptie head
-                cur_fastener = (cur_fastener.faces(">Z")
-                                            .workplane(invert=True)
-                                            .move(0.0, fastener.length / 2.0)
-                                            .rect(fastener.width + 2.0,
-                                                    fastener.width + 2.0)
-                                            .extrude(fastener.thickness + 3.0))
-
-                # Chamfer the insertion end of the ziptie
-                cur_fastener = (cur_fastener.faces(">Y")
-                                            .edges(">X and |Z")
-                                            .chamfer(length=fastener.width / 4.0,
-                                                        length2=fastener.width * 2.0))
-                cur_fastener = (cur_fastener.faces(">Y")
-                                            .edges("<X and |Z")
-                                            .chamfer(length=fastener.width / 4.0,
-                                                        length2=fastener.width * 2.0))
-
-                # Add the slot in the head for insertion of the tail
-                cur_fastener = (cur_fastener.faces(">Z")
-                                            .workplane(invert=True)
-                                            .move(0.0, -(fastener.length / 2.0))
-                                            .rect(fastener.width, fastener.thickness)
-                                            .cutThruAll())
-            else:
-                if fastener.fastener_type == "iso10642":
-                    # Create the counter-sunk screw model
-                    cur_fastener = cq.Workplane(CounterSunkScrew(size=fastener.size,
-                                                fastener_type=fastener.fastener_type,
-                                                length=fastener.length,
-                                                simple=True).cq_object)
-                elif fastener.fastener_type == "asme_b_18.6.3":
-                    # Create the cheesehead screw model
-                    cur_fastener = cq.Workplane(PanHeadScrew(size=fastener.size,
-                                                fastener_type=fastener.fastener_type,
-                                                length=fastener.length,
-                                                simple=True).cq_object)
-                elif fastener.fastener_type == "iso7380_1":
-                    # Create a button head screw model
-                    cur_fastener = cq.Workplane(ButtonHeadScrew(size=fastener.size,
-                                                fastener_type=fastener.fastener_type,
-                                                length=fastener.length,
-                                                simple=True).cq_object)
-                else:
-                    raise ValueError("Unknown screw type.")
-
-
-            # Allows the proper face to be selected for the extension lines
-            face_selector = "<Z"
+            # Get the CadQuery model for the fastener
+            cur_fastener = fastener.fastener_model
 
             # Figure out what the name of the screw should be
             if fastener.name is None:
                 fastener.name = f"fastener_{i}"
-
-            # Figure out what the rotation should be
-            if fastener.fastener_type == "ziptie":
-                rotation = ((0, 0, 1), 0)
-                if fastener.direction_axis == "X":
-                    rotation = ((0, 0, 1), -90)
-                    face_selector = ">Z"
-                elif fastener.direction_axis == "-X":
-                    rotation = ((0, 0, 1), 90)
-                    face_selector = ">Z"
-                elif fastener.direction_axis == "Y":
-                    rotation = ((0, 0, 1), 0)
-                    face_selector = ">Z"
-                elif fastener.direction_axis == "-Y":
-                    rotation = ((0, 0, 1), 180)
-                    face_selector = ">Z"
-                elif fastener.direction_axis == "Z":
-                    rotation = ((1, 0, 0), 0)
-                    face_selector = ">X"
-                elif fastener.direction_axis == "-Z":
-                    rotation = ((1, 0, 0), 180)
-                    face_selector = ">X"
-            else:
-                rotation = ((0, 0, 1), 0)
-                if fastener.direction_axis == "X":
-                    rotation = ((0, 1, 0), 90)
-                    face_selector = ">X"
-                elif fastener.direction_axis == "-X":
-                    rotation = ((0, 1, 0), -90)
-                    face_selector = ">X"
-                elif fastener.direction_axis == "Y":
-                    rotation = ((1, 0, 0), 90)
-                    face_selector = "<Y"
-                elif fastener.direction_axis == "-Y":
-                    rotation = ((1, 0, 0), -90)
-                    face_selector = ">Y"
-                elif fastener.direction_axis == "Z":
-                    rotation = ((0, 1, 0), 0)
-                    face_selector = "<Z"
-                elif fastener.direction_axis == "-Z":
-                    rotation = ((0, 1, 0), 180)
-                    face_selector = ">Z"
-
-            # Make sure assembly lines are present with each fastener
-            cur_fastener.faces(face_selector).tag("assembly_line")
 
             # Figure out if extra extensions to the assembly lines have been requested
             if render_options["add_device_offset"]:
@@ -582,7 +498,7 @@ class Shelf():
             # Add the fastener to the assembly
             assy.add(cur_fastener,
                     name=fastener.name,
-                    loc=cq.Location(fastener.position, rotation[0], rotation[1]),
+                    loc=cq.Location(fastener.position, fastener.rotation[0], fastener.rotation[1]),
                     color=cq.Color(0.5, 0.5, 0.5, 1.0),
                     metadata={
                         "explode_translation": cq.Location(
@@ -807,8 +723,9 @@ class NUCShelf(Shelf):
         """
         A shelf for an Intel NUC
         """
+        self.width_category = "broad"
         builder = ShelfBuilder(
-            self.height_in_u, width="broad", depth="standard", front_type="full"
+            self.height_in_u, width=self.width_category, depth="standard", front_type="full"
         )
         builder.cut_opening("<Y", builder.inner_width, offset_y=4)
         builder.make_tray(sides="w-pattern", back="open")
@@ -877,8 +794,9 @@ class USWFlexShelf(Shelf):
         A shelf for a Ubiquiti USW-Flex
         """
         if self._shelf_model is None:
+            self.width_category = "standard"
             builder = ShelfBuilder(
-                self.height_in_u, width="standard", depth=119.5, front_type="full"
+                self.height_in_u, width=self.width_category, depth=119.5, front_type="full"
             )
             builder.cut_opening("<Y", builder.inner_width, offset_y=4)
             builder.make_tray(sides="w-pattern", back="open")
@@ -970,10 +888,11 @@ class USWFlexMiniShelf(Shelf):
         A shelf for a for Ubiquiti Flex Mini
         """
         if self._shelf_model is None:
+            self.width_category = "standard"
             rack_params = RackParameters(tray_side_wall_thickness=3.8)
             builder = ShelfBuilder(
                 self.height_in_u,
-                width="standard",
+                width=self.width_category,
                 depth=73.4,
                 front_type="full",
                 rack_params=rack_params
@@ -1048,7 +967,8 @@ class HDD35Shelf(Shelf):
 
         # Device location settings
         self._device_depth_axis = "X"
-        self._device_explode_translation = (0.0, 0.0, 20.0)
+        self._device_offset = (0.0, self._device.width / 2.0 + 1.5, 8.5)
+        self._device_explode_translation = (0.0, 0.0, 40.0)
 
         self._fasteners = [
             Screw(name=None,
@@ -1117,8 +1037,9 @@ class HDD35Shelf(Shelf):
             screw_pos1 = 77.3  # distance from front
             screw_pos2 = screw_pos1 + 41.61
             screw_y = 7  # distance from bottom plane
+            self.width_category = "standard"
             builder = ShelfBuilder(
-                self.height_in_u, width="standard", depth="standard", front_type="w-pattern"
+                self.height_in_u, width=self.width_category, depth="standard", front_type="w-pattern"
             )
             builder.make_tray(sides="slots", back="open")
             mount_sketch = cadscript.make_sketch()
@@ -1340,8 +1261,9 @@ class RaspberryPiShelf(Shelf):
         """
 
         if self._shelf_model is None:
+            self.width_category = "standard"
             builder = ShelfBuilder(self.height_in_u,
-                                width="standard",
+                                width=self.width_category,
                                 depth=111,
                                 front_type="full")
             builder.cut_opening("<Y", (-15, 39.5), size_y=(6, 25))
