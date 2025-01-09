@@ -48,6 +48,7 @@ def test_final_assembly_png_rendering():
 
     # Run the generate command to create the build
     import subprocess
+    subprocess.run(["gen_nimble_conf_options"])
     subprocess.run(["cadorchestrator",
                     "generate",
                     '{"device-ids": ["Raspberry_Pi_4B", "NUC10i5FNH", "Raspberry_Pi_4B"]}'])
