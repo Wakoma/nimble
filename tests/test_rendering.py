@@ -70,3 +70,14 @@ def test_final_assembly_png_rendering():
 
     assert os.path.isfile(os.path.join(temp_dir, "final_assembly_step_1_annotated.png"))
     assert os.path.isfile(os.path.join(temp_dir, "final_assembly_step_1_assembled.png"))
+    assert os.path.isfile(os.path.join(temp_dir,
+                                       "final_assembly_step_2_shelf_2_insertion_annotated.png"))
+    assert os.path.isfile(os.path.join(temp_dir, "final_assembly_step_2_shelf_2_installed.png"))
+    assert os.path.isfile(os.path.join(temp_dir, "final_assembly_step_3_annotated.png"))
+    assert os.path.isfile(os.path.join(temp_dir, "final_assembly_step_3_assembled.png"))
+    assert os.path.isfile(os.path.join(temp_dir,
+                                       "final_assembly_step_4_shelf_1_insertion_annotated.png"))
+    assert os.path.isfile(os.path.join(temp_dir, "final_assembly_step_4_shelf_1_installed.png"))
+    assert os.path.isfile(os.path.join(temp_dir,
+                                       "final_assembly_step_4_shelf_3_insertion_annotated.png"))
+    assert os.path.isfile(os.path.join(temp_dir, "final_assembly_step_4_shelf_3_installed.png"))
