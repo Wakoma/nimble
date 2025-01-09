@@ -45,6 +45,13 @@ def test_final_assembly_png_rendering():
     """
     Tests whether or not a PNG image can be output for each assembly step of a rack.
     """
+
+    # Run the generate command to create the build
+    import subprocess
+    subprocess.run(["cadorchestrator",
+                    "generate",
+                    '{"device-ids": ["Raspberry_Pi_4B", "NUC10i5FNH", "Raspberry_Pi_4B"]}'])
+
     # Load the definition file and instantiate the AssemblyRenderer object
     assembly_definition_file = "build/assembly-def.yaml"
     def_file = Path(assembly_definition_file)
