@@ -101,13 +101,6 @@ class Fastener:
         """
         return self._direction_axis
 
-    @name.setter
-    def direction_axis(self, axis):
-        """
-        Setter for the direction axis of the fastener.
-        """
-        self._direction_axis = axis
-
     @property
     def rotation(self):
         """

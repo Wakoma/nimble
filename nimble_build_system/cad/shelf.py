@@ -1039,7 +1039,10 @@ class HDD35Shelf(Shelf):
             screw_y = 7  # distance from bottom plane
             self.width_category = "standard"
             builder = ShelfBuilder(
-                self.height_in_u, width=self.width_category, depth="standard", front_type="w-pattern"
+                self.height_in_u,
+                width=self.width_category,
+                depth="standard",
+                front_type="w-pattern"
             )
             builder.make_tray(sides="slots", back="open")
             mount_sketch = cadscript.make_sketch()

@@ -28,9 +28,10 @@ def test_png_rendering():
 
     # Check all of the shelf assemblies
     for cur_shelf in config._shelves:
-
-        # Set up a temporary path to export the image to that we can upload artifacts from
-        temp_dir = "./renders"
+        # Create the temporary directory if it does not exist
+        temp_dir = os.path.join(Path(os.curdir).resolve().parent, "renders")
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
 
         # Do a sample render of the shelf assembly
         cur_shelf.generate_renders(temp_dir)
@@ -51,5 +52,13 @@ def test_final_assembly_png_rendering():
     os.chdir(folder)
     assembly = AssemblyRenderer(def_file.name)
 
+    # Create the temporary directory if it does not exist
+    temp_dir = os.path.join(Path(os.curdir).resolve().parent, "renders")
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
+
     # Generate the assembly process renders
     assembly.generate_assembly_process_renders()
+
+    assert os.path.isfile(os.path.join(temp_dir, "final_assembly_step_1_annotated.png"))
+    assert os.path.isfile(os.path.join(temp_dir, "final_assembly_step_1_assembled.png"))
