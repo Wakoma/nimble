@@ -2,6 +2,9 @@
 Holds fastener classes containing the information needed to generate CAD models of fasteners.
 """
 
+import cadquery as cq
+from cq_warehouse.fastener import ButtonHeadScrew, CounterSunkScrew, PanHeadScrew
+
 class Fastener:
     """
     Class that defines a generic fastener that can be used in the assembly of a device and/or rack.
@@ -12,6 +15,9 @@ class Fastener:
     _size = "M3-0.5"
     _fastener_type = "iso7380_1"
     _direction_axis = "-Z"
+    _rotation = ((0, 0, 1), 0)
+    _face_selector = ">X"
+    _fastener_model = None
 
     def __init__(
         self,
@@ -95,6 +101,41 @@ class Fastener:
         """
         return self._direction_axis
 
+    @property
+    def rotation(self):
+        """
+        Getter for the rotation of the fastener.
+        """
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, rotation):
+        """
+        Setter for the rotation of the fastener.
+        """
+        self._rotation = rotation
+
+    @property
+    def face_selector(self):
+        """
+        Getter for the face selector of the fastener.
+        """
+        return self._face_selector
+
+    @face_selector.setter
+    def face_selector(self, face_selector):
+        """
+        Setter for the face selector of the fastener.
+        """
+        self._face_selector = face_selector
+
+    @property
+    def fastener_model(self):
+        """
+        Getter for the fastener model of the fastener.
+        """
+        return self._fastener_model
+
     def _gen_human_name(self):
         return f"{self.size} {self.fastener_type}"
 
@@ -123,6 +164,26 @@ class Screw(Fastener):
 
         self._length = length
 
+        # Handle rotation based on the direction axis
+        if axis == "X":
+            self._rotation = ((0, 1, 0), 90)
+            self._face_selector = ">X"
+        elif axis == "-X":
+            self._rotation = ((0, 1, 0), -90)
+            self._face_selector = ">X"
+        elif axis == "Y":
+            self._rotation = ((1, 0, 0), 90)
+            self._face_selector = "<Y"
+        elif axis == "-Y":
+            self._rotation = ((1, 0, 0), -90)
+            self._face_selector = ">Y"
+        elif axis == "Z":
+            self._rotation = ((0, 1, 0), 0)
+            self._face_selector = "<Z"
+        elif axis == "-Z":
+            self._rotation = ((0, 1, 0), 180)
+            self._face_selector = ">Z"
+
         super().__init__(
             name,
             position=position,
@@ -132,6 +193,32 @@ class Screw(Fastener):
             direction_axis=axis,
             human_name=human_name
         )
+
+        # Generate the CadQuery model for this fastener
+        if self._fastener_type == "iso10642":
+            # Create the counter-sunk screw model
+            self._fastener_model = cq.Workplane(CounterSunkScrew(size=self._size,
+                                        fastener_type=self._fastener_type,
+                                        length=self._length,
+                                        simple=True).cq_object)
+        elif self._fastener_type == "asme_b_18.6.3":
+            # Create the cheesehead screw model
+            self._fastener_model = cq.Workplane(PanHeadScrew(size=self._size,
+                                        fastener_type=self._fastener_type,
+                                        length=self._length,
+                                        simple=True).cq_object)
+        elif self._fastener_type == "iso7380_1":
+            # Create a button head screw model
+            self._fastener_model = cq.Workplane(ButtonHeadScrew(size=self._size,
+                                        fastener_type=self._fastener_type,
+                                        length=self._length,
+                                        simple=True).cq_object)
+        else:
+            raise ValueError("Unknown screw type.")
+
+        # Make sure assembly lines are present with each fastener
+        self._fastener_model.faces(self._face_selector).tag("assembly_line")
+
 
     @property
     def length(self):
@@ -195,6 +282,26 @@ class Ziptie(Fastener):
         self._length = length
         self._width = float(size)
 
+        # Handle the rotation and face selector based on the direction axis
+        if axis == "X":
+            self._rotation = ((0, 0, 1), -90)
+            self._face_selector = ">Z"
+        elif axis == "-X":
+            self._rotation = ((0, 0, 1), 90)
+            self._face_selector = ">Z"
+        elif axis == "Y":
+            self._rotation = ((0, 0, 1), 0)
+            self._face_selector = ">Z"
+        elif axis == "-Y":
+            self._rotation = ((0, 0, 1), 180)
+            self._face_selector = ">Z"
+        elif axis == "Z":
+            self._rotation = ((1, 0, 0), 0)
+            self._face_selector = ">X"
+        elif axis == "-Z":
+            self._rotation = ((1, 0, 0), 180)
+            self._face_selector = ">X"
+
         super().__init__(name,
                          position=position,
                          explode_translation=explode_translation,
@@ -203,6 +310,38 @@ class Ziptie(Fastener):
                          direction_axis=axis,
                          human_name=human_name)
 
+        # Generate the CadQuery model for this fastener
+        # Create the ziptie spine
+        self._fastener_model = cq.Workplane().box(self._width,
+                                                  self._length,
+                                                  self._thickness)
+
+        # Create the ziptie head
+        self._fastener_model = (self._fastener_model.faces(">Z")
+                                                    .workplane(invert=True)
+                                                    .move(0.0, self._length / 2.0)
+                                                    .rect(self._width + 2.0, self._width + 2.0)
+                                                    .extrude(self._thickness + 3.0))
+
+        # Chamfer the insertion end of the ziptie
+        self._fastener_model = (self._fastener_model.faces(">Y")
+                                                    .edges(">X and |Z")
+                                                    .chamfer(length=self._width / 4.0,
+                                                           length2=self._width * 2.0))
+        self._fastener_model = (self._fastener_model.faces(">Y")
+                                                    .edges("<X and |Z")
+                                                    .chamfer(length=self._width / 4.0,
+                                                           length2=self._width * 2.0))
+
+        # Add the slot in the head for insertion of the tail
+        self._fastener_model = (self._fastener_model.faces(">Z")
+                                                    .workplane(invert=True)
+                                                    .move(0.0, -(self._length / 2.0))
+                                                    .rect(self._width, self._thickness)
+                                                    .cutThruAll())
+
+        # Make sure assembly lines are present with each fastener
+        self._fastener_model.faces(self._face_selector).tag("assembly_line")
 
     @property
     def length(self):

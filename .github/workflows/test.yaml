@@ -37,3 +37,9 @@ jobs:
         uses: coactions/setup-xvfb@v1
         with:
           run: pytest
+
+      - name: Upload rendered images as artifacts for inspection
+        uses: actions/upload-artifact@v3
+        with:
+          name: rendered-images
+          path: renders/*.png

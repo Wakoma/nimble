@@ -96,7 +96,7 @@ def test_shelf_generation():
     config = NimbleConfiguration(test_config)
 
     # Make sure that each shelf can generate the proper files
-    for i, shelf in enumerate(config.shelves):
+    for i, shelf in enumerate(config._shelves):
         # Find the matching device for the shelf
         device = shelf.device
 
@@ -149,7 +149,7 @@ def test_shelf_assembly_generation():
     config = NimbleConfiguration(test_config)
 
     # Get the only shelf that we should have to deal with
-    rpi_shelf = config.shelves[0]
+    rpi_shelf = config._shelves[0]
 
     assert rpi_shelf != None
 

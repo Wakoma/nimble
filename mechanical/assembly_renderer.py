@@ -22,7 +22,10 @@ import yaml
 
 from nimble_build_system.cad.shelf import create_shelf_for
 
+from nimble_build_system.cad.rack_assembly import RackAssembly
+
 assembly_definition_file = "../build/assembly-def.yaml"
+rack_parts_definition_file = "../build/empty_rack-pars.yaml"
 render_destination = os.path.join(os.getcwd(), "renders")
 
 class PartDefinition:
@@ -55,6 +58,7 @@ class AssemblyRenderer:
     """
 
     _parts: list[PartDefinition] = []
+    _assembly_parts: list[PartDefinition] = []
 
 
     def __init__(self, assembly_def_file: str):
@@ -63,6 +67,14 @@ class AssemblyRenderer:
             assembly_def = yaml.load(f, Loader=yaml.FullLoader)
             for part_def in assembly_def["assembly"]["parts"]:
                 self._parts.append(PartDefinition(part_def))
+
+        # Load the rack parts definition file
+        # Check to see if the _assembly_parts list is empty
+        if len(self._assembly_parts) == 0:
+            with open(rack_parts_definition_file, "r", encoding="utf-8") as f:
+                rack_parts_def = yaml.load(f, Loader=yaml.FullLoader)
+                for part_def in rack_parts_def["assembly"]["parts"]:
+                    self._assembly_parts.append(PartDefinition(part_def))
 
 
 
@@ -101,6 +113,19 @@ class AssemblyRenderer:
         return assembly
 
 
+    def generate_assembly_process_renders(self):
+        """
+        Generate renders of the assembly steps.
+        """
+
+        # Create a union of _assembly_parts and _parts
+        all_parts = self._parts + self._assembly_parts
+
+        # Create a rack assembly that will handle putting parts together and exporting them to PNG
+        rack_assembly = RackAssembly(all_parts)
+        rack_assembly.generate_renders(render_destination=render_destination)
+
+
 # Handle different execution environments, including ExSource-Tools
 if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
     def_file = Path(assembly_definition_file)
@@ -108,4 +133,6 @@ if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals(
     os.chdir(folder)
     # CQGI should execute this whenever called
     assembly = AssemblyRenderer(def_file.name).generate()
+    AssemblyRenderer(def_file.name).generate_assembly_process_renders()
+
     show_object(assembly)

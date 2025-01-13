@@ -1,3 +1,7 @@
+"""
+Helper module to render a CadQuery model to a PNG image file.
+"""
+
 #pylint: disable=too-few-public-methods
 #pylint: disable=unused-import
 
@@ -5,7 +9,11 @@ import cadquery as cq
 import cadquery_png_plugin.plugin  # This activates the PNG plugin for CadQuery
 from cq_annotate.callouts import add_assembly_lines
 
-def generate_render(model=None, image_format="png", file_path=None, render_options=None):
+def generate_render(model=None,
+                    image_format="png",
+                    file_path=None,
+                    render_options=None,
+                    selective_list=None):
     """
     Generates a render of an assembly.
 
@@ -24,7 +32,7 @@ def generate_render(model=None, image_format="png", file_path=None, render_optio
     if isinstance(model, cq.Assembly):
         # Handle assembly annotation
         if render_options["annotate"]:
-            add_assembly_lines(model)
+            add_assembly_lines(model, selective_list=selective_list)
 
         # Handle the varioius image formats separately
         if image_format == "png":

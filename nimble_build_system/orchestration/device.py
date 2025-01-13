@@ -84,7 +84,8 @@ class Device:
             if self.height:
                 self.height_in_u = ceil((self.height+4)/rack_params.mounting_hole_spacing)
             else:
-                raise RuntimeError("Not enough information provided to generate shelf height") from exc
+                raise RuntimeError("Not enough information provided to generate shelf height")\
+                    from exc
 
         self.shelf_id = device_dict['ShelfId']
         self.shelf_type = device_dict['Shelf']
