@@ -153,7 +153,7 @@ class RackAssembly:
                             "explode": False}
 
         # The location to put the renders in
-        render_path = Path(render_destination) / "final_assembly_step_1_assembled.png"
+        render_path = Path(render_destination) / "final_assembly_base_and_legs_assembled.png"
         generate_render(model=assembly,
                         file_path=render_path,
                         render_options=render_options)
@@ -165,7 +165,7 @@ class RackAssembly:
         render_options["annotate"] = True
 
         # Exploded view of this assembly step
-        render_path = Path(render_destination) / "final_assembly_step_1_annotated.png"
+        render_path = Path(render_destination) / "final_assembly_base_and_legs_annotated.png"
         generate_render(model=exploded_assembly,
                         file_path=render_path,
                         render_options=render_options)
@@ -192,7 +192,7 @@ class RackAssembly:
                     metadata={"explode_translation": shelf["explode_location"]}
                 )
 
-                file_name = "final_assembly_step_2_" + shelf["name"] +"_installed.png"
+                file_name = "final_assembly_broad_shelves_" + shelf["name"] +"_installed.png"
                 render_path = Path(render_destination) / file_name
                 generate_render(model=assembly,
                             file_path=render_path,
@@ -216,7 +216,7 @@ class RackAssembly:
                 render_options["annotate"] = True
 
                 # Exploded view of this assembly step
-                file_name = "final_assembly_step_2_" + shelf["name"] + "_insertion_annotated.png"
+                file_name = "final_assembly_broad_shelves_" + shelf["name"] + "_insertion_annotated.png"
                 render_path = Path(render_destination) / file_name
                 generate_render(model=exploded_assembly,
                                 file_path=render_path,
@@ -256,7 +256,7 @@ class RackAssembly:
         render_options["annotate"] = False
 
         # The location to put the renders in
-        render_path = Path(render_destination) / "final_assembly_step_3_assembled.png"
+        render_path = Path(render_destination) / "final_assembly_topplate_assembled.png"
         generate_render(model=assembly,
                         file_path=render_path,
                         render_options=render_options)
@@ -266,7 +266,7 @@ class RackAssembly:
         render_options["annotate"] = True
 
         # Exploded view of this assembly step
-        render_path = Path(render_destination) / "final_assembly_step_3_annotated.png"
+        render_path = Path(render_destination) / "final_assembly_topplate_annotated.png"
         generate_render(model=exploded_assembly,
                         file_path=render_path,
                         render_options=render_options,
@@ -302,7 +302,7 @@ class RackAssembly:
                 render_options["explode"] = False
                 render_options["annotate"] = False
 
-                file_name = "final_assembly_step_4_" + shelf["name"] +"_installed.png"
+                file_name = "final_assembly_standard_shelves_" + shelf["name"] +"_installed.png"
                 render_path = Path(render_destination) / file_name
                 generate_render(model=assembly,
                             file_path=render_path,
@@ -326,7 +326,7 @@ class RackAssembly:
                 render_options["annotate"] = True
 
                 # Exploded view of this assembly step
-                file_name = "final_assembly_step_4_" + shelf["name"] + "_insertion_annotated.png"
+                file_name = "final_assembly_standard_shelves_" + shelf["name"] + "_insertion_annotated.png"
                 render_path = Path(render_destination) / file_name
                 generate_render(model=exploded_assembly,
                                 file_path=render_path,
