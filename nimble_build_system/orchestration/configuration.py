@@ -119,42 +119,8 @@ class NimbleConfiguration:
     def _generate_assembled_components_list(self):
 
         # collect all needed parts and their parameters
-        return [self._rack] + [i.assembled_shelf for i in self._shelves]
-
-    @property
-    def _rack(self):
-        source = os.path.join(REL_MECH_DIR, "assembly_renderer.py")
-        source = posixpath.normpath(source)
-        rack = Assembly(
-            key='empty_rack',
-            name='Empty Nimble Rack',
-            description='An empty rack for a nimble',
-            output_files=[
-                "./assembly/rack.step",
-            ],
-            source_files=[source],
-            parameters={},
-            application="cadquery",
-            component_data_parameter='assembly.parts'
-        )
-
-        rack.set_parameter_file(
-            file_id="assembly_definition_file",
-            filename="empty_rack-pars.yaml"
-        )
-
         rack_components = self._legs +  [self._baseplate, self._topplate]
-
-        for assm_component in rack_components:
-            rack.add_component(assm_component)
-
-        return AssembledComponent(
-            key="empty rack",
-            component=rack,
-            data={"position": (0,0,0)},
-            include_key=True,
-            include_stepfile=True
-        )
+        return rack_components + [i.assembled_shelf for i in self._shelves]
 
     @property
     def _legs(self):
