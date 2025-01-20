@@ -25,7 +25,6 @@ from nimble_build_system.cad.shelf import create_shelf_for
 from nimble_build_system.cad.rack_assembly import RackAssembly
 
 assembly_definition_file = "../build/assembly-def.yaml"
-rack_parts_definition_file = "../build/empty_rack-pars.yaml"
 render_destination = os.path.join(os.getcwd(), "renders")
 
 class PartDefinition:
@@ -67,16 +66,6 @@ class AssemblyRenderer:
             assembly_def = yaml.load(f, Loader=yaml.FullLoader)
             for part_def in assembly_def["assembly"]["parts"]:
                 self._parts.append(PartDefinition(part_def))
-
-        # Load the rack parts definition file
-        # Check to see if the _assembly_parts list is empty
-        if len(self._assembly_parts) == 0:
-            with open(rack_parts_definition_file, "r", encoding="utf-8") as f:
-                rack_parts_def = yaml.load(f, Loader=yaml.FullLoader)
-                for part_def in rack_parts_def["assembly"]["parts"]:
-                    self._assembly_parts.append(PartDefinition(part_def))
-
-
 
     def generate(self) -> cq.Assembly:
         """
