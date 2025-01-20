@@ -56,11 +56,9 @@ class AssemblyRenderer:
     create a cq assembly from an assembly definition file.
     """
 
-    _parts: list[PartDefinition] = []
-    _assembly_parts: list[PartDefinition] = []
-
-
     def __init__(self, assembly_def_file: str):
+        self._parts: list[PartDefinition] = []
+        self._assembly_parts: list[PartDefinition] = []
 
         with open(assembly_def_file, "r", encoding="utf-8") as f:
             assembly_def = yaml.load(f, Loader=yaml.FullLoader)
@@ -121,7 +119,9 @@ if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals(
     folder = def_file.resolve().parent
     os.chdir(folder)
     # CQGI should execute this whenever called
-    assembly = AssemblyRenderer(def_file.name).generate()
-    AssemblyRenderer(def_file.name).generate_assembly_process_renders()
+    renderer = AssemblyRenderer(def_file.name)
 
-    show_object(assembly)
+    assembly_model = renderer.generate()
+    renderer.generate_assembly_process_renders()
+
+    show_object(assembly_model)

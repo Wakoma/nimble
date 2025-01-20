@@ -18,15 +18,14 @@ class RackAssembly:
     Holds the logic to assemble and render a Nimble rack in a step-by-step fashion.
     """
 
-    # Allows us to collect the assembly parts for this configuration
-    assembly_parts = {
-        "shelves": [],
-        "legs": [],
-        "top_plate": {},
-        "base_plate": {},
-    }
-
     def __init__(self, all_parts):
+        # Allows us to collect the assembly parts for this configuration
+        self.assembly_parts = {
+            "shelves": [],
+            "legs": [],
+            "top_plate": {},
+            "base_plate": {},
+        }
         shelf_count = 1
         leg_count = 1
         for part in all_parts:
