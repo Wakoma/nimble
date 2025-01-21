@@ -25,7 +25,6 @@ from nimble_build_system.cad.shelf import create_shelf_for
 from nimble_build_system.cad.rack_assembly import RackAssembly
 
 assembly_definition_file = "../build/assembly-def.yaml"
-rack_parts_definition_file = "../build/empty_rack-pars.yaml"
 render_destination = os.path.join(os.getcwd(), "renders")
 
 class PartDefinition:
@@ -57,26 +56,14 @@ class AssemblyRenderer:
     create a cq assembly from an assembly definition file.
     """
 
-    _parts: list[PartDefinition] = []
-    _assembly_parts: list[PartDefinition] = []
-
-
     def __init__(self, assembly_def_file: str):
+        self._parts: list[PartDefinition] = []
+        self._assembly_parts: list[PartDefinition] = []
 
         with open(assembly_def_file, "r", encoding="utf-8") as f:
             assembly_def = yaml.load(f, Loader=yaml.FullLoader)
             for part_def in assembly_def["assembly"]["parts"]:
                 self._parts.append(PartDefinition(part_def))
-
-        # Load the rack parts definition file
-        # Check to see if the _assembly_parts list is empty
-        if len(self._assembly_parts) == 0:
-            with open(rack_parts_definition_file, "r", encoding="utf-8") as f:
-                rack_parts_def = yaml.load(f, Loader=yaml.FullLoader)
-                for part_def in rack_parts_def["assembly"]["parts"]:
-                    self._assembly_parts.append(PartDefinition(part_def))
-
-
 
     def generate(self) -> cq.Assembly:
         """
@@ -132,7 +119,9 @@ if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals(
     folder = def_file.resolve().parent
     os.chdir(folder)
     # CQGI should execute this whenever called
-    assembly = AssemblyRenderer(def_file.name).generate()
-    AssemblyRenderer(def_file.name).generate_assembly_process_renders()
+    renderer = AssemblyRenderer(def_file.name)
 
-    show_object(assembly)
+    assembly_model = renderer.generate()
+    renderer.generate_assembly_process_renders()
+
+    show_object(assembly_model)

@@ -115,7 +115,7 @@ class Shelf():
     _fasteners = []  # List of screw positions for the device
     _unit_width = 6  # 6 or 10 inch rack
     _renders = None  # Renders that are available for each shelf type
-    _width_category = None  # Width category for the shelf ("broad" vs "standard" vs custom)
+    _width_category = "standard"  # Width category for the shelf ("broad" vs "standard" vs custom)
     # Hole location parameters
     _screw_dist_x = None
     _screw_dist_y = None
@@ -628,6 +628,27 @@ class Shelf():
 
         return  md
 
+class BroadShelf(Shelf):
+    """
+    Base shelf class for broad shelves.
+    """
+    def __init__(self,
+                 device: Device,
+                 *,
+                 assembly_key: str,
+                 position: tuple[float, float, float],
+                 color: str,
+                 rack_params: RackParameters
+                 ):
+
+        super().__init__(
+            device,
+            assembly_key=assembly_key,
+            position=position,
+            color=color,
+            rack_params=rack_params
+        )
+        self.width_category = "broad"
 
 class StuffShelf(Shelf):
     """
@@ -665,7 +686,7 @@ class StuffShelf(Shelf):
         return self._shelf_model
 
 
-class NUCShelf(Shelf):
+class NUCShelf(BroadShelf):
     """
     Shelf class for an Intel NUC device.
     """
@@ -723,7 +744,6 @@ class NUCShelf(Shelf):
         """
         A shelf for an Intel NUC
         """
-        self.width_category = "broad"
         builder = ShelfBuilder(
             self.height_in_u, width=self.width_category, depth="standard", front_type="full"
         )
@@ -794,7 +814,6 @@ class USWFlexShelf(Shelf):
         A shelf for a Ubiquiti USW-Flex
         """
         if self._shelf_model is None:
-            self.width_category = "standard"
             builder = ShelfBuilder(
                 self.height_in_u, width=self.width_category, depth=119.5, front_type="full"
             )
@@ -888,7 +907,6 @@ class USWFlexMiniShelf(Shelf):
         A shelf for a for Ubiquiti Flex Mini
         """
         if self._shelf_model is None:
-            self.width_category = "standard"
             rack_params = RackParameters(tray_side_wall_thickness=3.8)
             builder = ShelfBuilder(
                 self.height_in_u,
@@ -1037,7 +1055,6 @@ class HDD35Shelf(Shelf):
             screw_pos1 = 77.3  # distance from front
             screw_pos2 = screw_pos1 + 41.61
             screw_y = 7  # distance from bottom plane
-            self.width_category = "standard"
             builder = ShelfBuilder(
                 self.height_in_u,
                 width=self.width_category,
@@ -1264,7 +1281,6 @@ class RaspberryPiShelf(Shelf):
         """
 
         if self._shelf_model is None:
-            self.width_category = "standard"
             builder = ShelfBuilder(self.height_in_u,
                                 width=self.width_category,
                                 depth=111,
