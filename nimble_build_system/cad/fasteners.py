@@ -136,6 +136,7 @@ class Fastener: # pylint: disable=too-many-instance-attributes
         """
         return self._fastener_model
 
+
     def _gen_human_name(self):
         return f"{self.size} {self.fastener_type}"
 
@@ -266,6 +267,9 @@ class Ziptie(Fastener):
     _width = 4  # mm
     _length = 100  # mm
     _fastener_type = "ziptie"
+    _state = "straight"  # can also be "wrapped"
+    _wrapped_height = 1.0  # The shelf height in mm, and thus the max opening size of this ziptie
+    _wrapped_width = 125.4  # The width of the ziptie when wrapped around the shelf
 
 
     def __init__(self,
@@ -277,10 +281,16 @@ class Ziptie(Fastener):
                  fastener_type:str,
                  axis:str,
                  length:float,
-                 human_name:str=""):
+                 human_name:str="",
+                 wrapped_height:float=1.0,
+                 wrapped_width:float=125.4,
+                 fastener_state="wrapped"):
 
         self._length = length
         self._width = float(size)
+        self._wrapped_height = wrapped_height
+        self._wrapped_width = wrapped_width
+        self._state = fastener_state
 
         # Handle the rotation and face selector based on the direction axis
         if axis == "X":
@@ -311,37 +321,69 @@ class Ziptie(Fastener):
                          human_name=human_name)
 
         # Generate the CadQuery model for this fastener
-        # Create the ziptie spine
-        self._fastener_model = cq.Workplane().box(self._width,
-                                                  self._length,
-                                                  self._thickness)
+        self.generate_model()
 
-        # Create the ziptie head
-        self._fastener_model = (self._fastener_model.faces(">Z")
-                                                    .workplane(invert=True)
-                                                    .move(0.0, self._length / 2.0)
-                                                    .rect(self._width + 2.0, self._width + 2.0)
-                                                    .extrude(self._thickness + 3.0))
 
-        # Chamfer the insertion end of the ziptie
-        self._fastener_model = (self._fastener_model.faces(">Y")
-                                                    .edges(">X and |Z")
-                                                    .chamfer(length=self._width / 4.0,
-                                                           length2=self._width * 2.0))
-        self._fastener_model = (self._fastener_model.faces(">Y")
-                                                    .edges("<X and |Z")
-                                                    .chamfer(length=self._width / 4.0,
-                                                           length2=self._width * 2.0))
+    def generate_model(self):
+        """
+        Separate method to generate the model so the state (straight vs wrapped) can be changed
+        on the fly.
+        """
 
-        # Add the slot in the head for insertion of the tail
-        self._fastener_model = (self._fastener_model.faces(">Z")
-                                                    .workplane(invert=True)
-                                                    .move(0.0, -(self._length / 2.0))
-                                                    .rect(self._width, self._thickness)
-                                                    .cutThruAll())
+        # Generate the straight CadQuery model for this fastener
+        if self._state == "wrapped":
+            # Create the outer loop of the zip tie
+            sketch  = (cq.Sketch()
+                .rect(self._wrapped_width, self.wrapped_height)
+                .vertices()
+                .fillet(2.0)
+            )
+            sketch_offset = sketch.copy().wires().offset(self._thickness)
 
-        # Make sure assembly lines are present with each fastener
-        self._fastener_model.faces(self._face_selector).tag("assembly_line")
+            # Cteate the looped shape of the zip tie
+            self._fastener_model = (cq.Workplane("YZ")
+                        .workplane(offset=-self._width / 2.0)
+                        .move(0.0, self._wrapped_height / 2.0 - 3.0)
+                        .placeSketch(sketch_offset)
+                        .extrude(self._width))
+            self._fastener_model = (self._fastener_model.faces(">X")
+                            .workplane(offset=-self._width / 2.0)
+                            .move(0.0, self._wrapped_height / 2.0 - 3.0)
+                            .placeSketch(sketch)
+                            .cutThruAll())
+        else:
+            # Create the ziptie spine
+            self._fastener_model = cq.Workplane().box(self._width,
+                                                    self._length,
+                                                    self._thickness)
+
+            # Create the ziptie head
+            self._fastener_model = (self._fastener_model.faces(">Z")
+                                                        .workplane(invert=True)
+                                                        .move(0.0, self._length / 2.0)
+                                                        .rect(self._width + 2.0, self._width + 2.0)
+                                                        .extrude(self._thickness + 3.0))
+
+            # Chamfer the insertion end of the ziptie
+            self._fastener_model = (self._fastener_model.faces(">Y")
+                                                        .edges(">X and |Z")
+                                                        .chamfer(length=self._width / 4.0,
+                                                            length2=self._width * 2.0))
+            self._fastener_model = (self._fastener_model.faces(">Y")
+                                                        .edges("<X and |Z")
+                                                        .chamfer(length=self._width / 4.0,
+                                                            length2=self._width * 2.0))
+
+            # Add the slot in the head for insertion of the tail
+            self._fastener_model = (self._fastener_model.faces(">Z")
+                                                        .workplane(invert=True)
+                                                        .move(0.0, -(self._length / 2.0))
+                                                        .rect(self._width, self._thickness)
+                                                        .cutThruAll())
+
+            # Make sure assembly lines are present with each fastener
+            self._fastener_model.faces(self._face_selector).tag("assembly_line")
+
 
     @property
     def length(self):
@@ -365,6 +407,37 @@ class Ziptie(Fastener):
         Getter for the width of the ziptie.
         """
         return self._width
+
+    @property
+    def state(self):
+        """
+        Getter for the state of the fastener.
+        """
+        return self._state
+
+    @state.setter
+    def state(self, state):
+        """
+        Setter for the state of the fastener.
+        """
+        self._state = state
+
+        self.generate_model()
+
+
+    @property
+    def wrapped_height(self):
+        """
+        Getter for the wrapped height of the fastener in U.
+        """
+        return self._wrapped_height
+
+    @wrapped_height.setter
+    def wrapped_height(self, height):
+        """
+        Setter for the wrapped height of the fastener in U.
+        """
+        self._wrapped_height = height
 
     def _gen_human_name(self):
         return f"ziptie ({self.width}x{self.length}mm)"
