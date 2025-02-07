@@ -182,7 +182,7 @@ class Shelf():
                   fastener_type="ziptie",
                   axis="-X",
                   length=300,
-                  wrapped_height=self.height_in_u * self._rack_params.mounting_hole_spacing,
+                  wrapped_height=device_height + 2.0 + self._rack_params.tray_bottom_thickness,
                   wrapped_width=115.0 - self._rack_params.tray_side_wall_thickness),
             Ziptie(name=None,
                   position=(0, 86.25, 1.0),
@@ -191,7 +191,7 @@ class Shelf():
                   fastener_type="ziptie",
                   axis="-X",
                   length=300,
-                  wrapped_height=self.height_in_u * self._rack_params.mounting_hole_spacing,
+                  wrapped_height=device_height + 2.0 + self._rack_params.tray_bottom_thickness,
                   wrapped_width=115.0 - self._rack_params.tray_side_wall_thickness),
         ]
         self._renders = {"assembled":
