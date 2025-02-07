@@ -158,8 +158,8 @@ class Shelf():
             y_offset = 0.0
         elif self._device.width < self._device.depth:
             self._device_depth_axis = "Y"
-            x_offset = self._device.depth / 2.0
-            y_offset = 0.0
+            x_offset = 0.0
+            y_offset = self._device.depth / 2.0
         else:
             self._device_depth_axis = "X"
             x_offset = 0.0
@@ -181,14 +181,18 @@ class Shelf():
                   size="4",
                   fastener_type="ziptie",
                   axis="-X",
-                  length=300),
+                  length=300,
+                  wrapped_height=self.height_in_u * self._rack_params.mounting_hole_spacing,
+                  wrapped_width=115.0 - self._rack_params.tray_side_wall_thickness),
             Ziptie(name=None,
                   position=(0, 86.25, 1.0),
                   explode_translation=(0.0, 0.0, -40.0),
                   size="4",
                   fastener_type="ziptie",
                   axis="-X",
-                  length=300),
+                  length=300,
+                  wrapped_height=self.height_in_u * self._rack_params.mounting_hole_spacing,
+                  wrapped_width=115.0 - self._rack_params.tray_side_wall_thickness),
         ]
         self._renders = {"assembled":
                             {"order": 1,
@@ -472,6 +476,12 @@ class Shelf():
 
         # Add the fasteners to the assembly
         for i, fastener in enumerate(self._fasteners):
+            # Handle the state of the fastener, if that has been requested
+            if not render_options["explode"]:
+                fastener.state = "wrapped"
+            else:
+                fastener.state = "straight"
+
             # Get the CadQuery model for the fastener
             cur_fastener = fastener.fastener_model
 
