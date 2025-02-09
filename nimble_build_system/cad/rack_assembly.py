@@ -17,7 +17,7 @@ class RackAssembly:
     """
     Holds the logic to assemble and render a Nimble rack in a step-by-step fashion.
     """
-
+    #pylint: disable=no-value-for-parameter
     def __init__(self, all_parts):
         # Allows us to collect the assembly parts for this configuration
         self.assembly_parts = {
