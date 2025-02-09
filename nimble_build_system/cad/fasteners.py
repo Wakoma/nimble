@@ -336,7 +336,7 @@ class Ziptie(Fastener):
             sketch  = (cq.Sketch()
                 .rect(self._wrapped_width, self.wrapped_height)
                 .vertices()
-                .fillet(4.0)
+                .fillet(2.0)
             )
             sketch_offset = sketch.copy().wires().offset(self._thickness)
 
