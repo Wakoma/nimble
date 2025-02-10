@@ -40,9 +40,9 @@ class RackAssembly:
 
                 # Make sure the shelves slide out of the rack when exploded
                 if shelf_obj.width_category == "broad":
-                    explode_location = cq.Location((0, 0, 75))
+                    explode_location = cq.Location(t=(0, 0, 75), angles=(0, 0, 0))
                 else:
-                    explode_location = cq.Location((0, -45.0, 0))
+                    explode_location = cq.Location((0, -45.0, 0), angles=(0, 0, 0))
 
                 # Save the information for this shelf
                 self.assembly_parts["shelves"].append({
@@ -61,7 +61,7 @@ class RackAssembly:
 
                 # Handle the top and bottom plate explode locations differently
                 if "plate" in part.name and "top" in part.name:
-                    explode_location = cq.Location((0, 0, 20.0))
+                    explode_location = cq.Location((0, 0, 20.0), angles=(0, 0, 0))
 
                     # Save this as the assembly's top plate
                     self.assembly_parts["top_plate"] = {
@@ -73,7 +73,7 @@ class RackAssembly:
                         "explode_location": explode_location
                     }
                 elif "plate" in part.name and "base" in part.name:
-                    explode_location = cq.Location((0, 0, 0.0))
+                    explode_location = cq.Location((0, 0, 0.0), angles=(0, 0, 0))
 
                     # Save this as the assembly's base plate
                     self.assembly_parts["base_plate"] = {
@@ -85,7 +85,7 @@ class RackAssembly:
                         "explode_location": explode_location
                     }
                 elif "leg" in part.name:
-                    explode_location = cq.Location((0, 0, 20.0))
+                    explode_location = cq.Location((0, 0, 20.0), angles=(0, 0, 0))
 
                     self.assembly_parts["legs"].append({
                         "name": "leg_" + str(leg_count),
@@ -110,7 +110,7 @@ class RackAssembly:
         assembly.add(
             self.assembly_parts["base_plate"]["component"],
             name="base_plate",
-            loc=cq.Location(self.assembly_parts["base_plate"]["location"]),
+            loc=cq.Location(self.assembly_parts["base_plate"]["location"], angles=(0, 0, 0)),
             color=cq.Color(self.assembly_parts["base_plate"]["color"]),
             metadata={"explode_translation": self.assembly_parts["base_plate"]["explode_location"]}
         )
@@ -120,7 +120,7 @@ class RackAssembly:
             assembly.add(
                 leg["component"],
                 name=leg["component_type"] + "_" + str(i),
-                loc=cq.Location(leg["location"]),
+                loc=cq.Location(leg["location"], angles=(0, 0, 0)),
                 color=cq.Color(leg["color"]),
                 metadata={"explode_translation": leg["explode_location"]}
             )
@@ -186,7 +186,7 @@ class RackAssembly:
                 assembly.add(
                     shelf["component"],
                     name=shelf["name"],
-                    loc=cq.Location(shelf["location"]),
+                    loc=cq.Location(shelf["location"], angles=(0, 0, 0)),
                     color=cq.Color(shelf["color"]),
                     metadata={"explode_translation": shelf["explode_location"]}
                 )
@@ -226,7 +226,7 @@ class RackAssembly:
         assembly.add(
             self.assembly_parts["top_plate"]["component"],
             name="top_plate",
-            loc=cq.Location(self.assembly_parts["top_plate"]["location"]),
+            loc=cq.Location(self.assembly_parts["top_plate"]["location"], angles=(0, 0, 0)),
             color=cq.Color(self.assembly_parts["top_plate"]["color"]),
             metadata={"explode_translation": self.assembly_parts["top_plate"]["explode_location"]}
         )
@@ -292,7 +292,7 @@ class RackAssembly:
                 assembly.add(
                     shelf["component"],
                     name=shelf["name"],
-                    loc=cq.Location(shelf["location"]),
+                    loc=cq.Location(shelf["location"], angles=(0, 0, 0)),
                     color=cq.Color(shelf["color"]),
                     metadata={"explode_translation": shelf["explode_location"]}
                 )
@@ -394,11 +394,13 @@ class RackAssembly:
             assembly.add(
                 cur_screw.fastener_model,
                 name=cur_screw.name,
-                loc=cq.Location(cur_screw.position,
+                loc=cq.Location(t=(cur_screw.position,
                                 cur_screw.rotation[0],
                                 cur_screw.rotation[1]),
+                                angles=(0, 0, 0)),
                 color=cq.Color("gray"),
-                metadata={"explode_translation": cq.Location(cur_screw.explode_translation),
+                metadata={"explode_translation": cq.Location(cur_screw.explode_translation,
+                                                             angles=(0, 0, 0)),
                             "assembly_line_length": (0.0, 0.0, assembly_line_length)}
             )
 
@@ -450,11 +452,13 @@ class RackAssembly:
             assembly.add(
                 cur_screw.fastener_model,
                 name=cur_screw.name,
-                loc=cq.Location(cur_screw.position,
+                loc=cq.Location(t=(cur_screw.position,
                                 cur_screw.rotation[0],
                                 cur_screw.rotation[1]),
+                                angles=(0, 0, 0)),
                 color=cq.Color("gray"),
-                metadata={"explode_translation": cq.Location(cur_screw.explode_translation),
+                metadata={"explode_translation": cq.Location(cur_screw.explode_translation,
+                                                             angles=(0, 0, 0)),
                         "assembly_line_length": explode_translation})
 
 
@@ -465,6 +469,6 @@ class RackAssembly:
         # Make sure that the already-assembled parts of the rack do not explode
         for part in assembly.children:
             if part.name not in names_to_still_explode:
-                part.metadata["explode_translation"] = cq.Location((0, 0, 0))
+                part.metadata["explode_translation"] = cq.Location((0, 0, 0), angles=(0, 0, 0))
 
         return assembly

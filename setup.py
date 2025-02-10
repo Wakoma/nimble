@@ -21,7 +21,7 @@ setup(
     ],
     extras_require={
         'dev': [
-            'pylint==3.3.4',
+            'pylint',
             'colorama',
             'pytest'
         ]
