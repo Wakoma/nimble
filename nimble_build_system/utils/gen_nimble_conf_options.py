@@ -40,6 +40,11 @@ def main():
         if not shelf_available(device):
             #If a shelf cannot be made for this item then skip it
             continue
+        
+        # Added If statement filtering only '6 in' Rack label items, for hot fixing big boxes render issues."                                                                                                                             
+        if device['Rack'] != '6 in':
+            # This avois placing Racks different by '6 in' in the devices.json
+            continue
 
         item = {'value': device['ID'],
                 'name': device['Brand']+" "+device['Hardware']}
