@@ -17,8 +17,8 @@ setup(
         'exsource-tools',
         'cadquery-cli==2.3.0',
         'cq_annotate==1.2.0',
-        'cq_warehouse @ git+https://github.com/gumyr/cq_warehouse.git',
-        'cadorchestrator @ gitlab:gitbuilding/cadorchestrator@server_hotfix_01'
+        'cq_warehouse @ git+https://github.com/gumyr/cq_warehouse.git'
+        # 'cadorchestrator @ git+https://gitlab.com/gitbuilding/cadorchestrator.git@server_hotfix_01'
     ],
     extras_require={
         'dev': [
