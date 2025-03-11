@@ -10,7 +10,7 @@ from nimble_build_system.orchestration.paths import MODULE_PATH
 
 
 def load_device_data():
-    devices_filename = os.path.join(MODULE_PATH, "devices.json")
+    devices_filename = os.path.join(MODULE_PATH,"devices.json")
     with open(devices_filename, encoding="utf-8") as devices_file:
         all_devices = json.load(devices_file)
 

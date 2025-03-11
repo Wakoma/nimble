@@ -19,13 +19,16 @@ import os
 from pathlib import Path
 import cadquery as cq
 import yaml
-
+import logging
 from nimble_build_system.cad.shelf import create_shelf_for
 
 from nimble_build_system.cad.rack_assembly import RackAssembly
+# from nimble_build_system.orchestration.paths import ABS_PATH
 
 assembly_definition_file = "../build/assembly-def.yaml"
 render_destination = os.path.join(os.getcwd(), "renders")
+
+logging.info(f"RENDER: {render_destination}")
 
 class PartDefinition:
     """
