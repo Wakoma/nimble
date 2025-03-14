@@ -7,7 +7,7 @@ the a class for generating a full cofiguration for a nimble rack `NimbleConfigur
 import os
 from copy import deepcopy
 import posixpath
-
+import logging
 
 from cadorchestrator.components import (GeneratedMechanicalComponent,
                                         AssembledComponent,
@@ -105,6 +105,7 @@ class NimbleConfiguration:
         return md
 
     def _inserting_shelf_docs(self):
+        logging.info("-"*10)
 
         broad_shelf_mds = []
         std_shelf_mds = []

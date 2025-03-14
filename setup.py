@@ -11,11 +11,11 @@ setup(
     python_requires='>=3.10',
     install_requires=[
         'numpy~=1.26',
-        'cadquery==2.4.0',
+        'cadquery>=2.4.0',
         'cadquery_png_plugin==1.0.2',
         'cadscript>=0.5.2',
         'exsource-tools',
-        'cadquery-cli==2.3.0',
+        # 'cadquery-cli==2.3.0',
         'cq_annotate==1.2.0',
         'cq_warehouse @ git+https://github.com/gumyr/cq_warehouse.git',
         'cadorchestrator>=0.1.0'
