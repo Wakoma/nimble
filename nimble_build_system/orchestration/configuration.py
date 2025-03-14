@@ -20,6 +20,7 @@ from nimble_build_system.orchestration.paths import REL_MECH_DIR
 def create_assembly(config_dict):
     selected_device_ids = config_dict['device-ids']
     config = NimbleConfiguration(selected_device_ids)
+    logging.debug("Configuration: %s", selected_device_ids)
     return config.main_assembly
 
 class NimbleConfiguration:
@@ -32,6 +33,8 @@ class NimbleConfiguration:
 
 
     def __init__(self, selected_device_ids):
+        
+        logging.info("NimbleConfiguration in use.")
 
         self._rack_params = RackParameters()
 
@@ -105,30 +108,26 @@ class NimbleConfiguration:
         return md
 
     def _inserting_shelf_docs(self):
-        logging.info("-"*10)
-
         broad_shelf_mds = []
         std_shelf_mds = []
+        render_dir = "../build/renders"
+        
         for i, shelf in enumerate(self._shelves):
-            md = ""
             broad = shelf.width_category == "broad"
-            md_file = shelf.shelf_component.documentation_filename
-            shelf_name = shelf.shelf_component.name
-            shelf_link = "[assembled "+shelf_name+"]("+md_file+"){make, qty:1, cat: prev}"
-            screw_link = "[M4x10mm button head screws]{qty:4, cat:mech}"
             direction = "top" if broad else "front"
-            render_dir = "../build/renders"
             img_pref = f"{render_dir}/final_assembly_{shelf.width_category}_shelves"
-
-            md += f"* Take the {shelf_link} and slide into the rack from the {direction}.\n"
-            md += f"* Secure in the position shown in the image below with four {screw_link}.\n\n"
-            md += f"![]({img_pref}_shelf_{i+1}_insertion_annotated.png)\n"
-            md += f"![]({img_pref}_shelf_{i+1}_installed.png)\n\n"
-
-            if broad:
-                broad_shelf_mds.append(md)
-            else:
-                std_shelf_mds.append(md)
+    
+            shelf_link = f"[assembled {shelf.shelf_component.name}]({shelf.shelf_component.documentation_filename}){{make, qty:1, cat: prev}}"
+            screw_link = "[M4x10mm button head screws]{qty:4, cat:mech}"
+    
+            md = "\n".join([
+                f"* Take the {shelf_link} and slide into the rack from the {direction}.",
+                f"* Secure in the position shown in the image below with four {screw_link}.\n",
+                f"![]({img_pref}_shelf_{i+1}_insertion_annotated.png)",
+                f"![]({img_pref}_shelf_{i+1}_installed.png)\n"
+            ])
+    
+            (broad_shelf_mds if broad else std_shelf_mds).append(md)
         return broad_shelf_mds, std_shelf_mds
 
     @property
