@@ -16,7 +16,7 @@ SPDX-License-Identifier: CERN-OHL-S-2.0
 
 
 
-<p align="center"><img alt="nimble logo 256" src="https://raw.githubusercontent.com/Wakoma/wakoma-assets/b84a00ba43119ff617c64942332dc7b5860567f4/nimble-assets/logos/nimble%20logo%20256.svg" height="auto" width="256"></p>
+<p align="center"><img alt="nimble logo 256" src="assets\nimble logo 256.svg" height="auto" width="256"></p>
 
 An open source, rapidly deployable, wireless mesh network. 
 
