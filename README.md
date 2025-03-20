@@ -45,7 +45,7 @@ A sneek preview of the nimble builder:
 
 <p align="center"><img alt="6in NUC shelf" src="https://gitlab.com/gitbuilding/cadorchestrator/-/raw/master/assets/UIexample.png" height="auto" width="800"></p>
 
-Access the CadOrchestrator repo [here!](https://gitlab.com/gitbuilding/cadorchestrator).
+To create our interactive documentation generator we ended up creating an entirely new library called [CadOrchestrator](https://gitlab.com/gitbuilding/cadorchestrator).
 
 
 ## Useful Links
