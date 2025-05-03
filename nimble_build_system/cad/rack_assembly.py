@@ -8,7 +8,7 @@ from pathlib import Path
 import cadquery as cq
 from cq_annotate.views import explode_assembly
 
-from nimble_build_system.cad.shelf import create_shelf_for
+from nimble_build_system.cad.shelf import create_shelf_for_x
 from nimble_build_system.cad.renderer import generate_render
 from nimble_build_system.cad.fasteners import Screw
 
@@ -32,7 +32,7 @@ class RackAssembly:
             # See if we have a shelf
             if part.device:
                 # This is a shelf and we load it directly rather than from an STEP.
-                shelf_obj = create_shelf_for(part.device)
+                shelf_obj = create_shelf_for_x(part.device)
 
                 # Create the shelf that will go in the assembly
                 cq_part = shelf_obj.generate_assembly_model(

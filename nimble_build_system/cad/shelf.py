@@ -27,7 +27,7 @@ from nimble_build_system.orchestration.device import Device
 from nimble_build_system.orchestration.paths import REL_MECH_DIR
 
 
-def create_shelf_for(device_id: str,
+def create_shelf_for_x(device_id: str,
                      *,
                      assembly_key: str='Shelf',
                      position: tuple[float, float, float]=(0,0,0),
@@ -690,13 +690,53 @@ class NUCShelf(BroadShelf):
     """
     Shelf class for an Intel NUC device.
     """
+    # this comes from a well rendered body.
+    reference_offset = (0.0, 78.0, 29.5)
+
+
+    def get_offset(self):
+        """
+        Adjust the Z-offset of `target_dims` so that it sits with the same bottom Z
+        as `ref_dims`, assuming both offsets are center-based.
+
+        Parameters:
+            ref_dims (tuple): (depth, width, height) of the reference body (in mm)
+            target_dims (tuple): (depth, width, height) of the body to align (in mm)
+            ref_offset (tuple): (x, y, z) offset of the reference body
+
+        Returns:
+            tuple: (x, y, z) offset for the target body
+        """
+
+        _, _, h_ref = (112,117,51)
+        _, _, h_target = self.get_shelf_dimensions()
+        x_ref, y_ref, z_ref = self.reference_offset
+
+        # Calculate bottom Z of reference
+        z_bottom_ref = z_ref - h_ref / 2.0
+
+        # New Z offset for target so its bottom aligns with the reference bottom
+        z_target = z_bottom_ref + h_target / 2.0
+
+        return x_ref, y_ref, z_target
+
+    def get_shelf_dimensions(self):
+        return self._device.width, self._device.depth, self._device.height
+
 
     def _setup_assembly(self):
 
         # Device location settings
         self._device_depth_axis = "Y"
-        self._device_offset = (0.0, 78.0, 29.5)
+        # self._device_offset = (0.0, 78.0, 29.5)
+        self._device_offset = self.get_offset()
         self._device_explode_translation = (0.0, 0.0, 60.0)
+
+        print("+"*30)
+        print("depth: ",self._device.depth)
+        print("width: ", self._device.width)
+        print("height: ", self._device.height)
+        print("atts: ", self._device.__dir__(), '\n',self._device.__dict__)
 
         # Gather all the mounting screw locations
         self.hole_locations = [

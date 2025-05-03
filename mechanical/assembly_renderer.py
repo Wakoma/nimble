@@ -20,7 +20,7 @@ from pathlib import Path
 import cadquery as cq
 import yaml
 import logging
-from nimble_build_system.cad.shelf import create_shelf_for
+from nimble_build_system.cad.shelf import create_shelf_for_x
 
 from nimble_build_system.cad.rack_assembly import RackAssembly
 # from nimble_build_system.orchestration.paths import ABS_PATH
@@ -79,7 +79,7 @@ class AssemblyRenderer:
         for part in self._parts:
             if part.device:
                 # This is a shelf and we load it directly rather than from an STEP.
-                shelf_obj = create_shelf_for(part.device)
+                shelf_obj = create_shelf_for_x(part.device)
 
                 # Create the shelf that will go in the assembly
                 cq_part = shelf_obj.generate_assembly_model(

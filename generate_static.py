@@ -13,7 +13,7 @@ from cadorchestrator.generate import generate_components
 
 from nimble_build_system.orchestration.paths import BUILD_DIR
 
-from nimble_build_system.cad.shelf import create_shelf_for
+from nimble_build_system.cad.shelf import create_shelf_for_x
 
 def generate():
     """
@@ -40,7 +40,7 @@ def get_component_list():
         for device_category_dict in conf_options['options'][0]['add-options']:
             for device in device_category_dict['items']:
                 device_id = device['value']
-                shelf = create_shelf_for(device_id)
+                shelf = create_shelf_for_x(device_id)
                 component_list.append(shelf.shelf_component)
     #return a list of GeneratedMechanicalComponent objects
     return component_list
