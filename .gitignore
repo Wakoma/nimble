@@ -10,7 +10,10 @@ networking_hardware.csv
 .venv/
 __pycache__/
 
-
+# Ignore everything under dev/
+dev/**
+# But keep .py files directly inside dev/ (not in subfolders)
+!dev/*.py
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

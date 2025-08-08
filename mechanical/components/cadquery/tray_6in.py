@@ -8,7 +8,7 @@ the nimble_build_system.cad ShelfBuilder.
 
 import cadscript as cad
 
-from nimble_build_system.cad.shelf import create_shelf_for_x
+from nimble_build_system.cad.shelf import  create_shelf_for_x
 
 # parameters to be set in exsource-def.yaml file
 
@@ -45,11 +45,12 @@ def create_6in_shelf(device_id) -> cad.Body:
     is called. It uses the `shelf_type` string to decide
     which of the defined shelf functions to call.
     """
-
+    # pass
     shelf_obj = create_shelf_for_x(device_id)
     return shelf_obj.generate_shelf_model()
 
 
 if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
+    # pass
     result = create_6in_shelf(device_id)
     cad.show(result)  # when run in cq-cli, will return result

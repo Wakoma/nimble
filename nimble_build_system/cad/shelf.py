@@ -11,6 +11,7 @@ Rendering and documentation generation is also supported for the shelves.
 import os
 import posixpath
 import warnings
+import logging
 
 import yaml
 from cadorchestrator.components import AssembledComponent, GeneratedMechanicalComponent
@@ -28,12 +29,11 @@ from nimble_build_system.orchestration.paths import REL_MECH_DIR
 
 
 def create_shelf_for_x(device_id: str,
-                     *,
-                     assembly_key: str='Shelf',
-                     position: tuple[float, float, float]=(0,0,0),
-                     color: str='dodgerblue1',
-                     rack_params: RackParameters|None = None,
-                     dummy_device_data:dict|None=None):
+                       *,
+                       assembly_key: str = 'Shelf',
+                       position: tuple[float, float, float] = (0, 0, 0),
+                       color: str = 'dodgerblue1',
+                       rack_params: RackParameters | None = None):
     """
     Create a shelf for a device based on the device id. The shelf is generated based on the device
     type and dimensions.
@@ -52,14 +52,9 @@ def create_shelf_for_x(device_id: str,
 
     if not rack_params:
         rack_params = RackParameters()
+    device = Device(device_id, rack_params)
 
-    #Dummy is used for development purposes
-    if device_id.startswith("dummy-"):
-        device = Device(device_id, rack_params, dummy=True, dummy_data=dummy_device_data)
-    else:
-        device = Device(device_id, rack_params)
-
-    #TODO. We have shelf_id, shekf_key, shelf_type, and shelf_builder_id,
+    #TODO. We have shelf_id, shelf_key, shelf_type, and shelf_builder_id,
     # None of which are explained well, and the neither the id or the key
     # is truly unique.
 
@@ -72,13 +67,14 @@ def create_shelf_for_x(device_id: str,
         shelf_class = Shelf
         kwargs = {}
     return shelf_class(
-            device,
-            assembly_key=assembly_key,
-            position=position,
-            color=color,
-            rack_params=rack_params,
-            **kwargs
+        device,
+        assembly_key=assembly_key,
+        position=position,
+        color=color,
+        rack_params=rack_params,
+        **kwargs
     )
+
 
 class Shelf():
     """
@@ -122,7 +118,6 @@ class Shelf():
     _dist_to_front = None
     _offset_x = None
 
-
     def __init__(self,
                  device: Device,
                  *,
@@ -131,7 +126,6 @@ class Shelf():
                  color: str,
                  rack_params: RackParameters
                  ):
-
 
         self._rack_params = rack_params
 
@@ -176,39 +170,38 @@ class Shelf():
 
         self._fasteners = [
             Ziptie(name=None,
-                  position=(0, 28.75, 1.0),
-                  explode_translation=(0.0, 0.0, -40.0),
-                  size="4",
-                  fastener_type="ziptie",
-                  axis="-X",
-                  length=300),
+                   position=(0, 28.75, 1.0),
+                   explode_translation=(0.0, 0.0, -40.0),
+                   size="4",
+                   fastener_type="ziptie",
+                   axis="-X",
+                   length=300),
             Ziptie(name=None,
-                  position=(0, 86.25, 1.0),
-                  explode_translation=(0.0, 0.0, -40.0),
-                  size="4",
-                  fastener_type="ziptie",
-                  axis="-X",
-                  length=300),
+                   position=(0, 86.25, 1.0),
+                   explode_translation=(0.0, 0.0, -40.0),
+                   size="4",
+                   fastener_type="ziptie",
+                   axis="-X",
+                   length=300),
         ]
         self._renders = {"assembled":
-                            {"order": 1,
-                             "render_options": {"color_theme": "default",
-                                                "view": "front-top-right",
-                                                "zoom": 1.0,
-                                                "add_device_offset": False,
-                                                "add_fastener_length": False,
-                                                "annotate": False,
-                                                "explode": False}},
-                        "annotated":
-                            {"order": 0,
-                             "render_options": {"color_theme": "default",
-                                                "view": "back-bottom-right",
-                                                "add_device_offset": False,
-                                                "add_fastener_length": False,
-                                                "zoom": 1.0,
-                                                "annotate": True,
-                                                "explode": True}}}  # Render options for the shelf
-
+                             {"order": 1,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "front-top-right",
+                                                 "zoom": 1.0,
+                                                 "add_device_offset": False,
+                                                 "add_fastener_length": False,
+                                                 "annotate": False,
+                                                 "explode": False}},
+                         "annotated":
+                             {"order": 0,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "back-bottom-right",
+                                                 "add_device_offset": False,
+                                                 "add_fastener_length": False,
+                                                 "zoom": 1.0,
+                                                 "annotate": True,
+                                                 "explode": True}}}  # Render options for the shelf
 
     @property
     def height_in_u(self):
@@ -216,7 +209,6 @@ class Shelf():
         Return the height of the shelf in standard rack units/increments.
         """
         return self._device.height_in_u
-
 
     def _generate_assembled_shelf(self,
                                   assembly_key: str,
@@ -244,7 +236,7 @@ class Shelf():
         return AssembledComponent(
             key=assembly_key,
             component=component,
-            data = {
+            data={
                 'position': position,
                 'color': color,
                 'device': self._device.id
@@ -252,7 +244,6 @@ class Shelf():
             include_key=True,
             include_stepfile=True
         )
-
 
     @property
     def name(self):
@@ -262,14 +253,12 @@ class Shelf():
         """
         return self._assembled_shelf.name
 
-
     @property
     def device(self):
         """
         Return the Device object for the networking component that sits on this shelf.
         """
         return self._device
-
 
     @property
     def width_category(self):
@@ -278,14 +267,12 @@ class Shelf():
         """
         return self._width_category
 
-
     @width_category.setter
     def width_category(self, value):
         """
         Set the width category for the shelf.
         """
         self._width_category = value
-
 
     @property
     def assembled_shelf(self) -> AssembledComponent:
@@ -296,7 +283,6 @@ class Shelf():
         """
         return self._assembled_shelf
 
-
     @property
     def shelf_component(self) -> GeneratedMechanicalComponent:
         """
@@ -305,14 +291,12 @@ class Shelf():
         """
         return self._assembled_shelf.component
 
-
     @property
     def screw_dist_x(self):
         """
         Return the distance between the screws on the x-axis.
         """
         return self._screw_dist_x
-
 
     @screw_dist_x.setter
     def screw_dist_x(self, value):
@@ -321,14 +305,12 @@ class Shelf():
         """
         self._screw_dist_x = value
 
-
     @property
     def screw_dist_y(self):
         """
         Return the distance between the screws on the y-axis.
         """
         return self._screw_dist_y
-
 
     @screw_dist_y.setter
     def screw_dist_y(self, value):
@@ -344,14 +326,12 @@ class Shelf():
         """
         return self._dist_to_front
 
-
     @dist_to_front.setter
     def dist_to_front(self, value):
         """
         Set the distance to the front of the shelf.
         """
         self._dist_to_front = value
-
 
     @property
     def offset_x(self):
@@ -360,14 +340,12 @@ class Shelf():
         """
         return self._offset_x
 
-
     @offset_x.setter
     def offset_x(self, value):
         """
         Set the offset on the x-axis.
         """
         self._offset_x = value
-
 
     @property
     def hole_locations(self):
@@ -376,7 +354,6 @@ class Shelf():
         """
         return self._hole_locations
 
-
     @hole_locations.setter
     def hole_locations(self, value):
         """
@@ -384,14 +361,12 @@ class Shelf():
         """
         self._hole_locations = value
 
-
     @property
     def renders(self):
         """
         All of the renders that are available for a shelf and their render options.
         """
         return self._renders
-
 
     def generate_device_model(self):
         """
@@ -401,16 +376,15 @@ class Shelf():
         # but do not generated if it has been generated already.
         if self._device_model is None:
             device = generate_placeholder(self.name,
-                                        self._device.width,
-                                        self._device.depth,
-                                        self._device.height)
+                                          self._device.width,
+                                          self._device.depth,
+                                          self._device.height)
 
             # Once the device model has been generated once, save it so that it can be reused in
             # assemblies and such
             self._device_model = device
 
         return self._device_model
-
 
     def generate_shelf_model(self):
         """
@@ -422,7 +396,6 @@ class Shelf():
             self._shelf_model = shelf
 
         return self._shelf_model
-
 
     def generate_assembly_model(self, render_options=None):
         """
@@ -446,7 +419,7 @@ class Shelf():
         elif self._device_depth_axis == "-X":
             device = device.rotateAboutCenter((0, 0, 1), -90)
         elif self._device_depth_axis == "Y":
-            device = device.rotateAboutCenter((0, 0, 1), 0) # No rotation needed
+            device = device.rotateAboutCenter((0, 0, 1), 0)  # No rotation needed
         elif self._device_depth_axis == "-Y":
             device = device.rotateAboutCenter((0, 0, 1), -180)
         elif self._device_depth_axis == "Z":
@@ -456,19 +429,19 @@ class Shelf():
 
         # Move the device to the correct position on the shelf
         device = device.translate((self._device_offset[0],
-                                self._device_offset[1],
-                                self._device_offset[2]))
+                                   self._device_offset[1],
+                                   self._device_offset[2]))
 
         # Create the assembly holding all the parts that go into the shelf unit
         assy = cq.Assembly()
         assy.add(device, name="device",
-                    color=cq.Color(0.996, 0.867, 0.0, 1.0),
-                    metadata={
-                    "explode_translation": cq.Location(self._device_explode_translation)
-                })
+                 color=cq.Color(0.996, 0.867, 0.0, 1.0),
+                 metadata={
+                     "explode_translation": cq.Location(self._device_explode_translation)
+                 })
         assy.add(self.generate_shelf_model().cq(),
-                name="shelf",
-                color=cq.Color(0.565, 0.698, 0.278, 1.0))
+                 name="shelf",
+                 color=cq.Color(0.565, 0.698, 0.278, 1.0))
 
         # Add the fasteners to the assembly
         for i, fastener in enumerate(self._fasteners):
@@ -497,23 +470,23 @@ class Shelf():
 
             # Add the fastener to the assembly
             assy.add(cur_fastener,
-                    name=fastener.name,
-                    loc=cq.Location(fastener.position, fastener.rotation[0], fastener.rotation[1]),
-                    color=cq.Color(0.5, 0.5, 0.5, 1.0),
-                    metadata={
-                        "explode_translation": cq.Location(
-                            (fastener.explode_translation[0],
-                                fastener.explode_translation[1],
-                                fastener.explode_translation[2])),
-                        "assembly_line_length": (
-                            abs(x_offset) +
-                                abs(fastener.explode_translation[0]),
-                            abs(y_offset) +
-                                abs(fastener.explode_translation[1]),
-                            abs(z_offset) +
-                                abs(fastener.explode_translation[2])
-                        )
-                    })
+                     name=fastener.name,
+                     loc=cq.Location(fastener.position, fastener.rotation[0], fastener.rotation[1]),
+                     color=cq.Color(0.5, 0.5, 0.5, 1.0),
+                     metadata={
+                         "explode_translation": cq.Location(
+                             (fastener.explode_translation[0],
+                              fastener.explode_translation[1],
+                              fastener.explode_translation[2])),
+                         "assembly_line_length": (
+                             abs(x_offset) +
+                             abs(fastener.explode_translation[0]),
+                             abs(y_offset) +
+                             abs(fastener.explode_translation[1]),
+                             abs(z_offset) +
+                             abs(fastener.explode_translation[2])
+                         )
+                     })
 
         self._shelf_assembly_model = assy
 
@@ -528,13 +501,11 @@ class Shelf():
 
         return self._shelf_assembly_model
 
-
     def list_renders(self):
         """
         Return a list of all the renders that can be generated for the shelf.
         """
         return self.renders.keys()
-
 
     def list_render_files(self):
         """
@@ -584,7 +555,7 @@ class Shelf():
         fastener_strs = []
         for name, data in fasteners.items():
             qty = data["qty"]
-            fastener_strs.append(f"{qty} [{name}]"+"{qty:"+str(qty)+"}")
+            fastener_strs.append(f"{qty} [{name}]" + "{qty:" + str(qty) + "}")
         if len(fastener_strs) == 0:
             return ""
         if len(fastener_strs) == 1:
@@ -598,7 +569,7 @@ class Shelf():
         """
         Return the markdown (BuildUp) for the GitBuilding page for assembling this shelf.
         """
-        stlfilename = posixpath.normpath("../build/"+self.shelf_component.stl_representation)
+        stlfilename = posixpath.normpath("../build/" + self.shelf_component.stl_representation)
         meta_data = {
             "Tag": "shelf",
             "Make": {
@@ -614,24 +585,26 @@ class Shelf():
         md = f"---\n{yaml.dump(meta_data)}\n---\n\n"
         md += f"# Assembling the {self.name}\n\n"
         md += "{{BOM}}\n\n"
-        md += "## Position the "+self._device.name+" {pagestep}\n\n"
-        md += "* Take the ["+self.name+"]{make, qty:1, cat:printed} you printed earlier\n"
+        md += "## Position the " + self._device.name + " {pagestep}\n\n"
+        md += "* Take the [" + self.name + "]{make, qty:1, cat:printed} you printed earlier\n"
         fastener_str = self._fastener_str
         if fastener_str:
-            md += "* Position the ["+self._device.name+"]{qty:1, cat:net} on the shelf as shown\n"
+            md += "* Position the [" + self._device.name + "]{qty:1, cat:net} on the shelf as shown\n"
             md += f"* Fasten it in place using {fastener_str}.\n"
         else:
-            md += "* Push fit the ["+self._device.name+"]{qty:1, cat:net} on the shelf as shown\n"
+            md += "* Push fit the [" + self._device.name + "]{qty:1, cat:net} on the shelf as shown\n"
         md += "\n\n"
         for render in self.list_render_files():
             md += f"![](../build/renders/{render})\n"
 
-        return  md
+        return md
+
 
 class BroadShelf(Shelf):
     """
     Base shelf class for broad shelves.
     """
+
     def __init__(self,
                  device: Device,
                  *,
@@ -640,7 +613,6 @@ class BroadShelf(Shelf):
                  color: str,
                  rack_params: RackParameters
                  ):
-
         super().__init__(
             device,
             assembly_key=assembly_key,
@@ -650,10 +622,12 @@ class BroadShelf(Shelf):
         )
         self.width_category = "broad"
 
+
 class StuffShelf(Shelf):
     """
     A generic shelf for devices that do not have a specific shelf type.
     """
+
     ##TODO: Perhaps make a "dummy" device for "stuff"?
     def __init__(self,
                  device: Device,
@@ -662,8 +636,7 @@ class StuffShelf(Shelf):
                  position: tuple[float, float, float],
                  color: str,
                  rack_params: RackParameters,
-                 thin: bool=False):
-
+                 thin: bool = False):
         super().__init__(device,
                          assembly_key=assembly_key,
                          position=position,
@@ -693,7 +666,6 @@ class NUCShelf(BroadShelf):
     # this comes from a well rendered body.
     reference_offset = (0.0, 78.0, 29.5)
 
-
     def get_offset(self):
         """
         Adjust the Z-offset of `target_dims` so that it sits with the same bottom Z
@@ -708,7 +680,7 @@ class NUCShelf(BroadShelf):
             tuple: (x, y, z) offset for the target body
         """
 
-        _, _, h_ref = (112,117,51)
+        _, _, h_ref = (112, 117, 51)
         _, _, h_target = self.get_shelf_dimensions()
         x_ref, y_ref, z_ref = self.reference_offset
 
@@ -723,26 +695,23 @@ class NUCShelf(BroadShelf):
     def get_shelf_dimensions(self):
         return self._device.width, self._device.depth, self._device.height
 
-
     def _setup_assembly(self):
-
         # Device location settings
         self._device_depth_axis = "Y"
         # self._device_offset = (0.0, 78.0, 29.5)
         self._device_offset = self.get_offset()
         self._device_explode_translation = (0.0, 0.0, 60.0)
 
-        print("+"*30)
-        print("depth: ",self._device.depth)
-        print("width: ", self._device.width)
-        print("height: ", self._device.height)
-        print("atts: ", self._device.__dir__(), '\n',self._device.__dict__)
+        logging.info(f"depth: {self._device.depth}")
+        logging.info(f"width: {self._device.width}")
+        logging.info(f"height: {self._device.height}")
+        logging.info(f"atts: {self._device.__dir__()}\n{self._device.__dict__}")
 
         # Gather all the mounting screw locations
         self.hole_locations = [
-                (0.0, 35.0, 0.0),
-                (0.0, 120.0, 0.0),
-            ]
+            (0.0, 35.0, 0.0),
+            (0.0, 120.0, 0.0),
+        ]
 
         self._fasteners = [
             Screw(name=None,
@@ -761,24 +730,23 @@ class NUCShelf(BroadShelf):
                   length=6),
         ]
         self._renders = {"assembled":
-                            {"order": 1,
-                             "render_options": {"color_theme": "default",
-                                                "view": "front-top-right",
-                                                "add_device_offset": False,
-                                                "add_fastener_length": False,
-                                                "zoom": 1.15,
-                                                "annotate": False,
-                                                "explode": False}},
-                        "annotated":
-                            {"order": 0,
-                             "render_options": {"color_theme": "default",
-                                                "view": "front-bottom-right",
-                                                "add_device_offset": True,
-                                                "add_fastener_length": True,
-                                                "zoom": 1.15,
-                                                "annotate": True,
-                                                "explode": True}}}  # Renders for the shelf
-
+                             {"order": 1,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "front-top-right",
+                                                 "add_device_offset": False,
+                                                 "add_fastener_length": False,
+                                                 "zoom": 1.15,
+                                                 "annotate": False,
+                                                 "explode": False}},
+                         "annotated":
+                             {"order": 0,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "front-bottom-right",
+                                                 "add_device_offset": True,
+                                                 "add_fastener_length": True,
+                                                 "zoom": 1.15,
+                                                 "annotate": True,
+                                                 "explode": True}}}  # Renders for the shelf
 
     def generate_shelf_model(self) -> cadscript.Body:
         """
@@ -799,9 +767,7 @@ class USWFlexShelf(Shelf):
     Shelf class for a Ubiquiti USW-Flex device.
     """
 
-
     def _setup_assembly(self):
-
         # Device location settings
         self._device_depth_axis = "X"
         self._device_offset = (0.0, 58.0, 18.0)
@@ -830,24 +796,23 @@ class USWFlexShelf(Shelf):
                   length=8),
         ]
         self._renders = {"assembled":
-                            {"order": 1,
-                             "render_options": {"color_theme": "default",
-                                                "view": "front-top-right",
-                                                "zoom": 1.15,
-                                                "add_device_offset": False,
-                                                "add_fastener_length": False,
-                                                "annotate": False,
-                                                "explode": False}},
-                        "annotated":
-                            {"order": 0,
-                             "render_options": {"color_theme": "default",
-                                                "view": "front-bottom-right",
-                                                "add_device_offset": True,
-                                                "add_fastener_length": True,
-                                                "zoom": 1.15,
-                                                "annotate": True,
-                                                "explode": True}}}  # Render options for the shelf
-
+                             {"order": 1,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "front-top-right",
+                                                 "zoom": 1.15,
+                                                 "add_device_offset": False,
+                                                 "add_fastener_length": False,
+                                                 "annotate": False,
+                                                 "explode": False}},
+                         "annotated":
+                             {"order": 0,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "front-bottom-right",
+                                                 "add_device_offset": True,
+                                                 "add_fastener_length": True,
+                                                 "zoom": 1.15,
+                                                 "annotate": True,
+                                                 "explode": True}}}  # Render options for the shelf
 
     def generate_shelf_model(self) -> cadscript.Body:
         """
@@ -866,11 +831,12 @@ class USWFlexShelf(Shelf):
                                            sketch,
                                            -builder.rack_params.tray_bottom_thickness - 2.0)
             builder.get_body().cut_hole("<Z[-3]",
-                                        r=3.8/2.0,
+                                        r=3.8 / 2.0,
                                         pos=[(-17.5, 30 + 42), (+17.5, 30 + 42)])
             self._shelf_model = builder.get_body()
 
         return self._shelf_model
+
 
 class USWFlexMiniShelf(Shelf):
     """
@@ -878,7 +844,6 @@ class USWFlexMiniShelf(Shelf):
     """
 
     def _setup_assembly(self):
-
         # Device location settings
         self._device_depth_axis = "Y"
         self._device_offset = (0.0, 36.0, 13.0)
@@ -886,11 +851,11 @@ class USWFlexMiniShelf(Shelf):
 
         # Gather all the mounting screw locations
         self.hole_locations = [
-                (-57.5, 59.0, 14.0),
-                (57.5, 59.0, 14.0),
-                (-37.5, 73.5, 14.0),
-                (37.5, 73.5, 14.0),
-            ]
+            (-57.5, 59.0, 14.0),
+            (57.5, 59.0, 14.0),
+            (-37.5, 73.5, 14.0),
+            (37.5, 73.5, 14.0),
+        ]
 
         self._fasteners = [
             Screw(name=None,
@@ -923,24 +888,23 @@ class USWFlexMiniShelf(Shelf):
                   length=4),
         ]
         self._renders = {"assembled":
-                            {"order": 1,
-                             "render_options": {"color_theme": "default",
-                                                "view": "front-top-right",
-                                                "zoom": 1.0,
-                                                "add_device_offset": False,
-                                                "add_fastener_length": False,
-                                                "annotate": False,
-                                                "explode": False}},
-                        "annotated":
-                            {"order": 0,
-                             "render_options": {"color_theme": "default",
-                                                "view": "back-top-right",
-                                                "add_device_offset": False,
-                                                "add_fastener_length": True,
-                                                "zoom": 1.0,
-                                                "annotate": True,
-                                                "explode": True}}}  # Render options for the shelf
-
+                             {"order": 1,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "front-top-right",
+                                                 "zoom": 1.0,
+                                                 "add_device_offset": False,
+                                                 "add_fastener_length": False,
+                                                 "annotate": False,
+                                                 "explode": False}},
+                         "annotated":
+                             {"order": 0,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "back-top-right",
+                                                 "add_device_offset": False,
+                                                 "add_fastener_length": True,
+                                                 "zoom": 1.0,
+                                                 "annotate": True,
+                                                 "explode": True}}}  # Render options for the shelf
 
     def generate_shelf_model(self) -> cadscript.Body:
         """
@@ -970,14 +934,16 @@ class USWFlexMiniShelf(Shelf):
             builder.add_mounting_hole_to_back(
                 x_pos=+75 / 2, z_pos=builder.height / 2, hole_type="M3-tightfit"
             )
-            self._shelf_model =  builder.get_body()
+            self._shelf_model = builder.get_body()
 
         return self._shelf_model
+
 
 class AnkerShelf(Shelf):
     """
     Shelf class for an Anker PowerPort 5, Anker 360 Charger 60W (a2123), etc
     """
+
     def __init__(self,
                  device: Device,
                  *,
@@ -989,7 +955,6 @@ class AnkerShelf(Shelf):
                  internal_depth: float = 90.8,
                  internal_height: float = 25,
                  front_cutout_width: float = 53):
-
         super().__init__(device,
                          assembly_key=assembly_key,
                          position=position,
@@ -1016,13 +981,13 @@ class AnkerShelf(Shelf):
 
         return self._shelf_model
 
+
 class HDD35Shelf(Shelf):
     """
     Shelf class for a 3.5" hard drive device.
     """
 
     def _setup_assembly(self):
-
         # Device location settings
         self._device_depth_axis = "X"
         self._device_offset = (0.0, self._device.width / 2.0 + 1.5, 8.5)
@@ -1067,24 +1032,23 @@ class HDD35Shelf(Shelf):
                   length=6),
         ]
         self._renders = {"assembled":
-                            {"order": 1,
-                             "render_options": {"color_theme": "default",
-                                                "view": "front-top-right",
-                                                "zoom": 1.15,
-                                                "add_device_offset": False,
-                                                "add_fastener_length": False,
-                                                "annotate": False,
-                                                "explode": False}},
-                        "annotated":
-                            {"order": 0,
-                             "render_options": {"color_theme": "default",
-                                                "view": "back-bottom-right",
-                                                "add_device_offset": False,
-                                                "add_fastener_length": True,
-                                                "zoom": 1.15,
-                                                "annotate": True,
-                                                "explode": True}}}  # Render options for the shelf
-
+                             {"order": 1,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "front-top-right",
+                                                 "zoom": 1.15,
+                                                 "add_device_offset": False,
+                                                 "add_fastener_length": False,
+                                                 "annotate": False,
+                                                 "explode": False}},
+                         "annotated":
+                             {"order": 0,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "back-bottom-right",
+                                                 "add_device_offset": False,
+                                                 "add_fastener_length": True,
+                                                 "zoom": 1.15,
+                                                 "annotate": True,
+                                                 "explode": True}}}  # Render options for the shelf
 
     def generate_shelf_model(self) -> cadscript.Body:
         """
@@ -1179,24 +1143,23 @@ class DualSSDShelf(Shelf):
                   length=6),
         ]
         self._renders = {"assembled":
-                            {"order": 1,
-                             "render_options": {"color_theme": "default",
-                                                "view": "front-top-right",
-                                                "zoom": 1.15,
-                                                "add_device_offset": False,
-                                                "add_fastener_length": False,
-                                                "annotate": False,
-                                                "explode": False}},
-                        "annotated":
-                            {"order": 0,
-                             "render_options": {"color_theme": "default",
-                                                "view": "back-bottom-right",
-                                                "add_device_offset": False,
-                                                "add_fastener_length": True,
-                                                "zoom": 1.15,
-                                                "annotate": True,
-                                                "explode": True}}}  # Renders for the shelf
-
+                             {"order": 1,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "front-top-right",
+                                                 "zoom": 1.15,
+                                                 "add_device_offset": False,
+                                                 "add_fastener_length": False,
+                                                 "annotate": False,
+                                                 "explode": False}},
+                         "annotated":
+                             {"order": 0,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "back-bottom-right",
+                                                 "add_device_offset": False,
+                                                 "add_fastener_length": True,
+                                                 "zoom": 1.15,
+                                                 "annotate": True,
+                                                 "explode": True}}}  # Renders for the shelf
 
     def generate_shelf_model(self) -> cadscript.Body:
         """
@@ -1235,6 +1198,7 @@ class DualSSDShelf(Shelf):
 
         return self._shelf_model
 
+
 class RaspberryPiShelf(Shelf):
     """
     A shelf for Raspberry Pi models.
@@ -1259,11 +1223,11 @@ class RaspberryPiShelf(Shelf):
         self._device_explode_translation = (0.0, 0.0, 25.0)
         # Gather all the mounting screw locations
         self.hole_locations = [
-                (self.offset_x, self.dist_to_front),
-                (self.offset_x + self.screw_dist_x, self.dist_to_front),
-                (self.offset_x, self.dist_to_front + self.screw_dist_y),
-                (self.offset_x + self.screw_dist_x, self.dist_to_front + self.screw_dist_y),
-            ]
+            (self.offset_x, self.dist_to_front),
+            (self.offset_x + self.screw_dist_x, self.dist_to_front),
+            (self.offset_x, self.dist_to_front + self.screw_dist_y),
+            (self.offset_x + self.screw_dist_x, self.dist_to_front + self.screw_dist_y),
+        ]
 
         self._fasteners = [
             Screw(name=None,
@@ -1296,24 +1260,23 @@ class RaspberryPiShelf(Shelf):
                   length=6)
         ]
         self._renders = {"assembled":
-                            {"order": 1,
-                             "render_options": {"color_theme": "default",
-                                                "view": "back-top-right",
-                                                "add_device_offset": False,
-                                                "add_fastener_length": False,
-                                                "zoom": 1.25,
-                                                "annotate": False,
-                                                "explode": False}},
-                        "annotated":
-                            {"order": 0,
-                             "render_options": {"color_theme": "default",
-                                                "view": "back-top-right",
-                                                "add_device_offset": False,
-                                                "add_fastener_length": True,
-                                                "zoom": 1.25,
-                                                "annotate": True,
-                                                "explode": True}}}  # Renders for the shelf
-
+                             {"order": 1,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "back-top-right",
+                                                 "add_device_offset": False,
+                                                 "add_fastener_length": False,
+                                                 "zoom": 1.25,
+                                                 "annotate": False,
+                                                 "explode": False}},
+                         "annotated":
+                             {"order": 0,
+                              "render_options": {"color_theme": "default",
+                                                 "view": "back-top-right",
+                                                 "add_device_offset": False,
+                                                 "add_fastener_length": True,
+                                                 "zoom": 1.25,
+                                                 "annotate": True,
+                                                 "explode": True}}}  # Renders for the shelf
 
     def generate_shelf_model(self):
         """
@@ -1322,9 +1285,9 @@ class RaspberryPiShelf(Shelf):
 
         if self._shelf_model is None:
             builder = ShelfBuilder(self.height_in_u,
-                                width=self.width_category,
-                                depth=111,
-                                front_type="full")
+                                   width=self.width_category,
+                                   depth=111,
+                                   front_type="full")
             builder.cut_opening("<Y", (-15, 39.5), size_y=(6, 25))
             builder.cut_opening("<Y", (-41.5, -25.5), size_y=(6, 22))
             builder.make_tray(sides="ramp", back="open")
@@ -1351,10 +1314,10 @@ class RaspberryPiShelf(Shelf):
 
 # Dictionary of shelf types and their corresponding class and kwargs as tuple
 # (class, keyword-arguments)
-SHELF_TYPES= {
+SHELF_TYPES = {
     "generic": (Shelf, {}),
     "stuff": (StuffShelf, {}),
-    "stuff-thin": (StuffShelf, {"thin":True}),
+    "stuff-thin": (StuffShelf, {"thin": True}),
     "nuc": (NUCShelf, {}),
     "flex": (USWFlexShelf, {}),
     "usw-flex": (USWFlexShelf, {}),
