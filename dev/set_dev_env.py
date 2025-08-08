@@ -1,8 +1,8 @@
 '''
 author: kny5,
 email: antonio.anaya@kny5.work,
-description: This script downloads and builds a docker image for the nimble cadorchestrator, for development purposes,
-it uses a list of repositories defined in a dictionary format.
+description: This script downloads and builds a docker image for the nimble cadorchestrator,
+for development purposes, it uses a list of repositories defined in a dictionary format.
 
 Requirements:
 git
@@ -11,10 +11,12 @@ ssh privileges to repositories are optional
 '''
 
 
-print('\nCADOrchestrator Development environment setup. \nWakoma Inc. 2025. \nhttps://wakoma.co\n')
 import sys
 import os
 import logging
+
+
+print('\nCADOrchestrator Development environment setup. \nWakoma Inc. 2025. \nhttps://wakoma.co\n')
 
 # setup logging messages format and level
 logger = logging.getLogger(__name__)
@@ -32,11 +34,11 @@ print("Checking dependencies...\n")
 try:
     os.system('git --version')
     os.system('docker --version')
-except Exception as e:
+except OSError as e:
     logger.error(e)
 
 # Repositories to download and use for Docker image
-project_repositories = [{
+REPOSITORIES = [{
 'author': 'kny5',
 'repository': 'cq-cli',
 'local_name': 'cq-cli-nimble',
@@ -59,87 +61,109 @@ project_repositories = [{
 'git_url':'git@github.com:Wakoma/nimble.git'}]
 
 # dockerfile and docker image names
-dockerfile_dev = "cadorch_devops/docker/Dockerfile.dev"
-image_name = "nimble_cadorch_development"
+DOCKERFILE_DEV = "cadorch_devops/docker/Dockerfile.dev"
+IMAGE_NAME = "nimble_cadorch_development"
 
 # checking if dependencies repositories exists locally.
 class DevSetUp:
-    print("\nThis program downloads and builds a docker image for the nimble cadorchestrator development environment.\n")
-    print("Answer the following questions to continue:\n")
+    '''
+    This program downloads and builds a docker image for the nimble cadorchestrator
+    development environment
+    '''
 
-    def create_meta_dir(self):
-        meta = input("\nDo you want to re-create the meta directory? "
-                     "\nThe meta directory copies all the upper nimble directory content inside the dev environment. (y/n) ")
-        if meta == 'y':
-            current_dir = os.path.basename(os.getcwd())
-            cmd = f'rsync -av --exclude="{current_dir}" ../ ./nimble'
-            os.system(cmd)
-        else:
-            pass
+    @staticmethod
+    def create_meta_dir():
+        '''This method creates the meta directory for the nimble cadorchestrator,
+        copying all the contents of nimble for easy containerisation.'''
+        current_dir = os.path.basename(os.getcwd())
 
-    def set_repositories(self):
+        if current_dir != 'dev':
+            os.chdir('dev')
+            logger.warning("You are not allowed to re-create the meta directory.")
+
+        cmd = f'rsync -av --exclude="{current_dir}" ../ ./nimble'
+        os.system(cmd)
+
+
+    @staticmethod
+    def set_repositories():
+        '''
+        This method sets the repositories used for development.
+        See object_repositories for more details.
+        '''
+
         privilege = input("\nDo you have SSH privileges to the repository? (y/n): ")
 
         if privilege == 'y':
-            logger.info(f"This assumes you have setup API keys, and ssh privileges to the git services.")
+            logger.info("This assumes you have setup API keys, "
+                        "and ssh privileges to the git services.")
             url_type = "git_url"
         else:
-            logger.warning("Using https_urls, you may need to setup your repository privilege for pulling changes later.")
+            logger.warning("Using https_urls, you may need to setup your repository privilege "
+                           "for pulling changes later.")
             url_type = "https_url"
 
-        for repo in project_repositories:
+        for repo in REPOSITORIES:
             if os.path.isdir(repo['local_name']):
-                logger.warning(f"Local repo exists for: {repo['repository']}, {repo['local_name']}")
+                logger.warning("Local repo exists for: %s, %s",
+                               repo['repository'], repo['local_name'])
                 if privilege == 'y':
-                    logger.warning("You may need to setup your repository privilege for push/pull changes later.")
-                pass
+                    logger.warning("You may need to setup your repository privilege "
+                                   "for push/pull changes later.")
             else:
                 try:
-                    os.system("git clone -b {branch} {url} {name}".format(url = repo[url_type], name = repo['local_name'], branch = repo['select_branch']))
-                    logger.info(f"Cloning repo for: {repo['repository']}, {repo['local_name']}")
-                except Exception as e:
+                    os.system(f"git clone -b {repo['select_branch']} "
+                              f"{repo[url_type]} {repo['local_name']}")
+                    logger.info("Cloning repo for: %s, %s", repo['repository'], repo['local_name'])
+                except OSError as e:
                     logger.error(e)
         logger.info("Development environment directories in place.")
 
-
-    def check_image(self):
-        logger.info(f"Checking image: {image_name}")
-        cmd = "docker inspect {img} | grep {img}".format(img = image_name)
+    @staticmethod
+    def check_image():
+        '''This method checks if the docker image exists.'''
+        logger.info("Checking image: %s", IMAGE_NAME)
+        cmd = "docker inspect {img} | grep {img}".format(img = IMAGE_NAME)
 
         if os.system(cmd) == 1:
             return True
-        else:
-            return False
 
-    def build_image(self):
-        if not self.check_image():
-            docker = input("\nDo you want to re-build Docker development image {img}? (y/n): ".format(img = image_name))
+        return False
+
+    @staticmethod
+    def build_image():
+        '''
+        This method builds a docker image for the nimble cadorchestrator.
+        You have the cache option (quicker) or nocache.
+        '''
+        cache_ops = ""
+        if not DevSetUp.check_image():
+            docker = input(f"\nRe-build Docker development image {IMAGE_NAME}? (y/n): ")
 
             if docker == "y":
                 cache = input("\nDo you want to use image cache? (y/n): ")
                 if cache != 'y':
                     cache_ops = " --no-cache"
-                else:
-                    cache_ops = ""
                 try:
                     print("Building Docker development image... This may take a while...")
-                    cmd = f"docker build {cache_ops} -t {image_name} -f {dockerfile_dev} . "
+                    cmd = f"docker build {cache_ops} -t {IMAGE_NAME} -f {DOCKERFILE_DEV} . "
                     logger.info(cmd)
                     os.system(cmd)
-                except Exception as e:
+                except OSError as e:
                     logger.error(e)
 
         else:
-            cmd = f"docker build {cache_ops} -t {image_name} -f {dockerfile_dev} . "
+            cmd = f"docker build {cache_ops} -t {IMAGE_NAME} -f {DOCKERFILE_DEV} . "
             logger.info(cmd)
             os.system(cmd)
 
-
-    def run_image(self):
-        if not self.check_image():
+    @staticmethod
+    def run_image():
+        '''This method runs the docker image build.'''
+        if not DevSetUp.check_image():
             run_img = input("\nDo you want to run the image? (y/n): ")
             if run_img == 'y':
-                cmd = f"docker run -p 8001:8000 {image_name}"
+                cmd = f"docker run -p 8001:8000 {IMAGE_NAME}"
                 logger.info(cmd)
                 os.system(cmd)
             else:
@@ -148,10 +172,11 @@ class DevSetUp:
 
 if __name__ == "__main__":
     try:
-        DevSetUp().create_meta_dir()
-        DevSetUp().set_repositories()
-        DevSetUp().build_image()
-        DevSetUp().run_image()
-    except Exception as e:
+        DevSetUp.create_meta_dir()
+        DevSetUp.set_repositories()
+        DevSetUp.build_image()
+        DevSetUp.run_image()
+    except OSError as e:
         logger.error(e)
-
+    except KeyboardInterrupt:
+        logger.error("\nProgram interrupted...")
