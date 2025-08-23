@@ -1,4 +1,4 @@
-"""
+`"""
 Simple setup script to install the nimble_build_system as a package
 """
 from setuptools import setup, find_packages

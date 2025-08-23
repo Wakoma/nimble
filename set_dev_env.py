@@ -61,7 +61,7 @@ REPOSITORIES = [{
 'git_url':'git@github.com:Wakoma/nimble.git'}]
 
 # dockerfile and docker image names
-DOCKERFILE_DEV = "cadorch_devops/docker/Dockerfile.dev"
+DOCKERFILE_DEV = "docker/Dockerfile.dev"
 IMAGE_NAME = "nimble_cadorch_development"
 
 # checking if dependencies repositories exists locally.
@@ -77,10 +77,11 @@ class DevSetUp:
         copying all the contents of nimble for easy containerisation.'''
         current_dir = os.path.basename(os.getcwd())
 
-        if current_dir != 'dev':
+        if current_dir == 'nimble':
             os.chdir('dev')
             logger.warning("You are not allowed to re-create the meta directory.")
-
+        else:
+            logger.warning("")
         cmd = f'rsync -av --exclude="{current_dir}" ../ ./nimble'
         os.system(cmd)
 
@@ -137,6 +138,7 @@ class DevSetUp:
         You have the cache option (quicker) or nocache.
         '''
         cache_ops = ""
+        current_dir = os.path.basename(os.getcwd())
         if not DevSetUp.check_image():
             docker = input(f"\nRe-build Docker development image {IMAGE_NAME}? (y/n): ")
 
@@ -146,9 +148,13 @@ class DevSetUp:
                     cache_ops = " --no-cache"
                 try:
                     print("Building Docker development image... This may take a while...")
+                    logger.info(str(os.system("ls")))
+                    os.chdir('dev/nimble')
+                    logger.info(str(os.system("ls")))
                     cmd = f"docker build {cache_ops} -t {IMAGE_NAME} -f {DOCKERFILE_DEV} . "
                     logger.info(cmd)
                     os.system(cmd)
+                    os.chdir('dev')
                 except OSError as e:
                     logger.error(e)
 

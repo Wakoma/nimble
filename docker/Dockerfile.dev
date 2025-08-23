@@ -26,7 +26,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Use cache for Python dependencies
 
-COPY cq-cli-nimble/ /app/cq-cli
+COPY dev/cq-cli-nimble/ /app/cq-cli
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir git+file:///app/cq-cli@server_hotfix_01
 
@@ -35,7 +35,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-COPY cadorchestrator/ /app/cadorchestrator
+COPY dev/cadorchestrator/ /app/cadorchestrator
 WORKDIR /app/cadorchestrator
 RUN git checkout server_hotfix_01
 
@@ -52,7 +52,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Install additional Python dependencies with caching
 WORKDIR /app
-COPY nimble/ /app/nimble
+COPY dev/nimble/ /app/nimble
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install git+file:///app/nimble@server_hotfix_01 && \
@@ -78,7 +78,7 @@ ENV DISPLAY=:99
 
 # Copy entrypoint script and ensure it's executable
 WORKDIR /app
-COPY cadorch_devops/docker/entrypoint.sh /app/entrypoint.sh
+COPY docker/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Clean up caches for final image optimization
