@@ -45,7 +45,6 @@ def create_6in_shelf(device_id) -> cad.Body:
     is called. It uses the `shelf_type` string to decide
     which of the defined shelf functions to call.
     """
-    # pass
     shelf_obj = create_shelf_for(device_id)
     return shelf_obj.generate_shelf_model()
 
