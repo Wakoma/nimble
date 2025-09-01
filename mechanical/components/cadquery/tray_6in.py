@@ -50,6 +50,5 @@ def create_6in_shelf(device_id) -> cad.Body:
 
 
 if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
-    # pass
     result = create_6in_shelf(device_id)
     cad.show(result)  # when run in cq-cli, will return result
