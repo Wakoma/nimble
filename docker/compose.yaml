@@ -4,8 +4,6 @@
 # project: https://wakoma.co
 # decription: npm is used for nginx management for port forwarding, 
 # nimble is the project app container,
-# uptime-kuma checks if the site is running by using http request.
-# umami offers site-usage statistics.
 
 services:
   npm:
@@ -31,47 +29,9 @@ services:
     expose:
       - "8000"   # make port 8000 visible to NPM (but not published to host)
 
-  uptime-kuma:
-    image: louislam/uptime-kuma:latest
-    container_name: uptime-kuma
-    restart: unless-stopped
-    ports:
-      - "3001:3001"
-    volumes:
-      - uptime-kuma:/app/data
-    networks:
-      - web
-  
-  umami-db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: umami
-      POSTGRES_PASSWORD: umami
-      POSTGRES_DB: umami
-    volumes:
-      - umami-db-data:/var/lib/postgresql/data
-    networks:
-      - web
-
-  umami:
-    image: ghcr.io/umami-software/umami:postgresql-latest
-    environment:
-      DATABASE_URL: postgres://umami:umami@umami-db:5432/umami
-      HASH_SALT: random_secret_salt_string
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    depends_on:
-      - umami-db
-    networks:
-      - web
-
 volumes:
-  uptime-kuma:
   npm_data:
   npm_letsencrypt:
-  umami-db-data:
-
 networks:
   web:
     external: true
