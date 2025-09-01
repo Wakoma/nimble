@@ -28,7 +28,7 @@ from nimble_build_system.orchestration.device import Device
 from nimble_build_system.orchestration.paths import REL_MECH_DIR
 
 
-def create_shelf_for_x(device_id: str,
+def create_shelf_for(device_id: str,
                        *,
                        assembly_key: str = 'Shelf',
                        position: tuple[float, float, float] = (0, 0, 0),

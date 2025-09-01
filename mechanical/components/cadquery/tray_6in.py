@@ -8,7 +8,7 @@ the nimble_build_system.cad ShelfBuilder.
 
 import cadscript as cad
 
-from nimble_build_system.cad.shelf import  create_shelf_for_x
+from nimble_build_system.cad.shelf import  create_shelf_for
 
 # parameters to be set in exsource-def.yaml file
 
@@ -46,7 +46,7 @@ def create_6in_shelf(device_id) -> cad.Body:
     which of the defined shelf functions to call.
     """
     # pass
-    shelf_obj = create_shelf_for_x(device_id)
+    shelf_obj = create_shelf_for(device_id)
     return shelf_obj.generate_shelf_model()
 
 
