@@ -37,6 +37,15 @@ def main():
     switches = []
     for device in devices:
 
+        if device['qc_pass'] != 'True'
+            # If a device specification has not passed the overall checklist:
+            # 3D Renering: True
+            # Documentation: True
+            # Testing: True
+            # Approved by code-team: True
+            # Then the device will not be taking for nimble cadorchestrator.
+            continue
+
         if not shelf_available(device):
             #If a shelf cannot be made for this item then skip it
             continue
