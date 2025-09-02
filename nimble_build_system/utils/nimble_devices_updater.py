@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 SECRET_TOKEN = os.getenv("NOCODB_TOKEN")
-URL = "https://nocodb.wakoma.net/api/v2/tables/md_37ewfwcrh6b36a/records?viewId=vwsq7m3dmn9wqlnu&limit=25&shuffle=0&offset=0"
+URL = "https://nocodb.wakoma.net/api/v2/tables/md_37ewfwcrh6b36a/records?viewId=vwsq7m3dmn9wqlnu&limit=1000&shuffle=0&offset=0"
 HEADERS = {"xc-token": SECRET_TOKEN}
 
 
@@ -57,7 +57,7 @@ def main():
 
         for row in rows:
             # Generate a unique ID (using the "Name" field as example)
-            device_id = str(row.get("Model", "")).replace(" ", "_")
+            device_id = str(row.get("Hardware", "")).replace(" ", "_")
 
             # Start with an ID field
             cur_obj = {"ID": device_id}
