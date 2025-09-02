@@ -37,7 +37,7 @@ def main():
     switches = []
     for device in devices:
 
-        if device['qc_pass'] != 'true':
+        if not device['qc_pass']:
             # If a device specification has not passed the overall checklist:
             # 3D Renering: True
             # Documentation: True
