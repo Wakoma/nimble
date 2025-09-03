@@ -48,7 +48,7 @@ RUN git clone https://github.com/Wakoma/nimble.git --branch server_hotfix_01
 # Install dependencies:
 WORKDIR /app/nimble
 RUN pip install -e .
-RUN pip install scad2gltf
+RUN pip install scad2gltf pytest pylint
 
 # Use port 8000
 EXPOSE 8000
@@ -59,6 +59,10 @@ ENV DISPLAY=:99
 
 # Generate JSON from hardcoded configuration options
 RUN gen_nimble_conf_options
+
+# pytest
+WORKDIR /app/nimble
+RUN xvfb-run python -m pytest
 
 # Test generator
 RUN xvfb-run --server-args="-screen 0 1024x768x24" cadorchestrator --headless generate '{"device-ids": ["NUC10i5FNH", "Raspberry_Pi_4B"]}'

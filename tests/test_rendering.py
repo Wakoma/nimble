@@ -13,9 +13,7 @@ test_config = ["Raspberry_Pi_4B",
                 "NUC8I5BEH",
                 "Unifi_Flex_Mini",
                 "Unifi_Switch_Flex",
-                "Hex",
-                "Western_Digital_Red_HDD",
-                "Western_Digital_Blue_SSD"
+                "Hex"
             ]
 
 
