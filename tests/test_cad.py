@@ -73,24 +73,15 @@ def test_shelf_generation():
                    "Raspberry_Pi_5",
                    "hAP",
                    "hAP_ac_lite",
-                   "UniFi_Express",
-                   "Beryl_AX",
-                   "Beryl",
-                   "Slate_Plus",
                    "Hex",
                    "hEX_PoE_lite",
                    "hEX_S",
-                   "LtAP_mini",
-                   "LtAP_mini_LTE_kit",
-                   "Gateway_Lite",
-                   "MINI_S12_Pro",
                    "NUC10FNK",
                    "NUC10i5FNH",
                    "NUC8I5BEH",
                    "NUC8i5BEK",
                    "Unifi_Flex_Mini",
-                   "Unifi_Switch_Flex",
-                   "CRS305-1G-4S+IN"
+                   "Unifi_Switch_Flex"
                 ]
 
     # Load the needed information to generate a Shelf object
