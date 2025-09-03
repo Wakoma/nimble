@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     xvfb \
+    libxkbcommon-x11-0 \
+    x11-apps \
     openscad \
     fontconfig \
     mesa-utils \
@@ -53,22 +55,27 @@ RUN pip install scad2gltf pytest pylint
 # Use port 8000
 EXPOSE 8000
 
-#WORKDIR /app
-# Set up environment for headless execution
-ENV DISPLAY=:99
-
 # Generate JSON from hardcoded configuration options
-RUN gen_nimble_conf_options
 
-# pytest
+ARG NOCODB_TOKEN
+ENV NOCODB_TOKEN=${NOCODB_TOKEN}
+
+RUN nimble_devices_updater && \ 
+    gen_nimble_conf_options
+
+# Run pytest
 WORKDIR /app/nimble
-RUN xvfb-run python -m pytest
+RUN Xvfb :99 -screen 0 1024x768x24 & \
+    export DISPLAY=:99 && \
+    python -m pytest
 
 # Test generator
-RUN xvfb-run --server-args="-screen 0 1024x768x24" cadorchestrator --headless generate '{"device-ids": ["NUC10i5FNH", "Raspberry_Pi_4B"]}'
+WORKDIR /app/nimble
+RUN Xvfb :98 -screen 0 1024x768x24 & \
+   export DISPLAY=:98 && \
+   cadorchestrator --headless generate '{"device-ids": ["Raspberry_Pi_4B"]}'
 
 WORKDIR /app
-# Set server at 0.0.0.0:8000
 COPY entrypoint.sh /app/entrypoint.sh
 RUN ["chmod","+x","entrypoint.sh"]
 
