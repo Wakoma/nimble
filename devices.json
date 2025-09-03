@@ -493,7 +493,7 @@
     "Id": 16,
     "Approved by Core Team?": true,
     "Tested": "Yes",
-    "qc_pass": true
+    "qc_pass": false
   },
   {
     "ID": "Beryl",
@@ -524,7 +524,7 @@
     "Id": 17,
     "Approved by Core Team?": true,
     "Tested": "Yes",
-    "qc_pass": true
+    "qc_pass": false
   },
   {
     "ID": "Slate_Plus",
@@ -555,7 +555,7 @@
     "Id": 18,
     "Approved by Core Team?": true,
     "Tested": "Yes",
-    "qc_pass": true
+    "qc_pass": false
   },
   {
     "ID": "Hex",
@@ -741,7 +741,7 @@
     "Id": 24,
     "Approved by Core Team?": true,
     "Tested": "Yes",
-    "qc_pass": true
+    "qc_pass": false
   },
   {
     "ID": "LtAP_mini_LTE_kit",
@@ -772,7 +772,7 @@
     "Id": 25,
     "Approved by Core Team?": true,
     "Tested": "Yes",
-    "qc_pass": true
+    "qc_pass": false
   },
   {
     "ID": "RB4011iGS+RM",
@@ -896,7 +896,7 @@
     "Id": 29,
     "Approved by Core Team?": true,
     "Tested": "No",
-    "qc_pass": true
+    "qc_pass": false
   },
   {
     "ID": "hAP",
@@ -1082,7 +1082,7 @@
     "Id": 35,
     "Approved by Core Team?": true,
     "Tested": "Yes",
-    "qc_pass": true
+    "qc_pass": false
   },
   {
     "ID": "EQ12_N100",
@@ -1144,7 +1144,7 @@
     "Id": 37,
     "Approved by Core Team?": true,
     "Tested": "Yes",
-    "qc_pass": true
+    "qc_pass": false
   },
   {
     "ID": "SEi10_1035G7",
@@ -1981,7 +1981,7 @@
     "Id": 64,
     "Approved by Core Team?": true,
     "Tested": "No",
-    "qc_pass": true
+    "qc_pass": false
   },
   {
     "ID": "CRS310-1G-5S-4S+IN",
