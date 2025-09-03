@@ -61,7 +61,7 @@ ENV DISPLAY=:99
 RUN gen_nimble_conf_options
 
 # Test generator
-RUN xvfb-run --server-args="-screen 0 1024x768x24" cadorchestrator --headless generate '{"device-ids": ["NUC10i5FNH", "Raspberry_Pi_4B", "Raspberry_Pi_4B"]}'
+RUN xvfb-run --server-args="-screen 0 1024x768x24" cadorchestrator --headless generate '{"device-ids": ["NUC10i5FNH", "Raspberry_Pi_4B"]}'
 
 WORKDIR /app
 # Set server at 0.0.0.0:8000
