@@ -24,7 +24,7 @@ from nimble_build_system.cad.shelf import create_shelf_for
 from nimble_build_system.cad.rack_assembly import RackAssembly
 # from nimble_build_system.orchestration.paths import ABS_PATH
 
-ASSEMBLY_DEF_FILE = "../build/assembly-def.yaml"
+assembly_definition_file = "../build/assembly-def.yaml"
 render_destination = os.path.join(os.getcwd(), "renders")
 
 logging.info("RENDER: %s", render_destination)
@@ -117,7 +117,7 @@ class AssemblyRenderer:
 
 # Handle different execution environments, including ExSource-Tools
 if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
-    def_file = Path(ASSEMBLY_DEF_FILE)
+    def_file = Path(assembly_definition_file)
     folder = def_file.resolve().parent
     os.chdir(folder)
     # CQGI should execute this whenever called
