@@ -15,7 +15,7 @@ setup(
         'cadquery_png_plugin==1.0.2',
         'cadscript>=0.5.2',
         'exsource-tools',
-        # 'cadquery-cli==2.3.0',
+        'cq-cli @ git+https://github.com/kny5/cq-cli.git@server_hotfix_01',
         'cq_annotate==1.2.0',
         'cq_warehouse @ git+https://github.com/gumyr/cq_warehouse.git',
         'cadorchestrator>=0.1.0'
