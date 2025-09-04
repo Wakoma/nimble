@@ -12,4 +12,4 @@ REL_MECH_DIR = os.path.join(ABS_PATH, "mechanical")
 BUILD_DIR = os.path.join(ABS_PATH, "build")
 
 
-logging.info(f"{ABS_PATH}\n\t\t\t\t\t{MODULE_PATH}\n\t\t\t\t\t{REL_MECH_DIR}")
+logging.info("%s\n\t%s\n\t%s", ABS_PATH, MODULE_PATH, REL_MECH_DIR)

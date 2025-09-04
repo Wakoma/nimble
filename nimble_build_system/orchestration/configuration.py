@@ -2,7 +2,7 @@
 This configuration module stores the standard rack parameters for nimble and also
 the a class for generating a full cofiguration for a nimble rack `NimbleConfiguration()`.
 """
-
+# pylint: disable=duplicate-code
 
 import os
 from copy import deepcopy
@@ -18,6 +18,7 @@ from nimble_build_system.cad.shelf import create_shelf_for
 from nimble_build_system.orchestration.paths import REL_MECH_DIR
 
 def create_assembly(config_dict):
+    """Function uses device id list for nimble configuration assembly."""
     selected_device_ids = config_dict['device-ids']
     config = NimbleConfiguration(selected_device_ids)
     return config.main_assembly

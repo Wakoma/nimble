@@ -6,7 +6,7 @@ the shelves are generated based on the device type. The shelves are generated us
 Rendering and documentation generation is also supported for the shelves.
 """
 
-# pylint: disable=unused-import
+# pylint: disable=unused-import, line-too-long, too-many-arguments, too-many-lines
 
 import os
 import posixpath
@@ -693,6 +693,10 @@ class NUCShelf(BroadShelf):
         return x_ref, y_ref, z_target
 
     def get_shelf_dimensions(self):
+        """
+        Function gets the shelf dimensions based on the device data from devices.json?
+        """
+
         return self._device.width, self._device.depth, self._device.height
 
     def _setup_assembly(self):
@@ -702,10 +706,11 @@ class NUCShelf(BroadShelf):
         self._device_offset = self.get_offset()
         self._device_explode_translation = (0.0, 0.0, 60.0)
 
-        logging.info(f"depth: {self._device.depth}")
-        logging.info(f"width: {self._device.width}")
-        logging.info(f"height: {self._device.height}")
-        logging.info(f"atts: {self._device.__dir__()}\n{self._device.__dict__}")
+        logging.info("depth: %s", self._device.depth)
+        logging.info("width: %s", self._device.width)
+        logging.info("height: %s", self._device.height)
+        logging.info("atts: %s\n%s", dir(self._device), self._device.__dict__)
+
 
         # Gather all the mounting screw locations
         self.hole_locations = [
