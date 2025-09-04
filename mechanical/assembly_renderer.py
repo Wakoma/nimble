@@ -16,19 +16,18 @@ assembly:
 """
 
 import os
+import logging
 from pathlib import Path
 import cadquery as cq
 import yaml
-import logging
 from nimble_build_system.cad.shelf import create_shelf_for
-
 from nimble_build_system.cad.rack_assembly import RackAssembly
 # from nimble_build_system.orchestration.paths import ABS_PATH
 
-assembly_definition_file = "../build/assembly-def.yaml"
+ASSEMBLY_DEF_FILE = "../build/assembly-def.yaml"
 render_destination = os.path.join(os.getcwd(), "renders")
 
-logging.info(f"RENDER: {render_destination}")
+logging.info("RENDER: %s", render_destination)
 
 class PartDefinition:
     """
@@ -118,7 +117,7 @@ class AssemblyRenderer:
 
 # Handle different execution environments, including ExSource-Tools
 if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
-    def_file = Path(assembly_definition_file)
+    def_file = Path(ASSEMBLY_DEF_FILE)
     folder = def_file.resolve().parent
     os.chdir(folder)
     # CQGI should execute this whenever called
@@ -127,4 +126,4 @@ if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals(
     assembly_model = renderer.generate()
     renderer.generate_assembly_process_renders()
 
-    show_object(assembly_model)
+    show_object(assembly_model) # pylint: disable=undefined-variable

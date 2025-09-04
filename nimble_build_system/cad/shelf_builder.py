@@ -17,7 +17,7 @@ from nimble_build_system.cad import RackParameters
 NO_SLOTS = False  # speedup for debugging
 
 
-class ShelfBuilder:
+class ShelfBuilder: # pylint: disable=too-many-instance-attributes
     """
     A class to build a variety of shelf types.
 

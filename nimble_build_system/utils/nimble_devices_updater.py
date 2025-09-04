@@ -5,14 +5,16 @@ This module is used to update the devices.json file from a CSV downloaded from n
 """
 import os
 import json
-import argparse
 import requests
 from dotenv import load_dotenv
 
 
 load_dotenv()
 SECRET_TOKEN = os.getenv("NOCODB_TOKEN")
-URL = "https://nocodb.wakoma.net/api/v2/tables/md_37ewfwcrh6b36a/records?viewId=vwsq7m3dmn9wqlnu&limit=1000&shuffle=0&offset=0"
+SERVER = "https://nocodb.wakoma.net/api/v2/tables/"
+VIEW = "md_37ewfwcrh6b36a/records?viewId=vwsq7m3dmn9wqlnu"
+PARSER = "&limit=1000&shuffle=0&offset=0"
+URL = SERVER + VIEW + PARSER
 HEADERS = {"xc-token": SECRET_TOKEN}
 
 
@@ -26,9 +28,7 @@ def get_remote_json(_url, _headers):
     our database. Alternatively a local file can be used.
     SETUP an ENV VARIABLE as NOCODB_TOKEN with VALUE of your NOCODB TOKEN)
     """
-    
     response = requests.get(_url, headers=_headers, timeout=100)
-    
     if response.status_code != 200:
         raise RuntimeError("Failed to get json data from database")
     json_name = "raw_devices.json"

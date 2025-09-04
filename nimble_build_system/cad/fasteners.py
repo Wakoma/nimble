@@ -5,7 +5,7 @@ Holds fastener classes containing the information needed to generate CAD models 
 import cadquery as cq
 from cq_warehouse.fastener import ButtonHeadScrew, CounterSunkScrew, PanHeadScrew
 
-class Fastener:
+class Fastener: # pylint: disable=too-many-instance-attributes
     """
     Class that defines a generic fastener that can be used in the assembly of a device and/or rack.
     """

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 @dataclass
-class RackParameters:
+class RackParameters: # pylint: disable=too-many-instance-attributes
     """
     A class to hold the RackParameters, both fixed and derived.
     """
