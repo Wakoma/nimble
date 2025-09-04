@@ -10,7 +10,7 @@ setup(
     version = '0.0.1',
     python_requires='>=3.10',
     install_requires=[
-        'numpy~=1.26',
+        # 'numpy~=1.26',
         'cadquery>=2.4.0',
         'cadquery_png_plugin==1.0.2',
         'cadscript>=0.5.2',
