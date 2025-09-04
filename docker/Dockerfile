@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     xvfb \
     libxkbcommon-x11-0 \
     x11-apps \
+    xkb-data \
     openscad \
     fontconfig \
     mesa-utils \
@@ -52,16 +53,13 @@ WORKDIR /app/nimble
 RUN pip install -e .
 RUN pip install scad2gltf pytest pylint
 
-# Use port 8000
-EXPOSE 8000
-
 # Generate JSON from hardcoded configuration options
 
 ARG NOCODB_TOKEN
 ENV NOCODB_TOKEN=${NOCODB_TOKEN}
+RUN nimble_devices_updater
 
-RUN nimble_devices_updater && \ 
-    gen_nimble_conf_options
+RUN gen_nimble_conf_options
 
 # Run pytest
 WORKDIR /app/nimble
@@ -74,6 +72,9 @@ WORKDIR /app/nimble
 RUN Xvfb :98 -screen 0 1024x768x24 & \
    export DISPLAY=:98 && \
    cadorchestrator --headless generate '{"device-ids": ["Raspberry_Pi_4B"]}'
+
+# Use port 8000
+EXPOSE 8000
 
 WORKDIR /app
 COPY entrypoint.sh /app/entrypoint.sh

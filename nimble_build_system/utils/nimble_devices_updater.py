@@ -74,4 +74,7 @@ def main():
 
 #if __name__ == "__main__":
 #    main()
-main()
+try:
+    main()
+except RuntimeError:
+    print("export NOCODB_TOKEN=?? is missing. Get a token from noco.wakoma.net")
