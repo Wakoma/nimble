@@ -57,9 +57,8 @@ RUN pip install scad2gltf pytest pylint
 
 ARG NOCODB_TOKEN
 ENV NOCODB_TOKEN=${NOCODB_TOKEN}
-RUN nimble_devices_updater
-
-RUN gen_nimble_conf_options
+RUN nimble_devices_updater && \
+    gen_nimble_conf_options
 
 # Run pytest
 WORKDIR /app/nimble
