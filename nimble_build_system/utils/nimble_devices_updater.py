@@ -72,9 +72,8 @@ def main():
     with open("devices.json", "w", encoding="utf-8") as f:
         json.dump(devices, f, indent=2, ensure_ascii=False)
 
-#if __name__ == "__main__":
-#    main()
-try:
-    main()
-except RuntimeError:
-    print("export NOCODB_TOKEN=?? is missing. Get a token from noco.wakoma.net")
+if __name__ == "__main__":
+    try:
+        main()
+    except RuntimeError:
+        print("export NOCODB_TOKEN=?? is missing. Get a token from noco.wakoma.net")
