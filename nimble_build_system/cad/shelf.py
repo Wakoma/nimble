@@ -152,8 +152,8 @@ class Shelf():
             y_offset = 0.0
         elif self._device.width < self._device.depth:
             self._device_depth_axis = "Y"
-            x_offset = self._device.depth / 2.0
-            y_offset = 0.0
+            x_offset = 0.0
+            y_offset = self._device.depth / 2.0
         else:
             self._device_depth_axis = "X"
             x_offset = 0.0
