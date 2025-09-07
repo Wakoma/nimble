@@ -700,8 +700,8 @@ class NUCShelf(BroadShelf):
     def _setup_assembly(self):
         # Device location settings
         self._device_depth_axis = "Y"
-        self._device_offset = (0.0, 78.0, 29.5)
-        # self._device_offset = self.get_offset()
+        # self._device_offset = (0.0, 78.0, 29.5)
+        self._device_offset = self.get_offset()
         self._device_explode_translation = (0.0, 0.0, 60.0)
 
         logging.info("depth: %s", self._device.depth)
