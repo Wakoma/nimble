@@ -34,12 +34,10 @@ RUN pip install pytest pylint
 # cadquery-ocp
 
 WORKDIR /app
-RUN pip install git+https://github.com/CadQuery/cq-cli.git 
-# --branch server_hotfix_01
+RUN pip install git+https://github.com/CadQuery/cq-cli.git --branch server_hotfix_01
 
 WORKDIR /app
-RUN git clone https://gitlab.com/gitbuilding/cadorchestrator.git 
-# --branch server_hotfix_01
+RUN git clone https://gitlab.com/gitbuilding/cadorchestrator.git --branch server_hotfix_01
 
 WORKDIR /app/cadorchestrator/js/cadorchestrator-app
 RUN bun install && \
@@ -49,7 +47,10 @@ WORKDIR /app/cadorchestrator
 RUN pip install -e .
 
 WORKDIR /app
-RUN pip install git+https://github.com/Wakoma/nimble.git@server_hotfix_01
+RUN git clone https://github.com/Wakoma/nimble.git --branch server_hotfix_01
+
+WORKDIR /app/nimble
+RUN pip install -e .
 
 # Generate JSON from hardcoded configuration options
 ARG NOCODB_TOKEN
@@ -64,6 +65,8 @@ WORKDIR /app/nimble
 RUN Xvfb :99 -screen 0 1024x768x24 & \
     export DISPLAY=:99 && \
     python -m pytest
+
+RUN pip install -e .
 
 # Test generator
 # WORKDIR /app/nimble
