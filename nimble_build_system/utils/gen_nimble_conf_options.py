@@ -127,4 +127,7 @@ def shelf_available(device):
     return False
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except RuntimeError:
+        print("Configuration failed.")

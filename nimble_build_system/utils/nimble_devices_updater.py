@@ -6,10 +6,15 @@ This module is used to update the devices.json file from a CSV downloaded from n
 import os
 import json
 import requests
+import logging
 from dotenv import load_dotenv
 
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.NOTSET)
+
 load_dotenv()
+
 SECRET_TOKEN = os.getenv("NOCODB_TOKEN")
 SERVER = "https://nocodb.wakoma.net/api/v2/tables/"
 VIEW = "md_37ewfwcrh6b36a/records?viewId=vwsq7m3dmn9wqlnu"
@@ -71,9 +76,14 @@ def main():
     # Write the JSON data to file
     with open("devices.json", "w", encoding="utf-8") as f:
         json.dump(devices, f, indent=2, ensure_ascii=False)
+    
+    logger.info("Devices updated successfully: %s", len(devices))
+    logger.debug(devices)
 
 if __name__ == "__main__":
     try:
         main()
     except RuntimeError:
-        print("export NOCODB_TOKEN=?? is missing. Get a token from noco.wakoma.net")
+        logger.error("export NOCODB_TOKEN=?? is missing. Get a token from noco.wakoma.net")
+else:
+    logger.info(__name__)
