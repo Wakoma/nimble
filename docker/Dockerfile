@@ -30,10 +30,10 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip install --upgrade pip
 
 WORKDIR /app
-RUN pip install cadquery-ocp
+RUN pip install pytest pylint cadquery-ocp
 
 WORKDIR /app
-RUN git clone https://github.com/kny5/cq-cli.git 
+RUN git clone https://github.com/CadQuery/cq-cli.git 
 # --branch server_hotfix_01
 
 WORKDIR /app/cq-cli
@@ -55,7 +55,6 @@ RUN git clone https://github.com/Wakoma/nimble.git --branch server_hotfix_01
 # Install dependencies:
 WORKDIR /app/nimble
 RUN pip install -e .
-RUN pip install scad2gltf pytest pylint
 
 # Generate JSON from hardcoded configuration options
 ARG NOCODB_TOKEN
