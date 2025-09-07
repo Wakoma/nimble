@@ -37,17 +37,18 @@ RUN git clone https://github.com/CadQuery/cq-cli.git
 # --branch server_hotfix_01
 
 WORKDIR /app/cq-cli
-RUN pip install .
+RUN pip install -e .
 
 WORKDIR /app
-RUN git clone https://gitlab.com/gitbuilding/cadorchestrator.git --branch server_hotfix_01
+RUN git clone https://gitlab.com/gitbuilding/cadorchestrator.git 
+# --branch server_hotfix_01
 
 WORKDIR /app/cadorchestrator/js/cadorchestrator-app
 RUN bun install && \
     bun run build
 
 WORKDIR /app/cadorchestrator
-RUN pip install .
+RUN pip install -e .
 
 WORKDIR /app
 RUN git clone https://github.com/Wakoma/nimble.git --branch server_hotfix_01
