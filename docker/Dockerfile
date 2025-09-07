@@ -34,11 +34,8 @@ RUN pip install pytest pylint
 # cadquery-ocp
 
 WORKDIR /app
-RUN git clone https://github.com/CadQuery/cq-cli.git 
+RUN pip install git+https://github.com/CadQuery/cq-cli.git 
 # --branch server_hotfix_01
-
-WORKDIR /app/cq-cli
-RUN pip install -e .
 
 WORKDIR /app
 RUN git clone https://gitlab.com/gitbuilding/cadorchestrator.git 
@@ -52,11 +49,7 @@ WORKDIR /app/cadorchestrator
 RUN pip install -e .
 
 WORKDIR /app
-RUN git clone https://github.com/Wakoma/nimble.git --branch server_hotfix_01
-
-# Install dependencies:
-WORKDIR /app/nimble
-RUN pip install -e .
+RUN pip install git+https://github.com/Wakoma/nimble.git@server_hotfix_01
 
 # Generate JSON from hardcoded configuration options
 ARG NOCODB_TOKEN
