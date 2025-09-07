@@ -50,7 +50,7 @@ WORKDIR /app/cadorchestrator
 RUN pip install .
 
 WORKDIR /app
-RUN git clone https://github.com/Wakoma/nimble.git --branch zipties
+RUN git clone https://github.com/Wakoma/nimble.git --branch server_hotfix_01
 
 # Install dependencies:
 WORKDIR /app/nimble
