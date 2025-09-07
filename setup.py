@@ -10,15 +10,15 @@ setup(
     version = '0.0.1',
     python_requires='>=3.10',
     install_requires=[
-        'numpy~=1.26',
+        # 'numpy~=1.26',
         'cadquery>=2.4.0',
         'cadquery_png_plugin==1.0.2',
         'cadscript>=0.5.2',
         'exsource-tools',
-        'cq-cli @ git+https://github.com/kny5/cq-cli.git@server_hotfix_01',
+        # 'cq-cli @ git+https://github.com/kny5/cq-cli.git@server_hotfix_01',
         'cq_annotate==1.2.0',
         'cq_warehouse @ git+https://github.com/gumyr/cq_warehouse.git',
-        'cadorchestrator>=0.1.0'
+        # 'cadorchestrator>=0.1.0'
     ],
     extras_require={
         'dev': [
