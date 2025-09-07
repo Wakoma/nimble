@@ -30,7 +30,8 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip install --upgrade pip
 
 WORKDIR /app
-RUN pip install pytest pylint cadquery-ocp
+RUN pip install pytest pylint 
+# cadquery-ocp
 
 WORKDIR /app
 RUN git clone https://github.com/CadQuery/cq-cli.git 

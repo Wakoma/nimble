@@ -93,8 +93,6 @@ class Shelf():
         "anker-powerport5": "A shelf for an Anker PowerPort 5",
         "anker-a2123": "A shelf for an Anker 360 Charger 60W (a2123)",
         "anker-atom3slim": "A shelf for an Anker PowerPort Atom III Slim (AK-194644090180)",
-        "hdd35": "A shelf for an 3.5\" HDD",
-        "dual-ssd": "A shelf for 2x 2.5\" SSD",
         "raspi": "A shelf for a Raspberry Pi",
     }
     _variant = None
@@ -702,8 +700,8 @@ class NUCShelf(BroadShelf):
     def _setup_assembly(self):
         # Device location settings
         self._device_depth_axis = "Y"
-        # self._device_offset = (0.0, 78.0, 29.5)
-        self._device_offset = self.get_offset()
+        self._device_offset = (0.0, 78.0, 29.5)
+        # self._device_offset = self.get_offset()
         self._device_explode_translation = (0.0, 0.0, 60.0)
 
         logging.info("depth: %s", self._device.depth)
