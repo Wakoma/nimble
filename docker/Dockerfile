@@ -30,11 +30,11 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip install --upgrade pip
 
 WORKDIR /app
-RUN pip install pytest pylint 
+RUN pip install pytest pylint uv
 # cadquery-ocp
 
 WORKDIR /app
-RUN pip install git+https://github.com/kny5/cq-cli.git@server_hotfix_01
+RUN uv pip install git+https://github.com/kny5/cq-cli.git@server_hotfix_01
 
 WORKDIR /app
 RUN git clone https://gitlab.com/gitbuilding/cadorchestrator.git --branch server_hotfix_01
@@ -44,7 +44,7 @@ RUN bun install && \
     bun run build
 
 WORKDIR /app/cadorchestrator
-RUN pip install -e .
+RUN uv pip install -e .
 
 WORKDIR /app
 RUN git clone https://github.com/Wakoma/nimble.git --branch server_hotfix_01
@@ -59,13 +59,14 @@ WORKDIR /app/nimble
 RUN python nimble_build_system/utils/nimble_devices_updater.py && \
     python nimble_build_system/utils/gen_nimble_conf_options.py
 
+RUN uv pip install -e .
+
 # Run pytest
 WORKDIR /app/nimble
 RUN Xvfb :99 -screen 0 1024x768x24 & \
     export DISPLAY=:99 && \
     python -m pytest
 
-RUN pip install -e .
 
 # Test generator
 # WORKDIR /app/nimble
