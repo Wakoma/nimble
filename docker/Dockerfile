@@ -34,7 +34,7 @@ RUN pip install pytest pylint
 # cadquery-ocp
 
 WORKDIR /app
-RUN pip install git+https://github.com/CadQuery/cq-cli.git@server_hotfix_01
+RUN pip install git+https://github.com/kny5/cq-cli.git@server_hotfix_01
 
 WORKDIR /app
 RUN git clone https://gitlab.com/gitbuilding/cadorchestrator.git --branch server_hotfix_01
