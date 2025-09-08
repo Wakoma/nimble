@@ -49,23 +49,23 @@ RUN uv pip install -e .
 WORKDIR /app
 RUN git clone https://github.com/Wakoma/nimble.git --branch server_hotfix_01
 
-# WORKDIR /app/nimble
-# RUN pip install -e .
+WORKDIR /app/nimble
+RUN uv pip install -e .
 
 ARG NOCODB_TOKEN
 ENV NOCODB_TOKEN=${NOCODB_TOKEN}
 
 WORKDIR /app/nimble
-RUN python nimble_build_system/utils/nimble_devices_updater.py && \
-    python nimble_build_system/utils/gen_nimble_conf_options.py
+RUN nimble_devices_updater && \
+    gen_nimble_conf_options
 
 RUN uv pip install -e .
 
 # Run pytest
-WORKDIR /app/nimble
-RUN Xvfb :99 -screen 0 1024x768x24 & \
-    export DISPLAY=:99 && \
-    python -m pytest
+#WORKDIR /app/nimble
+# RUN Xvfb :99 -screen 0 1024x768x24 & \
+#    export DISPLAY=:99 && \
+#    python -m pytest
 
 
 # Test generator
