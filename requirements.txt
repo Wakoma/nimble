@@ -59,8 +59,8 @@ mccabe==0.7.0
 more-itertools==10.8.0
 msgpack==1.1.1
 multidict==6.6.4
-multimethod==1.9.1
-nlopt==2.7.1
+multimethod>=1.9.1
+nlopt>=2.7.1
 nptyping==2.0.1
 numpy==1.26.4
 orjson==3.11.3
@@ -105,8 +105,8 @@ typing-inspection==0.4.1
 typing_extensions==4.15.0
 typish==1.9.3
 urllib3==2.5.0
-uvicorn==0.23.2
-uvloop==0.21.0
+uvicorn>=0.23.2
+uvloop>=0.21.0
 vtk==9.2.6
 waitress==3.0.2
 watchdog==6.0.0
