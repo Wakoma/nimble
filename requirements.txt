@@ -23,7 +23,7 @@ click==8.2.1
 colorama==0.4.6
 contourpy==1.3.2
 cq-annotate==1.2.0
-cq_cli @ git+https://github.com/kny5/cq-cli.git@fe9598d5330f9e04bf274a42ea0de96797d7c8b9
+cq_cli @ git+https://github.com/kny5/cq-cli.git@server_hotfix_01
 cq_warehouse @ git+https://github.com/gumyr/cq_warehouse.git@daa46507ecc429c0e2dce11d9d5ffd09b12a42af
 cssselect2==0.8.0
 cycler==0.12.1
