@@ -107,7 +107,7 @@ typish==1.9.3
 urllib3==2.5.0
 uvicorn>=0.23.2
 uvloop>=0.21.0
-vtk==9.2.6
+vtk>=9.2.6
 waitress==3.0.2
 watchdog==6.0.0
 watchfiles==1.1.0
