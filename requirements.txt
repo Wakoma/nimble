@@ -60,7 +60,7 @@ more-itertools==10.8.0
 msgpack==1.1.1
 multidict==6.6.4
 multimethod>=1.9.1
-nlopt>=2.7.1
+nlopt==2.7.1
 nptyping==2.0.1
 numpy>=1.26.4
 orjson==3.11.3
