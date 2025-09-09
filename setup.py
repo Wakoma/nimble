@@ -3,23 +3,16 @@ Simple setup script to install the nimble_build_system as a package
 """
 from setuptools import setup, find_packages
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setup(
     name = 'nimble',
     description = 'Python module for generating any nimble configuration',
     packages=find_packages(),
     version = '0.0.1',
     python_requires='>=3.10',
-    install_requires=[
-        'numpy~=1.26',
-        'cadquery>=2.4.0',
-        'cadquery_png_plugin==1.0.2',
-        'cadscript>=0.5.2',
-        'exsource-tools',
-        # 'cq-cli @ git+https://github.com/kny5/cq-cli.git@server_hotfix_01',
-        'cq_annotate==1.2.0',
-        'cq_warehouse @ git+https://github.com/gumyr/cq_warehouse.git',
-        # 'cadorchestrator>=0.1.0'
-    ],
+    install_requires=requirements,
     extras_require={
         'dev': [
             'pylint',

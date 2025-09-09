@@ -49,7 +49,7 @@ RUN rm -rf build _cache_ _gb_temp_ && \
 RUN nimble_devices_updater && \
     gen_nimble_conf_options
 
-RUN pip freeze -l > requirements.txt
+RUN pip freeze -l > requirements_inbuild.txt
 
 EXPOSE 8000
 
