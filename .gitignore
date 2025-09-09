@@ -6,8 +6,6 @@ _gb_temp_/
 build/
 _cache_/
 OrchestratorConfigOptions.json
-networking_hardware.csv
-
 raw_devices.json
 
 .vscode/*
