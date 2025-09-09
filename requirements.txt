@@ -11,11 +11,11 @@ blinker==1.9.0
 Brotli==1.1.0
 cadorchestrator @ git+https://gitlab.com/gitbuilding/cadorchestrator.git@a0bbf009b968970add7e3574497298c109e8ce3f
 cadquery>=2.4.0
-cadquery-ocp==7.7.2.2b2
-cadquery_freecad_import_plugin==1.0.0
-cadquery_png_plugin==1.0.2
-cadscript==0.5.3
-casadi==3.7.1
+cadquery-ocp>=7.7.2.2b2
+cadquery_freecad_import_plugin>=1.0.0
+cadquery_png_plugin>=1.0.2
+cadscript>=0.5.3
+casadi>=3.7.1
 certifi==2025.8.3
 cffi==2.0.0
 charset-normalizer==3.4.3
