@@ -37,19 +37,23 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Install xvfb
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
       - name: Install nimble packages
         run: |
           pip install -e .
-
+  # TODO: Code generate static as console entrypoint. 
       - name: Generate STLs
         run: |
+          nimble_devices_updater
           gen_nimble_conf_options
-          ./generate_static.py
+          xvfb-run -s "-screen 0 1920x1080x24" ./generate_static.py
 
       - name: Generate example docs
         uses: coactions/setup-xvfb@v1
         with:
-          run: 'cadorchestrator --headless generate "{\"device-ids\": [\"NUC10i5FNH\", \"Raspberry_Pi_4B\", \"Raspberry_Pi_4B\"]}"'
+          run: 'xvfb-run -s "-screen 0 1920x1080x24" cadorchestrator --headless generate "{\"device-ids\": [\"NUC10i5FNH\", \"Raspberry_Pi_4B\"]}"'
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
