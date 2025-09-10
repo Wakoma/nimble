@@ -45,7 +45,6 @@ jobs:
   # TODO: Code generate static as console entrypoint. 
       - name: Generate STLs
         run: |
-          nimble_devices_updater
           gen_nimble_conf_options
           xvfb-run -s "-screen 0 1920x1080x24" ./generate_static.py
 
