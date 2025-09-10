@@ -12,14 +12,14 @@ import logging
 import tempfile
 from cadorchestrator.generate import Generator
 from cadorchestrator.settings import Settings
-
-from nimble_build_system.orchestration.paths import BUILD_DIR
-
+from nimble_build_system.orchestration.paths import ABS_PATH
 from nimble_build_system.cad.shelf import create_shelf_for
 
 
+BUILD_DIR = ABS_PATH 
+
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s\t %(levelname)s:\t %(filename)s\t %(funcName)s:\t %(message)s",
     force=True)
 
@@ -68,7 +68,7 @@ def GetComponentList():
                 device_id = device['value']
                 shelf = create_shelf_for(device_id)
                 component_list.append(device_id)
-                components.append(shelf)
+                components.append(shelf.shelf_component)
     #return a list of GeneratedMechanicalComponent objects
     logging.info("Total components listed: %s", len(component_list))
     return {'device-ids':component_list, 'components':components}
@@ -79,7 +79,7 @@ def OutputStaticSite(components):
     Create a sumple web page (index.html) with links to all generated files
     """
 
-    index_file = os.path.join(BUILD_DIR, "index.html")
+    index_file = os.path.join(BUILD_DIR,"build", "index.html")
     with open(index_file, "w", encoding="utf-8") as f:
         f.write("<html>")
         f.write("""
