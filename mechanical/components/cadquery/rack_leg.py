@@ -58,6 +58,6 @@ def make_rack_leg(
     return leg
 
 if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals():
-    print(f"Creating rack leg with length: {length}")
+    # print(f"Creating rack leg with length: {length}")
     result = make_rack_leg(length, long_axis_hole_dia, mounting_holes_dia)
     cad.show(result)  # when run in cq-cli, will return result

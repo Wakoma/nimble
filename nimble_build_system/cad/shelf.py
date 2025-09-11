@@ -700,14 +700,11 @@ class NUCShelf(BroadShelf):
     def _setup_assembly(self):
         # Device location settings
         self._device_depth_axis = "Y"
-        # self._device_offset = (0.0, 78.0, 29.5)
         self._device_offset = self.get_offset()
         self._device_explode_translation = (0.0, 0.0, 60.0)
 
-        logging.info("depth: %s", self._device.depth)
-        logging.info("width: %s", self._device.width)
-        logging.info("height: %s", self._device.height)
-        logging.info("atts: %s\n%s", dir(self._device), self._device.__dict__)
+        logging.info("depth: %s, width: %s, height: %s", self._device.depth, self._device.width, self._device.height)
+        logging.debug("atts: %s", self._device.__dict__)
 
 
         # Gather all the mounting screw locations
