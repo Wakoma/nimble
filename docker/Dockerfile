@@ -25,6 +25,7 @@ RUN git clone https://github.com/Wakoma/nimble.git --branch alpha
 WORKDIR /app/nimble
 RUN pip install -e .
 
+WORKDIR /app
 RUN git clone https://gitlab.com/gitbuilding/cadorchestrator.git --branch server_hotfix_01
 
 WORKDIR /app/cadorchestrator/js/cadorchestrator-app
@@ -38,6 +39,7 @@ RUN pip install -e .
 ARG NOCODB_TOKEN
 ENV NOCODB_TOKEN=${NOCODB_TOKEN}
 
+WORKDIR /app/nimble
 RUN Xvfb :98 -screen 0 1024x768x24 & \
     export DISPLAY=:98 && \
     python -m pytest
