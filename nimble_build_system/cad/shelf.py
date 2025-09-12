@@ -11,7 +11,7 @@ Rendering and documentation generation is also supported for the shelves.
 import os
 import posixpath
 import warnings
-import logging
+import LOGGER
 
 import yaml
 from cadorchestrator.components import AssembledComponent, GeneratedMechanicalComponent
@@ -26,6 +26,11 @@ from nimble_build_system.cad.fasteners import Screw, Ziptie
 from nimble_build_system.cad.renderer import generate_render
 from nimble_build_system.orchestration.device import Device
 from nimble_build_system.orchestration.paths import REL_MECH_DIR
+
+
+logging.basicConfig()
+LOGGER = logging.getLogger('shelf')
+LOGGER.setLevel(logging.INFO)
 
 
 def create_shelf_for(device_id: str,
@@ -703,8 +708,8 @@ class NUCShelf(BroadShelf):
         self._device_offset = self.get_offset()
         self._device_explode_translation = (0.0, 0.0, 60.0)
 
-        logging.info("depth: %s, width: %s, height: %s", self._device.depth, self._device.width, self._device.height)
-        logging.debug("atts: %s", self._device.__dict__)
+        LOGGER.info("depth: %s, width: %s, height: %s", self._device.depth, self._device.width, self._device.height)
+        LOGGER.debug("atts: %s", self._device.__dict__)
 
 
         # Gather all the mounting screw locations
