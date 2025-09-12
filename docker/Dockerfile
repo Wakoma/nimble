@@ -19,7 +19,11 @@ RUN pip install --upgrade pip
 
 RUN pip install pytest pylint
 
-RUN pip install git+https://github.com/kny5/cq-cli.git@server_hotfix_01
+WORKDIR /app
+RUN git clone https://github.com/Wakoma/nimble.git --branch alpha
+
+WORKDIR /app/nimble
+RUN pip install -e .
 
 RUN git clone https://gitlab.com/gitbuilding/cadorchestrator.git --branch server_hotfix_01
 
@@ -30,11 +34,6 @@ RUN bun install && \
 WORKDIR /app/cadorchestrator
 RUN pip install -e .
 
-WORKDIR /app
-RUN git clone https://github.com/Wakoma/nimble.git --branch alpha
-
-WORKDIR /app/nimble
-RUN pip install -e .
 
 ARG NOCODB_TOKEN
 ENV NOCODB_TOKEN=${NOCODB_TOKEN}
