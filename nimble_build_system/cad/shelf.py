@@ -11,7 +11,7 @@ Rendering and documentation generation is also supported for the shelves.
 import os
 import posixpath
 import warnings
-import LOGGER
+import logging
 
 import yaml
 from cadorchestrator.components import AssembledComponent, GeneratedMechanicalComponent
