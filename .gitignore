@@ -1,16 +1,21 @@
+/cadorchestrator/
+/cq-cli-nimble/
 
 _site/
 _gb_temp_/
 build/
 _cache_/
 OrchestratorConfigOptions.json
-networking_hardware.csv
+raw_devices.json
 
 .vscode/*
 .venv/
 __pycache__/
 
-
+# Ignore everything under dev/
+dev/**
+# But keep .py files directly inside dev/ (not in subfolders)
+!dev/*.py
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

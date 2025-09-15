@@ -1,0 +1,90 @@
+# syntax=docker/dockerfile:1.4
+FROM ubuntu:latest
+
+# Install Linux dependencies and clean up APT cache
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-venv \
+    python3-pip \
+    git \
+    curl \
+    xvfb \
+    openscad \
+    fontconfig \
+    mesa-utils \
+    libgl1 \
+    libgl1-mesa-dev \
+    libglu1-mesa \
+    libosmesa6 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up virtual environment
+WORKDIR /app
+ENV VIRTUAL_ENV=/app/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Use cache for Python dependencies
+
+COPY dev/cq-cli-nimble/ /app/cq-cli
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir git+file:///app/cq-cli@server_hotfix_01
+
+# Install Node.js and cache npm dependencies
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY dev/cadorchestrator/ /app/cadorchestrator
+WORKDIR /app/cadorchestrator
+RUN git checkout server_hotfix_01
+
+# Cache npm dependencies
+WORKDIR /app/cadorchestrator/js/cadorchestrator-app
+RUN --mount=type=cache,target=/root/.npm \
+    npm install --prefer-offline && \
+    npm run build
+
+# Install cadorchestrator in editable mode
+WORKDIR /app/cadorchestrator
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -e .
+
+# Install additional Python dependencies with caching
+WORKDIR /app
+COPY dev/nimble/ /app/nimble
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install git+file:///app/nimble@server_hotfix_01 && \
+    pip install scad2gltf && \
+    pip list && \
+    ls -la && \
+    echo "Nimble first install"
+
+# Configure nimble
+WORKDIR /app/nimble
+RUN gen_nimble_conf_options && \
+    pip install -e . && \
+    echo "Nimble second install"
+
+
+# Set up environment variables and expose port
+EXPOSE 8000
+ENV DISPLAY=:99
+
+# Run headless cadorchestrator
+# RUN ls -la && \
+#    xvfb-run --server-args="-screen 0 1024x768x24" cadorchestrator --headless generate '{"device-ids": ["Raspberry_Pi_4B"]}'
+
+# Copy entrypoint script and ensure it's executable
+WORKDIR /app
+COPY docker/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Clean up caches for final image optimization
+WORKDIR /app/nimble
+RUN rm -rf _cache_
+
+# Set entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]
+

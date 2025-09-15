@@ -37,8 +37,23 @@ def main():
     switches = []
     for device in devices:
 
+        if not device['qc_pass']:
+            # If a device specification has not passed the overall checklist:
+            # 3D Renering: True
+            # Documentation: True
+            # Testing: True
+            # Approved by code-team: True
+            # Then the device will not be taking for nimble cadorchestrator.
+            continue
+
         if not shelf_available(device):
             #If a shelf cannot be made for this item then skip it
+            continue
+
+        # Added If statement filtering only '6 in' Rack label items,
+        # fixing big boxes with render issues.
+        if device['Rack'] != '6 in':
+            # This avois placing Racks different by '6 in' in the devices.json
             continue
 
         item = {'value': device['ID'],

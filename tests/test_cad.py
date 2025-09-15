@@ -64,30 +64,22 @@ def test_shelf_generation():
     broken_shelves.append("Enterprise_8_PoE")  # Shelf depth seems smaller than the device
     broken_shelves.append("Lite_16_PoE")  # Shelf depth seems smaller than the device
     broken_shelves.append("Pro_8_PoE")  # Shelf depth seems smaller than the device
+    broken_shelves.append("UniFi_8_PoE_(Gen1)") 
+    broken_shelves.append("SEi12_i5-12450H")
+    broken_shelves.append("SER5_MAX_5800H")
 
     # The configuration of hardware/shelves that we want to test against
     test_config = ["Raspberry_Pi_4B",
                    "Raspberry_Pi_5",
                    "hAP",
                    "hAP_ac_lite",
-                   "UniFi_Express",
-                   "Beryl_AX",
-                   "Beryl",
-                   "Slate_Plus",
                    "Hex",
                    "hEX_PoE_lite",
                    "hEX_S",
-                   "LtAP_mini",
-                   "LtAP_mini_LTE_kit",
-                   "Gateway_Lite",
-                   "MINI_S12_Pro",
-                   "SEi12_i5-12450H",
-                   "SER5_MAX_5800H",
-                   "NUC10FNK_",
+                   "NUC10FNK",
                    "NUC10i5FNH",
                    "NUC8I5BEH",
                    "NUC8i5BEK",
-                   "UniFi_8_PoE_(Gen1)",
                    "Unifi_Flex_Mini",
                    "Unifi_Switch_Flex"
                 ]

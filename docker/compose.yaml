@@ -1,0 +1,37 @@
+# Docker compose file for nimble cadorchestrator project and devops.
+# author: Antonio de Jesus Anaya Hernandez
+# contact: github @kny5
+# project: https://wakoma.co
+# decription: npm is used for nginx management for port forwarding, 
+# nimble is the project app container,
+
+services:
+  npm:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: npm
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "81:81"         # admin UI
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    networks:
+      - web
+
+  nimble_cadorch_server:
+    image: nimble_cadorch_server:latest   # your image
+    container_name: nimble_cadorch_server
+    restart: unless-stopped
+    networks:
+      - web
+    expose:
+      - "8000"   # make port 8000 visible to NPM (but not published to host)
+
+volumes:
+  npm_data:
+  npm_letsencrypt:
+networks:
+  web:
+    external: true

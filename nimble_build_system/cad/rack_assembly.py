@@ -2,7 +2,7 @@
 Encapsulates the CAD work for the rack assembly process.
 """
 
-# pylint: disable=protected-access
+# pylint: disable=protected-access, no-value-for-parameter, too-many-function-args, too-many-locals
 
 from pathlib import Path
 import cadquery as cq
@@ -98,7 +98,7 @@ class RackAssembly:
                     leg_count += 1
 
 
-    def generate_renders(self, render_destination=None):
+    def generate_renders(self, render_destination=None): # pylint:disable=too-many-statements
         """
         Generates the step-by-step renders for the rack assembly.
         """
@@ -215,7 +215,8 @@ class RackAssembly:
                 render_options["annotate"] = True
 
                 # Exploded view of this assembly step
-                file_name = "final_assembly_broad_shelves_" + shelf["name"] + "_insertion_annotated.png"
+                file_name = "final_assembly_broad_shelves_" + \
+                            shelf["name"] + "_insertion_annotated.png"
                 render_path = Path(render_destination) / file_name
                 generate_render(model=exploded_assembly,
                                 file_path=render_path,
@@ -325,7 +326,8 @@ class RackAssembly:
                 render_options["annotate"] = True
 
                 # Exploded view of this assembly step
-                file_name = "final_assembly_standard_shelves_" + shelf["name"] + "_insertion_annotated.png"
+                file_name = "final_assembly_standard_shelves_" + \
+                            shelf["name"] + "_insertion_annotated.png"
                 render_path = Path(render_destination) / file_name
                 generate_render(model=exploded_assembly,
                                 file_path=render_path,
@@ -333,7 +335,7 @@ class RackAssembly:
                                 selective_list=selective_list)
 
     #pylint: disable=too-many-arguments
-    def add_end_plate_mounting_screws(self,
+    def add_end_plate_mounting_screws(self, # pylint: disable=too-many-positional-arguments
                                       assembly,
                                       base_plate_location,
                                       base_plate_width,

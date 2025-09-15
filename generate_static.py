@@ -8,31 +8,57 @@ direct download without them needing to be committed to the repository
 """
 import os
 import json
-
-from cadorchestrator.generate import generate_components
-
-from nimble_build_system.orchestration.paths import BUILD_DIR
-
+import logging
+import tempfile
+from cadorchestrator.generate import Generator
+from cadorchestrator.settings import Settings
+from nimble_build_system.orchestration.paths import ABS_PATH
 from nimble_build_system.cad.shelf import create_shelf_for
 
-def generate():
+
+BUILD_DIR = ABS_PATH 
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s\t %(levelname)s:\t %(filename)s\t %(funcName)s:\t %(message)s",
+    force=True)
+
+
+def Main():
     """
     Main script function. Gets a list of printed components (legs and shelves)
     and uses the orchestration runner to build them
     """
 
-    components = get_component_list()
-    generate_components(components)
-    output_static_site(components)
+    components = GetComponentList()
+    Generator(components, Settings(), BUILD_DIR)
+    OutputStaticSite(components['components'])
 
-def get_component_list():
+
+def TempDir():
+    """
+    Creates a directory under temporary file system:
+        in Linux at: "/tmp/"
+
+    Returns
+    -------
+    location : TYPE
+        MKDTEMP function creates a manually managed safe directory at /tmp
+        Gives back the str of the fullpath of the directory.
+    """
+    location = tempfile.mkdtemp()
+    logging.info("Created at file://%s", location)
+    return location
+
+
+def GetComponentList():
     """
     Generate the component list. This is 4 types of legs and some
     shelves
     """
 
     component_list = []
-
+    components = []
     #Loop through the options dictionary that the web ui uses for config options
     with open('OrchestratorConfigOptions.json', encoding="utf-8") as config_options_file:
         conf_options = json.load(config_options_file)
@@ -41,17 +67,19 @@ def get_component_list():
             for device in device_category_dict['items']:
                 device_id = device['value']
                 shelf = create_shelf_for(device_id)
-                component_list.append(shelf.shelf_component)
+                component_list.append(device_id)
+                components.append(shelf.shelf_component)
     #return a list of GeneratedMechanicalComponent objects
-    return component_list
+    logging.info("Total components listed: %s", len(component_list))
+    return {'device-ids':component_list, 'components':components}
 
 
-def output_static_site(components):
+def OutputStaticSite(components):
     """
     Create a sumple web page (index.html) with links to all generated files
     """
 
-    index_file = os.path.join(BUILD_DIR, "index.html")
+    index_file = os.path.join(BUILD_DIR,"build", "index.html")
     with open(index_file, "w", encoding="utf-8") as f:
         f.write("<html>")
         f.write("""
@@ -88,6 +116,8 @@ def output_static_site(components):
         f.write("</ul>")
 
         f.write("</body></html>")
+    logging.info("Static index writting. Done.")
+
 
 if __name__ == "__main__":
-    generate()
+    Main()

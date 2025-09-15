@@ -6,7 +6,7 @@ from typing import Literal
 import cadscript as cad
 
 
-def cut_slots(body: cad.Body,
+def cut_slots(body: cad.Body, # pylint: disable=too-many-positional-arguments, too-many-locals, too-many-arguments
               face: str,
               size_x: cad.DimensionDefinitionType,
               size_y: cad.DimensionDefinitionType,
@@ -66,7 +66,7 @@ def cut_slots(body: cad.Body,
     return body
 
 
-def cut_w_pattern(body: cad.Body,
+def cut_w_pattern(body: cad.Body, # pylint: disable=too-many-positional-arguments, too-many-arguments
                   face: str,
                   size_x: cad.DimensionDefinitionType,
                   size_y: cad.DimensionDefinitionType,

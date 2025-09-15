@@ -16,16 +16,18 @@ assembly:
 """
 
 import os
+import logging
 from pathlib import Path
 import cadquery as cq
 import yaml
-
 from nimble_build_system.cad.shelf import create_shelf_for
-
 from nimble_build_system.cad.rack_assembly import RackAssembly
+# from nimble_build_system.orchestration.paths import ABS_PATH
 
 assembly_definition_file = "../build/assembly-def.yaml"
 render_destination = os.path.join(os.getcwd(), "renders")
+
+logging.info("RENDER: %s", render_destination)
 
 class PartDefinition:
     """
@@ -124,4 +126,4 @@ if __name__ == "__main__" or __name__ == "__cqgi__" or "show_object" in globals(
     assembly_model = renderer.generate()
     renderer.generate_assembly_process_renders()
 
-    show_object(assembly_model)
+    show_object(assembly_model) # pylint: disable=undefined-variable
