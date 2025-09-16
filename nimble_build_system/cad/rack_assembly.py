@@ -39,6 +39,7 @@ class RackAssembly:
                                         shelf_obj.renders["assembled"]["render_options"])
 
                 # Make sure the shelves slide out of the rack when exploded
+                # pylint: disable=no-value-for-parameter
                 if shelf_obj.width_category == "broad":
                     explode_location = cq.Location((0, 0, 75))
                 else:
@@ -61,6 +62,7 @@ class RackAssembly:
 
                 # Handle the top and bottom plate explode locations differently
                 if "plate" in part.name and "top" in part.name:
+                    # pylint: disable=no-value-for-parameter
                     explode_location = cq.Location((0, 0, 20.0))
 
                     # Save this as the assembly's top plate
@@ -73,6 +75,7 @@ class RackAssembly:
                         "explode_location": explode_location
                     }
                 elif "plate" in part.name and "base" in part.name:
+                    # pylint: disable=no-value-for-parameter
                     explode_location = cq.Location((0, 0, 0.0))
 
                     # Save this as the assembly's base plate
@@ -85,6 +88,7 @@ class RackAssembly:
                         "explode_location": explode_location
                     }
                 elif "leg" in part.name:
+                    # pylint: disable=no-value-for-parameter
                     explode_location = cq.Location((0, 0, 20.0))
 
                     self.assembly_parts["legs"].append({
@@ -107,6 +111,7 @@ class RackAssembly:
         assembly = cq.Assembly()
 
         # Add the base plate
+        # pylint: disable=no-value-for-parameter
         assembly.add(
             self.assembly_parts["base_plate"]["component"],
             name="base_plate",
@@ -393,6 +398,8 @@ class RackAssembly:
             assembly_line_length = (assembly_line_length_extension +
                                         cur_screw.explode_translation[2])
 
+            # pylint: disable=no-value-for-parameter
+            # pylint: disable=too-many-function-args
             assembly.add(
                 cur_screw.fastener_model,
                 name=cur_screw.name,
@@ -449,6 +456,8 @@ class RackAssembly:
                             fastener_type="iso7380_1",
                             axis="Y",
                             length=10)
+            # pylint: disable=no-value-for-parameter
+            # pylint: disable=too-many-function-args
             assembly.add(
                 cur_screw.fastener_model,
                 name=cur_screw.name,
@@ -467,6 +476,7 @@ class RackAssembly:
         # Make sure that the already-assembled parts of the rack do not explode
         for part in assembly.children:
             if part.name not in names_to_still_explode:
+                # pylint: disable=no-value-for-parameter
                 part.metadata["explode_translation"] = cq.Location((0, 0, 0))
 
         return assembly
