@@ -399,7 +399,9 @@ class Shelf():
         """
         # Generate the shelf model, but do not generate if it has been generated already.
         if self._shelf_model is None:
-            shelf = ziptie_shelf(self.height_in_u)
+            shelf = ziptie_shelf(self.height_in_u,
+                                 internal_height=self._device.height,
+                                 internal_width=self._device.width)
             self._shelf_model = shelf
 
         return self._shelf_model

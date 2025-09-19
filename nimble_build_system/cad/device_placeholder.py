@@ -233,6 +233,58 @@ def generate_ssd(device_name, width, depth, height):
     return placeholder
 
 
+def generate_unifi_express(device_name, width, depth, height):
+    """
+    Generates a model for the UniFi Express device.
+    """
+
+    # The overall shape
+    placeholder = cq.Workplane().box(width, depth, height)
+
+    # Corner rounds
+    placeholder = placeholder.edges("|Z").fillet(19.8)
+
+    # Bottom chamfer
+    placeholder = placeholder.faces("<Z").chamfer(5.7, 10.8)
+
+    # Front display
+    placeholder = (placeholder.faces("<X")
+                            .workplane(centerOption="CenterOfBoundBox")
+                            .rect(10, 10)
+                            .cutBlind(-0.5))
+    placeholder = (placeholder.faces("<X")
+                            .workplane(centerOption="CenterOfBoundBox")
+                            .pushPoints([(-5.01, 0), (5.01, 0)])
+                            .circle(5.0)
+                            .cutBlind(-0.5))
+
+    # Back panel USB-C port
+    placeholder = (placeholder.faces(">X")
+                            .workplane(centerOption="CenterOfBoundBox")
+                            .pushPoints([(-22, (-9.5 + 2.4) / 2.0), (-16.14, (-9.5 + 2.4) / 2.0)])
+                            .circle(1.2)
+                            .cutBlind(-10))
+    placeholder = (placeholder.faces(">X")
+                            .workplane(centerOption="CenterOfBoundBox")
+                            .move(-19.07, (-9.5 + 2.4) / 2.0)
+                            .rect(5.86, 2.4)
+                            .cutBlind(-10))
+
+    # Back panel Ethernet ports
+    placeholder = (placeholder.faces(">X")
+                            .workplane(centerOption="CenterOfBoundBox")
+                            .move(-2.14, 0)
+                            .rect(12, 9.5)
+                            .cutBlind(-10))
+    placeholder = (placeholder.faces(">X")
+                            .workplane(centerOption="CenterOfBoundBox")
+                            .move(16.66, 0)
+                            .rect(12, 9.5)
+                            .cutBlind(-10))
+
+    return placeholder
+
+
 def generate_placeholder(device_name, width, depth, height):
     """
     Generates a generalized placeholder object for a device.
@@ -252,6 +304,8 @@ def generate_placeholder(device_name, width, depth, height):
         placeholder = generate_hdd(device_name, width, depth, height)
     elif "ssd" in device_name.lower():
         placeholder = generate_ssd(device_name, width, depth, height)
+    elif "unifi" in device_name.lower() and "express" in device_name.lower():
+        placeholder = generate_unifi_express(device_name, width, depth, height)
     else:
         # The overall shape
         placeholder = generate_generic(device_name, width, depth, height, smallest_dim)
