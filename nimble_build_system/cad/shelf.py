@@ -168,6 +168,11 @@ class Shelf():
         else:
             device_height = self._device.height
 
+        # Handle devices that are too wide and must be inserted length-wise
+        internal_width = self._device.width
+        if self._device.width > 100.0 and self._device.depth < 100.0:
+            internal_width = self._device.depth
+
         self._device_offset = (x_offset, y_offset, device_height / 2.0 + 2.0)
         self._device_explode_translation = (0, 0, 50)
 
@@ -180,7 +185,7 @@ class Shelf():
                   axis="-X",
                   length=300,
                   wrapped_height=device_height + 2.0 + self._rack_params.tray_bottom_thickness,
-                  wrapped_width=115.0 - self._rack_params.tray_side_wall_thickness),
+                  wrapped_width=internal_width + 12.0),
             Ziptie(name=None,
                   position=(0, 86.25, 1.0),
                   explode_translation=(0.0, 0.0, -40.0),
@@ -189,7 +194,7 @@ class Shelf():
                   axis="-X",
                   length=300,
                   wrapped_height=device_height + 2.0 + self._rack_params.tray_bottom_thickness,
-                  wrapped_width=115.0 - self._rack_params.tray_side_wall_thickness),
+                  wrapped_width=internal_width + 12.0),
         ]
         self._renders = {"assembled":
                              {"order": 1,
@@ -397,11 +402,16 @@ class Shelf():
         """
         Generates the shelf model only.
         """
+        # If the device is too wide to fit in the rack but the depth is not, it must be inserted length-wise
+        internal_width = self._device.width
+        if self._device.width > 100.0 and self._device.depth < 100.0:
+            internal_width = self._device.depth
+
         # Generate the shelf model, but do not generate if it has been generated already.
         if self._shelf_model is None:
             shelf = ziptie_shelf(self.height_in_u,
                                  internal_height=self._device.height,
-                                 internal_width=self._device.width)
+                                 internal_width=internal_width)
             self._shelf_model = shelf
 
         return self._shelf_model
