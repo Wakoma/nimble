@@ -233,7 +233,7 @@ def generate_ssd(device_name, width, depth, height):
     return placeholder
 
 
-def generate_unifi_express(device_name, width, depth, height):
+def generate_unifi_express(width, depth, height):
     """
     Generates a model for the UniFi Express device.
     """
@@ -305,7 +305,7 @@ def generate_placeholder(device_name, width, depth, height):
     elif "ssd" in device_name.lower():
         placeholder = generate_ssd(device_name, width, depth, height)
     elif "unifi" in device_name.lower() and "express" in device_name.lower():
-        placeholder = generate_unifi_express(device_name, width, depth, height)
+        placeholder = generate_unifi_express(width, depth, height)
     else:
         # The overall shape
         placeholder = generate_generic(device_name, width, depth, height, smallest_dim)
