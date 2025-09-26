@@ -294,7 +294,7 @@ def generate_placeholder(device_name, width, depth, height):
     smallest_dim = min(width, depth, height)
 
     # Sometimes there will be a non-generic placeholder that we can use
-    if "raspberry" in device_name.lower() and "4b" in device_name.lower():
+    if "raspberry" in device_name.lower() and ("4b" in device_name.lower() or "5" in device_name.lower()):
         # The overall shape
         placeholder = generate_raspberry_pi_4b(device_name)
     elif "nuc" in device_name.lower():
