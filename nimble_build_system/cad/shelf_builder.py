@@ -613,6 +613,10 @@ def ziptie_shelf(
         internal_depth = 115
     if not internal_height:
         internal_height = rack_params.tray_height(height_in_u) - 3
+    else:
+        # Do not raise the internal height of the shelf to fit the device
+        if internal_height > rack_params.tray_height(height_in_u) - 3:
+            internal_height = rack_params.tray_height(height_in_u) - 3
     if not rear_cutout_width:
         front_cutout_width = internal_width - 10
     if not rear_cutout_width:

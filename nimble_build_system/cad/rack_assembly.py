@@ -418,7 +418,7 @@ class RackAssembly:
         """
         for j in range(4):
             # Figure out what the height of the shelf is
-            shelf_height = shelf["component"].toCompound().BoundingBox().zlen
+            shelf_height = shelf["component"].toCompound().faces(">X").BoundingBox().zlen
 
             # Offset the screws to each side of the rack
             x_mult = 1
