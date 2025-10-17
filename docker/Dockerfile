@@ -20,13 +20,13 @@ RUN pip install --upgrade pip
 RUN pip install pytest pylint
 
 WORKDIR /app
-RUN git clone https://github.com/Wakoma/nimble.git --branch alpha
+RUN git clone https://github.com/Wakoma/nimble.git --branch master
 
 WORKDIR /app/nimble
 RUN pip install -e .
 
 WORKDIR /app
-RUN git clone https://gitlab.com/gitbuilding/cadorchestrator.git --branch server_hotfix_01
+RUN git clone https://gitlab.com/gitbuilding/cadorchestrator.git --branch master
 
 WORKDIR /app/cadorchestrator/js/cadorchestrator-app
 RUN bun install && \
@@ -34,10 +34,6 @@ RUN bun install && \
 
 WORKDIR /app/cadorchestrator
 RUN pip install -e .
-
-
-ARG NOCODB_TOKEN
-ENV NOCODB_TOKEN=${NOCODB_TOKEN}
 
 WORKDIR /app/nimble
 RUN Xvfb :98 -screen 0 1024x768x24 & \
@@ -47,8 +43,7 @@ RUN Xvfb :98 -screen 0 1024x768x24 & \
 RUN rm -rf build _cache_ _gb_temp_ && \
     rm OrchestratorConfigOptions.json devices.json
 
-RUN nimble_devices_updater && \
-    gen_nimble_conf_options
+RUN gen_nimble_conf_options
 
 RUN pip freeze -l > requirements_inbuild.txt
 
