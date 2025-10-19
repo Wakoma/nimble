@@ -318,14 +318,14 @@ Make:
 
 {{BOM}}
 
-[M4x10mm countersunk screws]: parts/Hardware.yaml#CskScrew_M4x10mm_SS
+[M5x10mm countersunk screws]: parts/Hardware.yaml#CskScrew_M5x10mm_SS
 [M4x10mm button head screws]: parts/Hardware.yaml#ButtonScrew_M4x10mm_SS
 
 ## Attach the legs to the base plate {pagestep}
 
 * Get the [base plate]{make, qty:1, cat:printed} and the four [rack legs]{make, qty:4, cat:printed} that you printed earlier.
-* Get a [3mm Allen key](parts/metric_allen_keys.md){qty:1, cat:tool} ready
-* Use four [M4x10mm countersunk screws]{qty:4} to attach a leg to each corner of the bottom.
+* Get a [4mm Allen key](parts/metric_allen_keys.md){qty:1, cat:tool} ready
+* Use four [M5x10mm countersunk screws]{qty:4} to attach a leg to each corner of the bottom.
 
 ![Exploded assembly of base and legs](../build/renders/final_assembly_base_and_legs_annotated.png)
 ![Assembly of base and legs](../build/renders/final_assembly_base_and_legs_assembled.png)
@@ -336,7 +336,7 @@ RACK_TOPPLATE_ASSEMBLY = """
 ## Mount the top plate {pagestep}
 
 * Take the [top plate]{make, qty:1, cat:printed} and place it on top of the rack.
-* Use four [M4x10mm countersunk screws]{qty:4} to attach the shelf to the four legs of the rack
+* Use four [M5x10mm countersunk screws]{qty:4} to attach the top to the four legs of the rack
 
 ![Exploded assembly of top plate](../build/renders/final_assembly_topplate_annotated.png)
 ![Exploded assembly of top plate](../build/renders/final_assembly_topplate_assembled.png)
