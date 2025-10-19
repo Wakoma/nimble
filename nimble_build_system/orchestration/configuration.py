@@ -7,7 +7,7 @@ the a class for generating a full cofiguration for a nimble rack `NimbleConfigur
 import os
 from copy import deepcopy
 import posixpath
-import logging
+
 
 from cadorchestrator.components import (GeneratedMechanicalComponent,
                                         AssembledComponent,
@@ -16,6 +16,8 @@ from cadorchestrator.components import (GeneratedMechanicalComponent,
 from nimble_build_system.cad import RackParameters
 from nimble_build_system.cad.shelf import create_shelf_for
 from nimble_build_system.orchestration.paths import REL_MECH_DIR
+
+
 
 def create_assembly(config_dict):
     """Function uses device id list for nimble configuration assembly."""
@@ -106,8 +108,6 @@ class NimbleConfiguration:
         return md
 
     def _inserting_shelf_docs(self):
-        logging.info("-"*10)
-
         broad_shelf_mds = []
         std_shelf_mds = []
         for i, shelf in enumerate(self._shelves):
@@ -137,7 +137,6 @@ class NimbleConfiguration:
         """
         Return the devices in this configuration as a list of Device objects
         """
-
         return [shelf.device for shelf in self._shelves]
 
 

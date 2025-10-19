@@ -35,6 +35,10 @@ RUN bun install && \
 WORKDIR /app/cadorchestrator
 RUN pip install -e .
 
+
+ARG NOCODB_TOKEN
+ENV NOCODB_TOKEN=${NOCODB_TOKEN}
+
 WORKDIR /app/nimble
 RUN Xvfb :98 -screen 0 1024x768x24 & \
     export DISPLAY=:98 && \
@@ -43,7 +47,8 @@ RUN Xvfb :98 -screen 0 1024x768x24 & \
 RUN rm -rf build _cache_ _gb_temp_ && \
     rm OrchestratorConfigOptions.json devices.json
 
-RUN gen_nimble_conf_options
+RUN nimble_devices_updater && \
+    gen_nimble_conf_options
 
 RUN pip freeze -l > requirements_inbuild.txt
 
