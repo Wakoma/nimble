@@ -10,7 +10,7 @@ import os
 import json
 import logging
 import tempfile
-from cadorchestrator.generate import Generator as NimbleGenerator
+from cadorchestrator.generate import Generator
 from cadorchestrator.settings import Settings
 from nimble_build_system.orchestration.paths import ABS_PATH
 from nimble_build_system.cad.shelf import create_shelf_for
@@ -31,7 +31,7 @@ def main():
     """
 
     components = get_component_list()
-    NimbleGenerator(components, Settings(), BUILD_DIR)
+    Generator.run(components, Settings(), BUILD_DIR)
     output_static_site(components['components'])
 
 
