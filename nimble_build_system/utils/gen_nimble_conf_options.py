@@ -33,10 +33,10 @@ def main():
         try:
             update_devices_json()
             print("devices.json updated successfully.")
-        except Exception as e:
+        except RuntimeError as e:
             print(f"Failed to update devices.json: {e}")
         sys.exit(1)
-    
+
     usage()
 
     # Write the JSON data to a file.
@@ -68,11 +68,11 @@ def main():
         # fixing big boxes with render issues.
         allowed = ['6in']
         print("Allowed device sizes: ",allowed)
-        
+
         for dev in allowed:
-            if dev in device['Rack'] != dev:
+            if device['Rack'] != dev:
                 continue
-        
+
         item = {'value': device['ID'],
                 'name': device['Brand']+" "+device['Hardware']}
         if device['Type'] in ["Access Point", "Router + AP"]:
@@ -114,7 +114,8 @@ def main():
         }
     ]}
 
-    print(f"Generated config options for {len(access_points)+len(routers)+len(servers)+len(switches)} devices.")
+    print(f"Generated config options for \
+          {len(access_points)+len(routers)+len(servers)+len(switches)} devices.")
 
     with open('OrchestratorConfigOptions.json', 'w', encoding="utf-8") as conf_file:
         json.dump(conf_dict, conf_file)
