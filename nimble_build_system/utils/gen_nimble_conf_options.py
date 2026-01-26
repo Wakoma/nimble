@@ -8,15 +8,18 @@ import os
 import sys
 import json
 import re
+from nimble_devices_updater import main as update_devices_json
+
 
 def usage():
     """
     Prints a usage message for this utility.
     """
+    print("gen_nimble_conf_options")
     print("This utility exists to generate config options for CadOrchestrator")
     print("using devices.json")
     print("Usage:")
-    print("    gen_nimble_conf_options")
+
 
 def main():
     """
@@ -26,10 +29,21 @@ def main():
 
     if not os.path.exists('devices.json'):
         print("Error. devices.json not found")
+        print("Attempting to update devices.json from remote source...")
+        try:
+            update_devices_json()
+            print("devices.json updated successfully.")
+        except Exception as e:
+            print(f"Failed to update devices.json: {e}")
         sys.exit(1)
-    # Write the JSON data to file
+    
+    usage()
+
+    # Write the JSON data to a file.
     with open('devices.json', 'r', encoding="utf-8") as dev_file:
         devices = json.load(dev_file)
+
+
 
     access_points = []
     routers = []
@@ -52,10 +66,13 @@ def main():
 
         # Added If statement filtering only '6 in' Rack label items,
         # fixing big boxes with render issues.
-        if device['Rack'] != '6 in':
-            # This avois placing Racks different by '6 in' in the devices.json
-            continue
-
+        allowed = ['6in']
+        print("Allowed device sizes: ",allowed)
+        
+        for dev in allowed:
+            if dev in device['Rack'] != dev:
+                continue
+        
         item = {'value': device['ID'],
                 'name': device['Brand']+" "+device['Hardware']}
         if device['Type'] in ["Access Point", "Router + AP"]:
@@ -97,9 +114,12 @@ def main():
         }
     ]}
 
+    print(f"Generated config options for {len(access_points)+len(routers)+len(servers)+len(switches)} devices.")
+
     with open('OrchestratorConfigOptions.json', 'w', encoding="utf-8") as conf_file:
         json.dump(conf_dict, conf_file)
 
+    print("Wrote OrchestratorConfigOptions.json")
 
 def shelf_available(device):
     """
