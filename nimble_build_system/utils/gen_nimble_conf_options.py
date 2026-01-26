@@ -8,7 +8,7 @@ import os
 import sys
 import json
 import re
-from nimble_devices_updater import main as update_devices_json
+from .nimble_devices_updater import main as update_devices_json
 
 
 def usage():
