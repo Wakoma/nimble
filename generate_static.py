@@ -16,7 +16,7 @@ from nimble_build_system.orchestration.paths import ABS_PATH
 from nimble_build_system.cad.shelf import create_shelf_for
 
 
-BUILD_DIR = ABS_PATH 
+BUILD_DIR = ABS_PATH
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -24,18 +24,18 @@ logging.basicConfig(
     force=True)
 
 
-def Main():
+def main():
     """
     Main script function. Gets a list of printed components (legs and shelves)
     and uses the orchestration runner to build them
     """
 
-    components = GetComponentList()
-    Generator(components, Settings(), BUILD_DIR)
-    OutputStaticSite(components['components'])
+    components = get_component_list()
+    Generator.run(components, Settings(), BUILD_DIR)
+    output_static_site(components['components'])
 
 
-def TempDir():
+def temp_dir():
     """
     Creates a directory under temporary file system:
         in Linux at: "/tmp/"
@@ -51,7 +51,7 @@ def TempDir():
     return location
 
 
-def GetComponentList():
+def get_component_list():
     """
     Generate the component list. This is 4 types of legs and some
     shelves
@@ -74,7 +74,7 @@ def GetComponentList():
     return {'device-ids':component_list, 'components':components}
 
 
-def OutputStaticSite(components):
+def output_static_site(components):
     """
     Create a sumple web page (index.html) with links to all generated files
     """
@@ -120,4 +120,4 @@ def OutputStaticSite(components):
 
 
 if __name__ == "__main__":
-    Main()
+    main()

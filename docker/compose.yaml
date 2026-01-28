@@ -21,6 +21,7 @@ services:
       - web
 
   nimble_cadorch_server:
+    build: .
     image: nimble_cadorch_server:latest   # your image
     container_name: nimble_cadorch_server
     restart: unless-stopped
